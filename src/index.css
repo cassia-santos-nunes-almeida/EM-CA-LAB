@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Engineering Blue — primary brand (M1 canonical + 950 shade) */
+  --color-engineering-blue-50: #eff6ff;
+  --color-engineering-blue-100: #dbeafe;
+  --color-engineering-blue-200: #bfdbfe;
+  --color-engineering-blue-300: #93c5fd;
+  --color-engineering-blue-400: #60a5fa;
+  --color-engineering-blue-500: #3b82f6;
+  --color-engineering-blue-600: #2563eb;
+  --color-engineering-blue-700: #1d4ed8;
+  --color-engineering-blue-800: #1e40af;
+  --color-engineering-blue-900: #1e3a8a;
+  --color-engineering-blue-950: #172554;
+
+  /* Physics domain colors (M1 canonical) */
+  --color-e-field: #dc2626;
+  --color-b-field: #2563eb;
+  --color-current: #d97706;
+  --color-power: #9333ea;
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  margin: 0;
+}
+
+.dark body {
+  @apply bg-slate-900 text-slate-100;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  @apply absolute -top-10 left-4 z-[100] rounded-b-lg bg-engineering-blue-600 px-4 py-2 text-white transition-all focus:top-0;
+}
+
+/* Custom scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* KaTeX dark mode — ensure math symbols inherit text color */
+.dark .katex,
+.dark .katex .mord,
+.dark .katex .mbin,
+.dark .katex .mrel,
+.dark .katex .mopen,
+.dark .katex .mclose,
+.dark .katex .mpunct,
+.dark .katex .minner,
+.dark .katex .mop,
+.dark .katex .mathnormal,
+.dark .katex .mathit {
+  color: inherit;
+}
+
+/* Canvas crisp rendering */
+canvas {
+  image-rendering: auto;
+}
+
+/* Inline code */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background-color: rgb(241 245 249);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: rgb(29 78 216);
+}
+
+.dark code {
+  background-color: rgb(30 41 59);
+  color: rgb(147 197 253);
+}
+
+/* Fade-in animation for tab/page content transitions */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 150ms ease-out;
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: rgb(203 213 225);
+  outline: none;
+}
+
+.dark input[type="range"] {
+  background: rgb(71 85 105);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid currentColor;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid currentColor;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.05);
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  transform: scale(1.05);
+}
+
+main {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: inherit;
+}

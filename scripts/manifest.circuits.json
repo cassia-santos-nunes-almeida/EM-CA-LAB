@@ -1,0 +1,247 @@
+[
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/AiTutor.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/AiTutor.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/ChallengeCard.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/ChallengeCard.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/CircuitCharts.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/CircuitCharts.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/CircuitParameterSliders.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/CircuitParameterSliders.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/CollapsibleSection.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/CollapsibleSection.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/ConceptCheck.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/ConceptCheck.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/FigureImage.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/FigureImage.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/GuidedChallenge.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/GuidedChallenge.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/MathWrapper.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/MathWrapper.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/ModuleNavigation.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/ModuleNavigation.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/PredictionGate.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/PredictionGate.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/SectionHook.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/SectionHook.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/TableOfContents.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/TableOfContents.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/Tabs.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/common/Tabs.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/common/YourTurnPanel.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/YourTurnPanel.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/layout/ErrorBoundary.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/layout/ErrorBoundary.tsx",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/layout/Layout.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/layout/Layout.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/layout/Sidebar.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/layout/Sidebar.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/CircuitAnalysisExercise.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/CircuitAnalysisExercise.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/ComponentPhysics/CapacitorSection.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/ComponentPhysics/CapacitorSection.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/ComponentPhysics/ComponentSectionLayout.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/ComponentPhysics/ComponentSectionLayout.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/ComponentPhysics/index.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/ComponentPhysics/index.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/ComponentPhysics/InductorSection.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/ComponentPhysics/InductorSection.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/ComponentPhysics/ResistorSection.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/ComponentPhysics/ResistorSection.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/InteractiveLab/challenges.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/InteractiveLab/challenges.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/InteractiveLab/CircuitDiagram.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/InteractiveLab/CircuitDiagram.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/InteractiveLab/index.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/InteractiveLab/index.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/InteractiveLab/SDomainPanel.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/InteractiveLab/SDomainPanel.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/LaplaceMotivation.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/LaplaceMotivation.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/LaplaceTheory.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/LaplaceTheory.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/Overview.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/Overview.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/SDomainAnalysis.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/SDomainAnalysis.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/TimeDomain/CircuitComparisonLayout.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/TimeDomain/CircuitComparisonLayout.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/TimeDomain/index.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/TimeDomain/index.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/TimeDomain/MethodComparisonTable.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/TimeDomain/MethodComparisonTable.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/modules/TimeDomain/ResponseComparisons.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/modules/TimeDomain/ResponseComparisons.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/ChallengeCard.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/__tests__/ChallengeCard.test.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/CollapsibleSection.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/__tests__/CollapsibleSection.test.tsx",
+    "copy": true
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/ConceptCheck.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/__tests__/ConceptCheck.test.tsx",
+    "copy": true
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/GuidedChallenge.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/components/common/__tests__/GuidedChallenge.test.tsx",
+    "copy": true
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/ModuleNavigation.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/__tests__/ModuleNavigation.test.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/pages.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/__tests__/pages.test.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/components/__tests__/Tabs.test.tsx",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/components/__tests__/Tabs.test.tsx"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/constants/modules.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/constants/modules.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/useAnalytics.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/hooks/useAnalytics.ts",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/useChartExport.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/hooks/useChartExport.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/useOnlineStatus.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/hooks/useOnlineStatus.ts",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/useShareableParams.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/hooks/useShareableParams.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/__tests__/useChartExport.test.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/hooks/__tests__/useChartExport.test.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/hooks/__tests__/useShareableParams.test.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/hooks/__tests__/useShareableParams.test.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/store/progressStore.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/store/progressStore.ts",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/types/circuit.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/types/circuit.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/utils/circuitSolver.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/utils/circuitSolver.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/utils/cn.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/shared/utils/cn.ts",
+    "copy": false
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/utils/componentMath.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/utils/componentMath.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/utils/__tests__/circuitSolver.test.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/utils/__tests__/circuitSolver.test.ts"
+  },
+  {
+    "src": "C:/Users/cassi/Documents/GitHub/EM-AC-Lab-Module2/src/utils/__tests__/componentMath.test.ts",
+    "dest": "C:/Users/cassi/Documents/GitHub/EM-CA-LAB/src/circuits/utils/__tests__/componentMath.test.ts"
+  }
+]
