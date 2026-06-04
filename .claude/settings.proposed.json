@@ -1,0 +1,46 @@
+{
+  "_note": "PROPOSED settings — NOT active. Claude Code only loads .claude/settings.json (and settings.local.json), so this file does nothing until you review it and rename it to settings.json. It mirrors EM-AC-Lab-Module1/.claude/settings.json, retargeted to C:\\ paths and the EM-CA-LAB project. Writing it as settings.json directly was blocked by the auto-mode safety classifier (a settings file that auto-runs bash hooks needs explicit user consent). Verify the my-claude-skills script paths exist before activating.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/cassi/Documents/GitHub/my-claude-skills/scripts/sync-to-projects.sh EM-CA-LAB 2>&1 || echo '[SYNC WARNING] Skill sync failed or timed out. Skills may be outdated. Run manually: bash C:/Users/cassi/Documents/GitHub/my-claude-skills/scripts/sync-to-projects.sh EM-CA-LAB'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/cassi/Documents/GitHub/my-claude-skills/scripts/check-skill-edit.sh",
+            "if": "Write(.claude/skill/**)|Edit(.claude/skill/**)"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/Users/cassi/Documents/GitHub/my-claude-skills/scripts/validate-structured-file.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "mcp__claude_ai_Consensus__search",
+      "mcp__claude_ai_Scholar_Gateway__semanticSearch",
+      "mcp__claude_ai_academic-research-mcp__*"
+    ]
+  }
+}
