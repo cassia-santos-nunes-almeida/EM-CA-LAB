@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BookOpen, Activity, GraduationCap } from 'lucide-react';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -13,7 +14,7 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { LadderAnimation } from '@transmission/components/simulations/LadderAnimation';
 
 /**
- * Section 2 page: Lumped to Distributed.
+ * Section 5.1 page: Lumped to Distributed.
  *
  * Covers the LC ladder network, its progressive subdivision into a continuous
  * transmission line, and the derivation of the telegrapher's equations from
@@ -44,10 +45,10 @@ export function LumpedDistributed() {
     <div className="space-y-10">
       {/* ── Page header ────────────────────────────────────────────── */}
       <div>
-        <p className="text-sm font-medium text-engineering-blue-600 dark:text-engineering-blue-400 mb-1">
-          Section 2
-        </p>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('lumped-distributed')}
+          </span>
           From Lumped Circuits to Distributed Systems
         </h1>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
@@ -63,10 +64,10 @@ export function LumpedDistributed() {
           icon: <BookOpen className="w-4 h-4" />,
           content: (
             <div className="space-y-10">
-      {/* ── 2.1 — The ladder network ──────────────────────────────── */}
+      {/* ── The ladder network ────────────────────────────────────── */}
       <section className="space-y-5">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          2.1 &mdash; The Ladder Network
+          The Ladder Network
         </h2>
 
         <SectionHook
@@ -157,10 +158,10 @@ export function LumpedDistributed() {
         </div>
       </section>
 
-      {/* ── 2.3 — Telegrapher's equations ─────────────────────────── */}
+      {/* ── Telegrapher's equations ───────────────────────────────── */}
       <section className="space-y-5">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          2.3 &mdash; Telegrapher&rsquo;s Equations (Derivation Sketch)
+          Telegrapher&rsquo;s Equations (Derivation Sketch)
         </h2>
 
         <div className="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed space-y-4">
@@ -256,10 +257,10 @@ export function LumpedDistributed() {
           icon: <Activity className="w-4 h-4" />,
           content: (
             <div className="space-y-10">
-      {/* ── 2.2 — The ladder animation ────────────────────────────── */}
+      {/* ── The ladder animation ──────────────────────────────────── */}
       <section className="space-y-5">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          2.2 &mdash; The Ladder Animation
+          The Ladder Animation
         </h2>
 
         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">

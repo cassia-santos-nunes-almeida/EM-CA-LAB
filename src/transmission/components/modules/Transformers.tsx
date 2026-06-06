@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ArrowRight, BookOpen, Activity, GraduationCap } from 'lucide-react';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -13,7 +14,7 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { CoupledCoilsSim } from '@transmission/components/simulations/CoupledCoilsSim';
 
 /**
- * Section 1 page component: Transformers.
+ * Section 3.4 page component: Transformers.
  *
  * Covers coupling coefficient, dot convention, ideal transformer analysis,
  * and an interactive coupled-coils simulation.
@@ -43,10 +44,10 @@ export function Transformers() {
     <div className="space-y-10">
       {/* Page header */}
       <div>
-        <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-widest mb-1">
-          Section 1
-        </p>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('transformers')}
+          </span>
           Transformers &amp; Coupled Coils
         </h1>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
@@ -83,11 +84,11 @@ export function Transformers() {
       </div>
 
       {/* ────────────────────────────────────────────────────────── */}
-      {/* 1.1 Coupling Coefficient & Dot Convention                */}
+      {/* Coupling Coefficient & Dot Convention                    */}
       {/* ────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          1.1 &mdash; Coupling Coefficient &amp; Dot Convention
+          Coupling Coefficient &amp; Dot Convention
         </h2>
 
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -241,11 +242,11 @@ export function Transformers() {
 
 
       {/* ────────────────────────────────────────────────────────── */}
-      {/* 1.2 Ideal Transformer                                    */}
+      {/* Ideal Transformer                                        */}
       {/* ────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          1.2 &mdash; Ideal Transformer
+          Ideal Transformer
         </h2>
 
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -391,11 +392,11 @@ export function Transformers() {
             <div className="space-y-10">
 
       {/* ────────────────────────────────────────────────────────── */}
-      {/* 1.3 Coupled Coils Simulation                             */}
+      {/* Coupled Coils Simulation                                 */}
       {/* ────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          1.3 &mdash; Coupled Coils Simulation
+          Coupled Coils Simulation
         </h2>
 
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">

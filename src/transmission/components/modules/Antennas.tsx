@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Radio, Wifi, Satellite, Smartphone, Tv, BookOpen, Activity, GraduationCap } from 'lucide-react';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -98,12 +99,15 @@ export function Antennas() {
           <Radio className="w-5 h-5 text-engineering-blue-600 dark:text-engineering-blue-400" />
         </div>
         <div>
-          <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-wide">
-            Section 5.1
-          </p>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+            <span className="font-mono text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+              {getSectionNumber('antennas')}
+            </span>
+            Antennas
+          </h1>
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
             From Transmission Line to Antenna
-          </h2>
+          </p>
         </div>
       </div>
 
@@ -208,13 +212,10 @@ export function Antennas() {
 
 
       {/* ═══════════════════════════════════════════════════════════════
-          Section 5.3 — Near field vs far field
+          Near field vs far field
           ═══════════════════════════════════════════════════════════════ */}
       <section id="near-far-field" className="space-y-5 scroll-mt-20">
         <div>
-          <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-wide">
-            Section 5.3
-          </p>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Near Field vs. Far Field
           </h2>
@@ -295,13 +296,10 @@ export function Antennas() {
 
 
       {/* ═══════════════════════════════════════════════════════════════
-          Section 5.4 — Practical antennas (concept cards)
+          Practical antennas (concept cards)
           ═══════════════════════════════════════════════════════════════ */}
       <section id="practical-antennas" className="space-y-5 scroll-mt-20">
         <div>
-          <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-wide">
-            Section 5.4
-          </p>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Practical Antennas
           </h2>
@@ -371,13 +369,10 @@ export function Antennas() {
           content: (
             <div className="space-y-10">
       {/* ═══════════════════════════════════════════════════════════════
-          Section 5.2 — Radiation pattern simulation
+          Radiation pattern simulation
           ═══════════════════════════════════════════════════════════════ */}
       <section className="space-y-5">
         <div>
-          <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-wide">
-            Section 5.2
-          </p>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Radiation Pattern Simulation
           </h2>
@@ -514,13 +509,10 @@ export function Antennas() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          Section 6 — Module Close: "The loop closes"
+          Module Close: "The loop closes"
           ═══════════════════════════════════════════════════════════════ */}
       <section className="space-y-6">
         <div>
-          <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-wide">
-            Section 6
-          </p>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Module Close: The Loop Closes
           </h2>

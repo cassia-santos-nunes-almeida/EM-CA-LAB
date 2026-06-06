@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FlaskConical } from 'lucide-react';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -18,7 +19,7 @@ import { StandingWaveQuiz } from '@transmission/components/simulations/StandingW
 import { SmithChartSim } from '@transmission/components/simulations/SmithChartSim';
 
 /**
- * Section 3 page: Transmission Lines.
+ * Section 5.2 page: Transmission Lines.
  *
  * Virtual-lab layout: the section is chaptered into TabSet panels (one
  * digestible chunk each). Theory-only chapters render full width; lab chapters
@@ -61,12 +62,12 @@ export function TransmissionLines() {
   const onPredict = (correct: boolean) => markPredictionGate('transmission-lines', correct);
 
   /* ================================================================
-     3.1 — Characteristic impedance (theory only, full width)
+     Characteristic impedance (theory only, full width)
      ================================================================ */
   const impedanceTheory = (
     <section className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-        3.1 &mdash; Characteristic Impedance
+        Characteristic Impedance
       </h2>
 
       <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -134,12 +135,12 @@ export function TransmissionLines() {
   );
 
   /* ================================================================
-     3.2 — Reflections & Standing Waves (lab)
+     Reflections & Standing Waves (lab)
      ================================================================ */
   const reflectionsTheory = (
     <section className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-        3.2 &mdash; Reflections &amp; Standing Waves
+        Reflections &amp; Standing Waves
       </h2>
 
       <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -215,7 +216,6 @@ export function TransmissionLines() {
 
   const reflectionsBench = (
     <LabStation
-      number="3.2"
       title="Reflections & Standing Waves"
       objective="Sweep the load impedance through matched, mismatched, open, and short conditions and watch the incident, reflected, and total waves respond in real time."
     >
@@ -250,12 +250,12 @@ export function TransmissionLines() {
   );
 
   /* ================================================================
-     3.3 — The Smith Chart (lab)
+     The Smith Chart (lab)
      ================================================================ */
   const smithTheory = (
     <section className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-        3.3 &mdash; The Smith Chart
+        The Smith Chart
       </h2>
 
       <FigureImage
@@ -332,7 +332,6 @@ export function TransmissionLines() {
   const smithBench = (
     <LabStation
       id="smith-chart"
-      number="3.3"
       title="The Smith Chart"
       objective="Place any complex load on the chart and read off Γ, VSWR, and the normalized impedance — the working tool of every RF bench."
     >
@@ -366,12 +365,12 @@ export function TransmissionLines() {
   );
 
   /* ================================================================
-     3.4 — Inverse problem: standing-wave quiz (lab)
+     Inverse problem: standing-wave quiz (lab)
      ================================================================ */
   const inverseTheory = (
     <section className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-        3.4 &mdash; Inverse Problem: Identifying Terminations
+        Inverse Problem: Identifying Terminations
       </h2>
 
       <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -413,7 +412,6 @@ export function TransmissionLines() {
 
   const inverseBench = (
     <LabStation
-      number="3.4"
       title="Inverse Problem: Identifying Terminations"
       objective="Work backwards like a bench engineer: read a measured standing-wave envelope and deduce the load that produced it."
     >
@@ -449,10 +447,10 @@ export function TransmissionLines() {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <p className="text-xs font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 uppercase tracking-widest mb-1">
-          Section 3
-        </p>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <span className="font-mono text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('transmission-lines')}
+          </span>
           Transmission Lines
         </h1>
       </div>
@@ -462,21 +460,21 @@ export function TransmissionLines() {
       <TabSet
         tabs={[
           {
-            label: '3.1 · Impedance',
+            label: 'Impedance',
             content: impedanceTheory,
           },
           {
-            label: '3.2 · Reflections',
+            label: 'Reflections',
             icon: flaskIcon,
             content: <LabLayout theory={reflectionsTheory} bench={reflectionsBench} />,
           },
           {
-            label: '3.3 · Smith Chart',
+            label: 'Smith Chart',
             icon: flaskIcon,
             content: <LabLayout theory={smithTheory} bench={smithBench} />,
           },
           {
-            label: '3.4 · Inverse',
+            label: 'Inverse',
             icon: flaskIcon,
             content: <LabLayout theory={inverseTheory} bench={inverseBench} />,
           },

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BookOpen, Activity, GraduationCap } from 'lucide-react';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -14,7 +15,7 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { BounceDiagram } from '@transmission/components/simulations/BounceDiagram';
 
 /**
- * Section 4: Transients on Transmission Lines.
+ * Section 5.3: Transients on Transmission Lines.
  *
  * Covers step response, bounce diagrams, and the bridge to antennas.
  * Includes an interactive bounce diagram simulation, prediction gates,
@@ -45,8 +46,12 @@ export function Transients() {
     <div className="space-y-8">
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <div className="bg-gradient-to-br from-engineering-blue-600 to-engineering-blue-800 rounded-2xl p-8 text-white">
-        <p className="text-engineering-blue-200 text-sm font-medium">Section 4</p>
-        <h1 className="text-3xl font-bold mt-1">Transients on Transmission Lines</h1>
+        <h1 className="text-3xl font-bold">
+          <span className="font-mono text-white/80 mr-2">
+            {getSectionNumber('transients')}
+          </span>
+          Transients on Transmission Lines
+        </h1>
         <p className="text-engineering-blue-100 leading-relaxed mt-3 max-w-3xl">
           When a voltage step is launched onto a transmission line, it doesn't just arrive at the
           load and stop. It reflects, bounces back, reflects again, and gradually settles to a
@@ -87,11 +92,11 @@ export function Transients() {
         />
       </div>
 
-      {/* ── 4.1 Step Response ────────────────────────────────────── */}
+      {/* ── Step Response ────────────────────────────────────────── */}
 
       <section className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 space-y-4">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-          4.1 &mdash; Step Response on a Transmission Line
+          Step Response on a Transmission Line
         </h2>
 
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -173,10 +178,10 @@ export function Transients() {
 
       </section>
 
-      {/* ── 4.3 Bridge to Antennas ───────────────────────────────── */}
+      {/* ── Bridge to Antennas ───────────────────────────────────── */}
       <section className="bg-gradient-to-r from-engineering-blue-50 to-blue-50 dark:from-engineering-blue-900/20 dark:to-blue-900/20 border border-engineering-blue-200 dark:border-engineering-blue-800 rounded-xl p-6">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">
-          4.3 &mdash; Bridge to Antennas
+          Bridge to Antennas
         </h2>
         <div className="flex gap-3">
           <div className="shrink-0 mt-1">
@@ -205,11 +210,11 @@ export function Transients() {
           icon: <Activity className="w-4 h-4" />,
           content: (
             <div className="space-y-10">
-      {/* ── 4.2 Bounce Diagram Builder ───────────────────────────── */}
+      {/* ── Bounce Diagram Builder ───────────────────────────────── */}
       <section className="space-y-6">
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-            4.2 &mdash; Bounce Diagram Builder
+            Bounce Diagram Builder
           </h2>
 
           <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
