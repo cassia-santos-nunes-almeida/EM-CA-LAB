@@ -4,6 +4,7 @@ import { TableOfContents } from '@shared/components/common/TableOfContents';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { useProgressStore } from '@shared/store/progressStore';
 import { MODULES } from '@em/constants/physics';
+import { getSectionNumber } from '@shared/constants/curriculum';
 
 interface TocEntry {
   id: string;
@@ -57,7 +58,14 @@ export function SectionLayout({
 
       {heading && (
         <header>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">{heading}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+            {getSectionNumber(sectionId) && (
+              <span className="font-mono text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+                {getSectionNumber(sectionId)}
+              </span>
+            )}
+            {heading}
+          </h1>
           {sub && <p className="mt-1 text-slate-600 dark:text-slate-400">{sub}</p>}
         </header>
       )}
