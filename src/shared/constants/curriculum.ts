@@ -165,3 +165,12 @@ export function getAdjacentSections(currentId: string): {
 export function getExpectedChecks(sectionId: string): number {
   return SECTIONS[sectionId]?.expectedChecks ?? 0;
 }
+
+/** The course-wide "Part.Section" number for a section, derived from PARTS
+ *  order (e.g. transmission-lines → "5.2"). Empty string if not wired in.
+ *  Derived (not stored) so re-ordering the spine auto-renumbers everything. */
+export function getSectionNumber(sectionId: string): string {
+  const part = PARTS.find((p) => p.sectionIds.includes(sectionId));
+  if (!part) return '';
+  return `${part.number}.${part.sectionIds.indexOf(sectionId) + 1}`;
+}
