@@ -101,14 +101,14 @@ export function TransmissionLines() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/SMA_connector.jpg/500px-SMA_connector.jpg"
+          src={`${import.meta.env.BASE_URL}figures/sma-connector.jpg`}
           alt="SMA coaxial RF connector used in precision 50 Ω systems"
           caption="An SMA coaxial connector: a precision 50 Ω connector widely used in RF instrumentation to maintain characteristic impedance through the connection point."
           attribution="Wikimedia Commons"
           sourceUrl="https://commons.wikimedia.org/wiki/File:SMA_connector.jpg"
         />
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/RG-59.jpg/500px-RG-59.jpg"
+          src={`${import.meta.env.BASE_URL}figures/rg-59-coax.jpg`}
           alt="Cross-section of RG-59 75-ohm coaxial cable showing inner conductor and braided shield"
           caption="RG-59 coaxial cable (75 Ω): used for television and video. Compare its dimensions to a 50 Ω cable — the different Z₀ comes from the ratio of conductor diameters."
           attribution="FDominec, CC BY-SA 3.0 — Wikimedia Commons"

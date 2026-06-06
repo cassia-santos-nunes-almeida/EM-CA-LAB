@@ -68,7 +68,7 @@ export function Transformers() {
       {/* Real-world transformer images */}
       <div className="grid gap-4 sm:grid-cols-2">
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Transformer3d_col3.svg/500px-Transformer3d_col3.svg.png"
+          src={`${import.meta.env.BASE_URL}figures/iron-core-transformer.png`}
           alt="Cutaway diagram of an iron-core power transformer showing primary and secondary windings around a laminated core"
           caption="Iron-core power transformer: primary (red) and secondary (blue) windings share nearly all magnetic flux through the core, achieving k ≈ 0.95–0.99."
           attribution="BillC, CC BY-SA 3.0 — Wikimedia Commons"
@@ -118,7 +118,7 @@ export function Transformers() {
         </p>
 
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Toroidal_inductor.jpg/500px-Toroidal_inductor.jpg"
+          src={`${import.meta.env.BASE_URL}figures/toroidal-inductor.jpg`}
           alt="Toroidal air-core inductor coil used in RF circuits"
           caption="An air-core toroidal coil typical of RF applications. Without a ferromagnetic core, coupling between adjacent coils is much lower (k ≈ 0.1–0.5)."
           attribution="Eliashossain01, CC BY-SA 4.0 — Wikimedia Commons"

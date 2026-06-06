@@ -385,7 +385,7 @@ export function GaussSection() {
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Faraday_Cage.JPG/500px-Faraday_Cage.JPG"
+          src={`${import.meta.env.BASE_URL}figures/faraday-cage.jpg`}
           alt="Faraday cage demonstration showing electric field shielding"
           caption="A Faraday cage: Gauss's law explains why the electric field inside a closed conductor is zero."
           attribution="Amanjosan2008, CC BY-SA 4.0 — Wikimedia Commons"

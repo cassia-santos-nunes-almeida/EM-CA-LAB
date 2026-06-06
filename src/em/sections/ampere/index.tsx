@@ -377,7 +377,7 @@ export function AmpereSection() {
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Solenoid-1.png/500px-Solenoid-1.png"
+            src={`${import.meta.env.BASE_URL}figures/solenoid-field.png`}
             alt="Magnetic field lines around and through a solenoid"
             caption="Magnetic field of a solenoid: Ampere's law gives B = μ₀nI inside, nearly uniform and parallel to the axis."
             attribution="Geek3, CC BY-SA 3.0 — Wikimedia Commons"

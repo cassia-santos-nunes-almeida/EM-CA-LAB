@@ -22,7 +22,7 @@ function TheoryTab() {
     <div className="space-y-6">
       <FigureImage
         className="mb-6"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Asymptotic_Bode_plot.svg/500px-Asymptotic_Bode_plot.svg.png"
+        src={`${import.meta.env.BASE_URL}figures/bode-plot.png`}
         alt="Bode plot showing magnitude and phase response"
         caption="A Bode plot: frequency response directly derivable from the transfer function H(s)."
         attribution="Wikimedia Commons, Public Domain"

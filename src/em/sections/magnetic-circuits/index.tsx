@@ -369,7 +369,7 @@ export function MagneticCircuitsSection() {
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/IF_transformer.JPG/500px-IF_transformer.JPG"
+          src={`${import.meta.env.BASE_URL}figures/toroidal-transformer-ferrite.jpg`}
           alt="Toroidal transformer with copper windings on a ferrite core"
           caption="A toroidal transformer: the closed core confines nearly all magnetic flux, minimizing leakage."
           attribution="LoKiLeCh, CC BY-SA 3.0 — Wikimedia Commons"

@@ -1119,14 +1119,14 @@ export function EMWaveSection() {
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Very_Large_Array%2C_2012.jpg/500px-Very_Large_Array%2C_2012.jpg"
+            src={`${import.meta.env.BASE_URL}figures/very-large-array.jpg`}
             alt="Very Large Array radio telescope dishes in New Mexico"
             caption="The Very Large Array: 27 antennas detect electromagnetic waves from space."
             attribution="Hajor, CC BY-SA 2.0 — Wikimedia Commons"
             sourceUrl="https://commons.wikimedia.org/wiki/File:Very_Large_Array,_2012.jpg"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/EM_Spectrum_Properties_edit.svg/500px-EM_Spectrum_Properties_edit.svg.png"
+            src={`${import.meta.env.BASE_URL}figures/em-spectrum.png`}
             alt="Electromagnetic spectrum from radio waves to gamma rays"
             caption="The electromagnetic spectrum: all EM waves obey Maxwell's equations — they differ only in frequency and wavelength."
             attribution="Inductiveload/NASA, CC BY-SA 3.0 — Wikimedia Commons"

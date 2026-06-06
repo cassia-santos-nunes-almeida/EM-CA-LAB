@@ -73,14 +73,14 @@ export function ComponentPhysics() {
 
       <div className="grid gap-4 sm:grid-cols-3 mb-6">
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Resistors.jpg/500px-Resistors.jpg"
+          src={`${import.meta.env.BASE_URL}figures/resistors.jpg`}
           alt="Assorted through-hole resistors with color-coded bands"
           caption="Real resistors: the colored bands encode resistance values. Physical dimensions relate to R = ρL/A."
           attribution="Evan-Amos, Public Domain — Wikimedia Commons"
           sourceUrl="https://commons.wikimedia.org/wiki/File:Resistors.jpg"
         />
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Condensators.JPG/500px-Condensators.JPG"
+          src={`${import.meta.env.BASE_URL}figures/capacitors.jpg`}
           alt="Various types of capacitors including ceramic, electrolytic, and film"
           caption="Capacitor types: construction determines capacitance via C = εA/d."
           attribution="Eric Schrader, CC BY-SA 2.5 — Wikimedia Commons"

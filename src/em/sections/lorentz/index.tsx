@@ -434,7 +434,7 @@ export function LorentzSection() {
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Cyclotron_patent.png/500px-Cyclotron_patent.png"
+            src={`${import.meta.env.BASE_URL}figures/cyclotron-patent.png`}
             alt="Lawrence's original cyclotron patent diagram"
             caption="Lawrence's cyclotron patent: charged particles spiral outward as the Lorentz force bends their path into circles."
             attribution="Ernest O. Lawrence, Public Domain — Wikimedia Commons"

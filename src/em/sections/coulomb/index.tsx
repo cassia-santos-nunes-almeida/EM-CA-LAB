@@ -556,14 +556,14 @@ export function CoulombSection() {
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Bcoulomb.png/500px-Bcoulomb.png"
+            src={`${import.meta.env.BASE_URL}figures/coulomb-torsion-balance.png`}
             alt="Coulomb's torsion balance used to measure electrostatic force"
             caption="Coulomb's torsion balance (1785): the instrument that first quantified the inverse-square law for electric charges."
             attribution="Charles-Augustin de Coulomb, Public Domain — Wikimedia Commons"
             sourceUrl="https://commons.wikimedia.org/wiki/File:Bcoulomb.png"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Van_de_Graaff_Generator_-_Science_City_-_Calcutta_1997_444.JPG/500px-Van_de_Graaff_Generator_-_Science_City_-_Calcutta_1997_444.JPG"
+            src={`${import.meta.env.BASE_URL}figures/van-de-graaff-generator.jpg`}
             alt="Van de Graaff generator producing visible electric sparks"
             caption="A Van de Graaff generator: accumulated charge creates electric fields strong enough to ionize air."
             attribution="Biswarup Ganguly, CC BY 3.0 — Wikimedia Commons"

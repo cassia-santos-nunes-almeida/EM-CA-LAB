@@ -121,7 +121,7 @@ export function Antennas() {
             <div className="space-y-10">
         <TableOfContents items={THEORY_SECTIONS} activeId={activeTheoryId} />
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Dipole_antenna_ft_en.svg/500px-Dipole_antenna_ft_en.svg.png"
+          src={`${import.meta.env.BASE_URL}figures/dipole-antenna.png`}
           alt="Diagram of a half-wave dipole antenna showing the two conductor elements and feed point"
           caption="A half-wave dipole antenna: the simplest practical antenna. Two conductor elements, each λ/4 long, are fed at the center — directly derived from 'opening up' a transmission line."
           attribution="Wikimedia Commons"
@@ -314,14 +314,14 @@ export function Antennas() {
         {/* Real-world antenna photos */}
         <div className="grid gap-4 sm:grid-cols-2">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/GSM_base_station_4.JPG/500px-GSM_base_station_4.JPG"
+            src={`${import.meta.env.BASE_URL}figures/gsm-base-station.jpg`}
             alt="Cellular base station tower with multiple panel antenna arrays"
             caption="Cellular base station with panel antenna arrays: each panel contains multiple patch antennas arranged to cover a specific sector, using the same impedance matching principles from Section 3."
             attribution="Korax1214, CC BY-SA 4.0 — Wikimedia Commons"
             sourceUrl="https://commons.wikimedia.org/wiki/File:GSM_base_station_4.JPG"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Erdfunkstelle_Raisting_2.jpg/500px-Erdfunkstelle_Raisting_2.jpg"
+            src={`${import.meta.env.BASE_URL}figures/parabolic-dish-raisting.jpg`}
             alt="Large parabolic satellite dish antenna at Raisting earth station"
             caption="A parabolic dish antenna at the Raisting earth station: the parabolic reflector focuses incoming radio waves onto a feed horn at the focal point, achieving very high directivity (narrow beam)."
             attribution="Richard Bartz, CC BY-SA 2.5 — Wikimedia Commons"
@@ -386,7 +386,7 @@ export function Antennas() {
         </p>
 
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Anechoic_chamber.jpg/500px-Anechoic_chamber.jpg"
+          src={`${import.meta.env.BASE_URL}figures/anechoic-chamber.jpg`}
           alt="Interior of an anechoic chamber with RF absorbing foam pyramids on walls, ceiling, and floor, used for antenna radiation pattern measurements"
           caption="An anechoic chamber: the walls are covered with RF-absorbing foam pyramids to eliminate reflections, allowing precise measurement of antenna radiation patterns in a controlled environment."
           attribution="Eton College, CC BY-SA 3.0 — Wikimedia Commons"

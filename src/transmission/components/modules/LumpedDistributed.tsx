@@ -80,14 +80,14 @@ export function LumpedDistributed() {
         {/* Real-world distributed structures */}
         <div className="grid gap-4 sm:grid-cols-2">
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Coaxial_cable_cutaway_new.svg/500px-Coaxial_cable_cutaway_new.svg.png"
+            src={`${import.meta.env.BASE_URL}figures/coaxial-cable-cutaway.png`}
             alt="Cutaway diagram of a coaxial cable showing center conductor, dielectric insulator, shield, and outer jacket"
             caption="Coaxial cable cross-section: the center conductor and outer shield form a distributed inductance and capacitance per unit length — exactly the L' and C' in the ladder model."
             attribution="Tkgd2007, CC BY-SA 3.0 — Wikimedia Commons"
             sourceUrl="https://commons.wikimedia.org/wiki/File:Coaxial_cable_cutaway_new.svg"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Microstrip_geometry.svg/500px-Microstrip_geometry.svg.png"
+            src={`${import.meta.env.BASE_URL}figures/microstrip-geometry.png`}
             alt="Cross-section diagram of a microstrip transmission line showing trace, substrate, and ground plane"
             caption="Microstrip geometry: a PCB trace over a ground plane. The trace width, substrate thickness, and dielectric constant determine L' and C', and therefore Z₀."
             attribution="Dassault Systèmes, CC BY-SA 3.0 — Wikimedia Commons"
