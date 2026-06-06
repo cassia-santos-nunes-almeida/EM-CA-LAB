@@ -38,7 +38,12 @@ export function CourseLanding() {
                 {part.sectionIds.map((id) => (
                   <li key={id} className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-engineering-blue-400 shrink-0" aria-hidden="true" />
-                    {SECTIONS[id].title}
+                    <Link
+                      to={SECTIONS[id].route}
+                      className="rounded-sm hover:text-engineering-blue-600 dark:hover:text-engineering-blue-400 hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-engineering-blue-500"
+                    >
+                      {SECTIONS[id].title}
+                    </Link>
                   </li>
                 ))}
               </ul>
