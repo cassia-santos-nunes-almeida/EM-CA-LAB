@@ -13,6 +13,9 @@ dist-ssr
 dev-dist
 *.local
 
+# Brainstorming visual-companion mockups (local only)
+.superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

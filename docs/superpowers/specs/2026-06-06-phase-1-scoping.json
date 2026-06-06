@@ -1,0 +1,1033 @@
+{
+  "summary": "Read-only file-level scoping of the 7 EM-CA-LAB Phase 1 themes to write an evidence-backed spec",
+  "agentCount": 7,
+  "logs": [],
+  "result": [
+    {
+      "theme": "Theme A — Lab-bench layout & responsiveness",
+      "summary": "Widen the LabLayout split-pane bench from minmax(360px,42%) to minmax(420px,48%) and make the sub-lg stacked experience first-class: theory first, then bench, with a \"Jump to lab\" in-page anchor that skips the long theory column on phones. LabLayout has exactly ONE runtime consumer (TransmissionLines.tsx, three lab chapters) plus a dependent LabStation that frames the docked sims; all three bench simulations are width-responsive (canvas sims re-measure every frame via getBoundingClientRect; StandingWaveQuiz uses a ResizeObserver), so widening is visually safe with one real interaction: the Smith chart's aspect-square container grows taller as the column widens and will hit its existing max-h-[560px] cap sooner. The jump-link affordance requires a stable id on the bench wrapper (LabLayout) and an opt-in anchor in the consumer.",
+      "changes": [
+        {
+          "file": "src/shared/components/common/LabLayout.tsx",
+          "location": "line 30 — className grid template",
+          "current": "'lg:grid-cols-[1fr_minmax(360px,42%)]',",
+          "proposed": "'lg:grid-cols-[1fr_minmax(420px,48%)]',",
+          "rationale": "Primary goal (1): widen the bench column from min 360px / 42% to min 420px / 48% so sims get more room on desktop."
+        },
+        {
+          "file": "src/shared/components/common/LabLayout.tsx",
+          "location": "lines 7-14 — LabLayoutProps interface",
+          "current": "interface LabLayoutProps {\n  /** The reading content ... */\n  theory: ReactNode;\n  /** The interactive lab bench ... */\n  bench: ReactNode;\n  /** Additional CSS class names for the grid wrapper. */\n  className?: string;\n}",
+          "proposed": "Add two optional props for the mobile jump affordance:\n  /** Stable id applied to the bench wrapper so an in-page \"Jump to lab\" anchor can target it. */\n  benchId?: string;\n  /** When set, renders a sub-lg \"Jump to lab\" anchor at the top of the theory column linking to #{benchId}. */\n  jumpLabel?: string; // e.g. \"Jump to lab\"",
+          "rationale": "Goal (2): give the layout a built-in, opt-in skip-to-bench affordance without forcing every consumer to hand-roll one."
+        },
+        {
+          "file": "src/shared/components/common/LabLayout.tsx",
+          "location": "lines 25-40 — LabLayout function body / JSX",
+          "current": "export function LabLayout({ theory, bench, className }: LabLayoutProps) {\n  return (\n    <div className={cn('grid items-start gap-6 lg:gap-8','lg:grid-cols-[1fr_minmax(360px,42%)]',className)}>\n      <div className=\"min-w-0\">{theory}</div>\n      <div className=\"lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1\">{bench}</div>\n    </div>\n  );\n}",
+          "proposed": "Destructure benchId/jumpLabel. In the theory column, before {theory}, conditionally render a jump anchor visible only below lg:\n  {jumpLabel && benchId && (\n    <a href={`#${benchId}`} className=\"lg:hidden inline-flex items-center gap-1.5 mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-engineering-blue-700 dark:text-engineering-blue-400 bg-engineering-blue-50 dark:bg-engineering-blue-900/20 ...\">{jumpLabel} <ArrowDown aria-hidden=\"true\" className=\"w-4 h-4\" /></a>\n  )}\nApply id={benchId} and tabIndex={-1} (plus scroll-mt-6 so the sticky-region top offset is respected when jumped to) to the bench wrapper div. Keep the existing lg:sticky/lg:top-6/lg:max-h-[calc(100vh-6rem)]/lg:overflow-y-auto/lg:pr-1 classes. Order in the DOM stays theory-div then bench-div, which is already the correct mobile stack order (theory first, bench second).",
+          "rationale": "Goal (2): mobile users see theory first with a one-tap shortcut down to the live lab; lg:hidden keeps the desktop split-pane unchanged; tabIndex={-1}+scroll-mt make the anchor target focusable and not hidden under the sticky offset."
+        },
+        {
+          "file": "src/shared/components/common/LabLayout.tsx",
+          "location": "lines 1-2 — imports",
+          "current": "import type { ReactNode } from 'react';\nimport { cn } from '@shared/utils/cn';",
+          "proposed": "Add `import { ArrowDown } from 'lucide-react';` (lucide-react is already the icon set used by LabStation.tsx, so no new dependency).",
+          "rationale": "Supplies the down-arrow icon for the jump affordance using the icon library already in the codebase."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 471 — TabSet tab 3.2 content",
+          "current": "content: <LabLayout theory={reflectionsTheory} bench={reflectionsBench} />,",
+          "proposed": "content: <LabLayout benchId=\"lab-reflections\" jumpLabel=\"Jump to lab\" theory={reflectionsTheory} bench={reflectionsBench} />,",
+          "rationale": "Opt this lab chapter into the new mobile jump affordance; benchId is unique per chapter so anchors don't collide."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 476 — TabSet tab 3.3 content",
+          "current": "content: <LabLayout theory={smithTheory} bench={smithBench} />,",
+          "proposed": "content: <LabLayout benchId=\"lab-smith\" jumpLabel=\"Jump to lab\" theory={smithTheory} bench={smithBench} />,",
+          "rationale": "Same opt-in for the Smith Chart lab; note the Smith bench's LabStation already sets id=\"smith-chart\" (line 334) — keep benchId distinct from that internal id to avoid duplicate-id clashes."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 481 — TabSet tab 3.4 content",
+          "current": "content: <LabLayout theory={inverseTheory} bench={inverseBench} />,",
+          "proposed": "content: <LabLayout benchId=\"lab-inverse\" jumpLabel=\"Jump to lab\" theory={inverseTheory} bench={inverseBench} />,",
+          "rationale": "Same opt-in for the inverse-problem lab chapter."
+        },
+        {
+          "file": "src/transmission/components/simulations/SmithChartSim.tsx",
+          "location": "line 327 — canvas container",
+          "current": "<div ref={containerRef} className=\"w-full aspect-square min-h-[320px] max-h-[560px]\">",
+          "proposed": "No code change required, but FLAG for visual QA: this is aspect-square, so widening the bench column makes the chart proportionally taller. At ~420-540px column width it will reach the existing max-h-[560px] cap and stop being a true square (becomes letterboxed). Decide during QA whether to (a) leave the 560px cap as-is (chart stays usable, just not perfectly square at wide widths) or (b) raise/remove the cap. Drawing is already responsive (chartRadius = Math.min(w,h)*0.4, line 124).",
+          "rationale": "The only bench sim whose HEIGHT is driven by the column width via aspect-square; the widening's main observable side effect lands here."
+        },
+        {
+          "file": "src/transmission/components/simulations/TransmissionLineSim.tsx",
+          "location": "line 276 — canvas container",
+          "current": "<div ref={containerRef} className=\"w-full aspect-[5/2] min-h-[260px]\">",
+          "proposed": "No change. aspect-[5/2] with min-h-[260px] scales cleanly with the wider column (taller but uncapped); canvas re-measures every frame via getBoundingClientRect in useCanvasSetup, so it adapts automatically. Listed for completeness as a width-assumption audit item — confirmed safe.",
+          "rationale": "Verifies the reflections bench sim has no fixed-width assumption that the widening would break."
+        },
+        {
+          "file": "src/transmission/components/simulations/StandingWaveQuiz.tsx",
+          "location": "lines 375-380 (mini-canvas, w-full + ResizeObserver at line 360) and line 110 (grid gap-5 sm:grid-cols-2)",
+          "current": "<div ref={containerRef} className=\"w-full\"> ... and ... <div className=\"grid gap-5 sm:grid-cols-2\">",
+          "proposed": "No change. The quiz canvases are w-full and redraw on a ResizeObserver (line 360), and the 2-up envelope grid is sm:grid-cols-2 (collapses below sm, unaffected by the lg-level bench widening). Confirmed safe under the wider column.",
+          "rationale": "Verifies the inverse-problem bench sim has no width assumption broken by the widening."
+        },
+        {
+          "file": "src/shared/components/common/__tests__/LabStation.test.tsx",
+          "location": "whole file (no LabLayout test exists; Glob for __tests__/LabLayout* returns none)",
+          "current": "No test file covers LabLayout; LabStation.test.tsx tests LabStation only.",
+          "proposed": "Add a sibling LabLayout.test.tsx (or extend this file) asserting: (a) theory renders before bench in DOM order; (b) when benchId+jumpLabel are passed, an anchor with href=\"#{benchId}\" and the jump label text is rendered, and the bench wrapper carries id={benchId}; (c) when they are omitted, no jump anchor is rendered. This is a new-file addition, called out so the Phase-1 implementer adds coverage for the new props rather than leaving them untested.",
+          "rationale": "The new benchId/jumpLabel props and the mobile-order guarantee are currently untested; a focused unit test locks in the a11y/skip-link contract."
+        }
+      ],
+      "risks": [
+        "Smith chart height: widening to 48% makes the aspect-square SmithChartSim taller; at wide desktop widths it hits the existing max-h-[560px] cap and is no longer a perfect square. Decide cap policy during visual QA (not headless-verifiable per project memory).",
+        "Sticky-region scroll: the bench is lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto. A taller (wider) Smith/TransmissionLine sim plus its controls may exceed the viewport-minus-6rem cap on shorter laptops, forcing the bench's internal scrollbar to engage. This is by design but the wider+taller sim makes it more likely; verify the controls remain reachable.",
+        "Theory column squeeze: dropping the theory column from ~58% to ~52% at lg narrows block KaTeX/MathWrapper formulas and the sm:grid-cols-2 figure pairs (e.g. SMA/RG-59 images at lines 101-116). Should reflow fine (still >=420px at the lg breakpoint) but worth a visual check at exactly the lg boundary (1024px).",
+        "Jump-link target offset: the bench wrapper is lg:sticky lg:top-6, but the jump link only shows below lg where sticky is off; ensure scroll-mt-6 (or similar) is applied so an in-page #anchor jump lands at a comfortable offset and the focused target (tabIndex={-1}) is not visually clipped by any sticky header.",
+        "Duplicate ids: the Smith bench LabStation already sets id=\"smith-chart\" (line 334). The new benchId on the LabLayout bench wrapper must be a different value (proposed lab-smith) to avoid two elements sharing an id in that chapter.",
+        "Circuits InteractiveLab (src/circuits/components/modules/InteractiveLab/index.tsx:464) uses its OWN split-pane grid lg:grid-cols-[1fr_320px] and does NOT use LabLayout, so it is unaffected by this theme — but it is a parallel pattern that will drift visually wider than this bench unless a later theme reconciles them."
+      ],
+      "openQuestions": [
+        "Should the Smith chart's max-h-[560px] cap be raised/removed to keep it square at the new 48% width, or is letterboxing-at-cap acceptable? (Owner/visual decision.)",
+        "Should the 'Jump to lab' affordance be hard-wired into LabLayout for every bench (always-on below lg) instead of opt-in via props? Opt-in (proposed) is safer/back-compatible but requires touching the 3 consumer call sites; always-on needs no consumer change but assumes every bench is jump-worthy.",
+        "Preferred jump-link copy and icon — 'Jump to lab' with a down arrow is proposed; confirm wording/iconography to match the existing 'Interactive Lab' eyebrow voice in LabStation.",
+        "Should there be a reciprocal 'Back to theory' / 'top' affordance at the bottom of the stacked bench on mobile, or is the one-way jump down sufficient for Phase 1?",
+        "Exact widen target: brief says 'roughly minmax(420px,48%)'. Confirm 420px/48% vs alternatives (e.g. 440px/50%); the 420/48% values are used in the concrete change above."
+      ]
+    },
+    {
+      "theme": "Theme B — Vendor all FigureImage hotlinks locally (fix broken/fragile external Wikimedia images)",
+      "summary": "All 27 <FigureImage> instances across 20 section/module files hotlink external Wikimedia thumbnail URLs (https://upload.wikimedia.org/...); public/ contains only PWA icons. A live HTTP audit (curl range-GET with a browser UA to defeat Wikimedia 429 rate-limiting) found 11 of the 27 are dead (HTTP 404) and the other 16, while currently 200/206, are fragile hotlinks subject to thumbnail-URL churn and rate-limiting. The fix is to download every image into a new public/figures/ directory under a stable filename and repoint each src to a BASE_URL-relative local path (src={`${import.meta.env.BASE_URL}figures/<file>`}); FigureImage already renders caption/attribution/sourceUrl from props, so attribution is preserved verbatim — only the src attribute changes, and the original Wikimedia File: page stays in sourceUrl for provenance.",
+      "changes": [
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 103 (FigureImage at lines 102-108)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/SMA_connector.jpg/500px-SMA_connector.jpg\"",
+          "proposed": "Download to public/figures/sma-connector.jpg and set src={`${import.meta.env.BASE_URL}figures/sma-connector.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200); vendor to remove fragile hotlink. alt='SMA coaxial RF connector used in precision 50 Ω systems'; caption='An SMA coaxial connector: a precision 50 Ω connector...'; attribution='Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 110 (FigureImage at lines 109-115)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/RG-59.jpg/500px-RG-59.jpg\"",
+          "proposed": "Download to public/figures/rg-59-coax.jpg and set src={`${import.meta.env.BASE_URL}figures/rg-59-coax.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200); vendor. alt='Cross-section of RG-59 75-ohm coaxial cable...'; attribution='FDominec, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 262 (FigureImage at lines 261-268)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Network_Analyzer_Agilent_8714ET.jpg/500px-Network_Analyzer_Agilent_8714ET.jpg\"",
+          "proposed": "DEAD (404) — source a replacement VNA image from Wikimedia (e.g. another Network analyzer / VNA File:), download to public/figures/vector-network-analyzer.jpg, set src={`${import.meta.env.BASE_URL}figures/vector-network-analyzer.jpg`}, and update attribution + sourceUrl to match the new file. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404 — the originally flagged VNA image). Needs a substitute image; attribution/sourceUrl must be regenerated for whatever replacement is chosen. className='sm:max-w-md' preserved."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "line 75 (FigureImage at lines 74-80)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Ringing_on_unterminated_transmission_line.jpg/500px-Ringing_on_unterminated_transmission_line.jpg\"",
+          "proposed": "DEAD (404) — source a replacement 'signal ringing / reflection on unterminated line' image, download to public/figures/ringing-unterminated-line.jpg, set src={`${import.meta.env.BASE_URL}figures/ringing-unterminated-line.jpg`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404). Replacement image needed; attribution was 'Cqdx, CC BY-SA 3.0 — Wikimedia Commons' and must be updated for the new file."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "line 82 (FigureImage at lines 81-87)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Eye_diagram_of_a_4-level_signal.png/500px-Eye_diagram_of_a_4-level_signal.png\"",
+          "proposed": "DEAD (404) — source a replacement eye-diagram image, download to public/figures/eye-diagram.png, set src={`${import.meta.env.BASE_URL}figures/eye-diagram.png`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404). Replacement needed; old attribution 'Jmameren, CC BY-SA 3.0 — Wikimedia Commons' must be updated for the new file."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 120 (FigureImage at lines 119-126)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Dipole_antenna_ft_en.svg/500px-Dipole_antenna_ft_en.svg.png\"",
+          "proposed": "Download to public/figures/dipole-antenna.png and set src={`${import.meta.env.BASE_URL}figures/dipole-antenna.png`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 200, SVG-rendered PNG thumb); vendor. attribution='Wikimedia Commons'; className='sm:max-w-md' preserved."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 319 (FigureImage at lines 318-324)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/GSM_base_station_4.JPG/500px-GSM_base_station_4.JPG\"",
+          "proposed": "Download to public/figures/gsm-base-station.jpg and set src={`${import.meta.env.BASE_URL}figures/gsm-base-station.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET; intermittently 429 rate-limited when hotlinked — a concrete reason to vendor). attribution='Korax1214, CC BY-SA 4.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 326 (FigureImage at lines 325-331)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Erdfunkstelle_Raisting_2.jpg/500px-Erdfunkstelle_Raisting_2.jpg\"",
+          "proposed": "Download to public/figures/parabolic-dish-raisting.jpg and set src={`${import.meta.env.BASE_URL}figures/parabolic-dish-raisting.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200); vendor. attribution='Richard Bartz, CC BY-SA 2.5 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 394 (FigureImage at lines 393-399)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Anechoic_chamber.jpg/500px-Anechoic_chamber.jpg\"",
+          "proposed": "Download to public/figures/anechoic-chamber.jpg and set src={`${import.meta.env.BASE_URL}figures/anechoic-chamber.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200); vendor. attribution='Eton College, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 70 (FigureImage at lines 69-75)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Transformer3d_col3.svg/500px-Transformer3d_col3.svg.png\"",
+          "proposed": "Download to public/figures/iron-core-transformer.png and set src={`${import.meta.env.BASE_URL}figures/iron-core-transformer.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200, SVG-rendered PNG thumb); vendor. attribution='BillC, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 77 (FigureImage at lines 76-82)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Transformer_au_poste_%C3%A9lectrique_de_Bondy.jpg/500px-Transformer_au_poste_%C3%A9lectrique_de_Bondy.jpg\"",
+          "proposed": "DEAD (404) — source a replacement utility/substation power-transformer image, download to public/figures/substation-transformer.jpg, set src={`${import.meta.env.BASE_URL}figures/substation-transformer.jpg`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404, verified twice via range-GET). Old attribution 'Lionel Allorge, CC BY-SA 3.0 — Wikimedia Commons' must be updated for the new file."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 120 (FigureImage at lines 119-125)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Toroidal_inductor.jpg/500px-Toroidal_inductor.jpg\"",
+          "proposed": "Download to public/figures/toroidal-inductor.jpg and set src={`${import.meta.env.BASE_URL}figures/toroidal-inductor.jpg`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 200); vendor. attribution='Eliashossain01, CC BY-SA 4.0 — Wikimedia Commons'; className='sm:max-w-sm' preserved."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "line 82 (FigureImage at lines 81-87)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Coaxial_cable_cutaway_new.svg/500px-Coaxial_cable_cutaway_new.svg.png\"",
+          "proposed": "Download to public/figures/coaxial-cable-cutaway.png and set src={`${import.meta.env.BASE_URL}figures/coaxial-cable-cutaway.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200, SVG-rendered PNG thumb); vendor. attribution='Tkgd2007, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "line 89 (FigureImage at lines 88-94)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Microstrip_geometry.svg/500px-Microstrip_geometry.svg.png\"",
+          "proposed": "Download to public/figures/microstrip-geometry.png and set src={`${import.meta.env.BASE_URL}figures/microstrip-geometry.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 200, SVG-rendered PNG thumb); vendor. attribution='Dassault Systèmes, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/polarization/index.tsx",
+          "location": "line 492 (FigureImage at lines 490-497)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Polarizing_filter.jpg/500px-Polarizing_filter.jpg\"",
+          "proposed": "DEAD (404) — source a replacement polarizing-filter / glare-reduction photo, download to public/figures/polarizing-filter.jpg, set src={`${import.meta.env.BASE_URL}figures/polarizing-filter.jpg`}, update attribution + sourceUrl. Keep className='mb-6'/alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404). Old attribution 'Amithm, CC BY-SA 3.0 — Wikimedia Commons' must be updated for the new file."
+        },
+        {
+          "file": "src/em/sections/maxwell/index.tsx",
+          "location": "line 358 (FigureImage at lines 356-363)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/James_Clerk_Maxwell.png/500px-James_Clerk_Maxwell.png\"",
+          "proposed": "DEAD (404) — source a replacement James Clerk Maxwell portrait (public domain), download to public/figures/james-clerk-maxwell.jpg, set src={`${import.meta.env.BASE_URL}figures/james-clerk-maxwell.jpg`}, update sourceUrl (attribution 'Public Domain — Wikimedia Commons' can stay if PD). Keep className='mb-6'/alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404, verified twice). Public-domain portrait so a substitute is easy; sourceUrl must point at the new File: page."
+        },
+        {
+          "file": "src/em/sections/magnetic-circuits/index.tsx",
+          "location": "line 372 (FigureImage at lines 370-377)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/IF_transformer.JPG/500px-IF_transformer.JPG\"",
+          "proposed": "Download to public/figures/toroidal-transformer-ferrite.jpg and set src={`${import.meta.env.BASE_URL}figures/toroidal-transformer-ferrite.jpg`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='LoKiLeCh, CC BY-SA 3.0 — Wikimedia Commons'; className='mb-6' preserved."
+        },
+        {
+          "file": "src/em/sections/lorentz/index.tsx",
+          "location": "line 437 (FigureImage at lines 436-442)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Cyclotron_patent.png/500px-Cyclotron_patent.png\"",
+          "proposed": "Download to public/figures/cyclotron-patent.png and set src={`${import.meta.env.BASE_URL}figures/cyclotron-patent.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Ernest O. Lawrence, Public Domain — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/lorentz/index.tsx",
+          "location": "line 444 (FigureImage at lines 443-449)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Polarlicht_2.jpg/500px-Polarlicht_2.jpg\"",
+          "proposed": "DEAD (404) — source a replacement aurora borealis photo, download to public/figures/aurora-borealis.jpg, set src={`${import.meta.env.BASE_URL}figures/aurora-borealis.jpg`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404). Old attribution 'United States Air Force, Public Domain — Wikimedia Commons' must be updated for the new file."
+        },
+        {
+          "file": "src/em/sections/lenz/index.tsx",
+          "location": "line 461 (FigureImage at lines 459-466)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Eddy_currents_due_to_magnet.svg/500px-Eddy_currents_due_to_magnet.svg.png\"",
+          "proposed": "Download to public/figures/eddy-currents-magnet.png and set src={`${import.meta.env.BASE_URL}figures/eddy-currents-magnet.png`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET, SVG-rendered PNG thumb); vendor. attribution='Wikimedia Commons, CC BY-SA 3.0'; className='mb-6' preserved."
+        },
+        {
+          "file": "src/em/sections/gauss/index.tsx",
+          "location": "line 388 (FigureImage at lines 386-393)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Faraday_Cage.JPG/500px-Faraday_Cage.JPG\"",
+          "proposed": "Download to public/figures/faraday-cage.jpg and set src={`${import.meta.env.BASE_URL}figures/faraday-cage.jpg`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Amanjosan2008, CC BY-SA 4.0 — Wikimedia Commons'; className='mb-6' preserved."
+        },
+        {
+          "file": "src/em/sections/faraday/index.tsx",
+          "location": "line 320 (FigureImage at lines 319-325)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Faraday_emf_experiment.svg/500px-Faraday_emf_experiment.svg.png\"",
+          "proposed": "Download to public/figures/faraday-emf-experiment.png and set src={`${import.meta.env.BASE_URL}figures/faraday-emf-experiment.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET, SVG-rendered PNG thumb); vendor. attribution='Chetvorno, Public Domain — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/faraday/index.tsx",
+          "location": "line 327 (FigureImage at lines 326-332)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Three_Gorges_Dam%2C_Yangtze_River%2C_China.jpg/500px-Three_Gorges_Dam%2C_Yangtze_River%2C_China.jpg\"",
+          "proposed": "Download to public/figures/three-gorges-dam.jpg and set src={`${import.meta.env.BASE_URL}figures/three-gorges-dam.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Rehman, CC BY-SA 2.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "line 1122 (FigureImage at lines 1121-1127)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Very_Large_Array%2C_2012.jpg/500px-Very_Large_Array%2C_2012.jpg\"",
+          "proposed": "Download to public/figures/very-large-array.jpg and set src={`${import.meta.env.BASE_URL}figures/very-large-array.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Hajor, CC BY-SA 2.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "line 1129 (FigureImage at lines 1128-1134)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/EM_Spectrum_Properties_edit.svg/500px-EM_Spectrum_Properties_edit.svg.png\"",
+          "proposed": "Download to public/figures/em-spectrum.png and set src={`${import.meta.env.BASE_URL}figures/em-spectrum.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET, SVG-rendered PNG thumb); vendor. attribution='Inductiveload/NASA, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/coulomb/index.tsx",
+          "location": "line 559 (FigureImage at lines 558-564)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Bcoulomb.png/500px-Bcoulomb.png\"",
+          "proposed": "Download to public/figures/coulomb-torsion-balance.png and set src={`${import.meta.env.BASE_URL}figures/coulomb-torsion-balance.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Charles-Augustin de Coulomb, Public Domain — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/coulomb/index.tsx",
+          "location": "line 566 (FigureImage at lines 565-571)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Van_de_Graaff_Generator_-_Science_City_-_Calcutta_1997_444.JPG/500px-Van_de_Graaff_Generator_-_Science_City_-_Calcutta_1997_444.JPG\"",
+          "proposed": "Download to public/figures/van-de-graaff-generator.jpg and set src={`${import.meta.env.BASE_URL}figures/van-de-graaff-generator.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Biswarup Ganguly, CC BY 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/ampere/index.tsx",
+          "location": "line 380 (FigureImage at lines 379-385)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Solenoid-1.png/500px-Solenoid-1.png\"",
+          "proposed": "Download to public/figures/solenoid-field.png and set src={`${import.meta.env.BASE_URL}figures/solenoid-field.png`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Geek3, CC BY-SA 3.0 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/em/sections/ampere/index.tsx",
+          "location": "line 387 (FigureImage at lines 386-392)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Electromagnet.svg/500px-Electromagnet.svg.png\"",
+          "proposed": "DEAD (404) — source a replacement electromagnet (iron-core coil) diagram, download to public/figures/electromagnet.png, set src={`${import.meta.env.BASE_URL}figures/electromagnet.png`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404). Old attribution 'Wikimedia Commons, Public Domain' must be updated for the new file."
+        },
+        {
+          "file": "src/circuits/components/modules/TimeDomain/index.tsx",
+          "location": "line 62 (FigureImage at lines 60-67)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Rc_charge_discharge.svg/500px-Rc_charge_discharge.svg.png\"",
+          "proposed": "DEAD (404) — source a replacement RC charge/discharge curve diagram, download to public/figures/rc-charge-discharge.png, set src={`${import.meta.env.BASE_URL}figures/rc-charge-discharge.png`}, update attribution + sourceUrl. Keep className='mb-6'/alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404, verified twice). Old attribution 'Wikimedia Commons, Public Domain' must be updated for the new file."
+        },
+        {
+          "file": "src/circuits/components/modules/InteractiveLab/index.tsx",
+          "location": "line 577 (FigureImage at lines 575-582)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Fluke_87_V_on_holder.jpg/500px-Fluke_87_V_on_holder.jpg\"",
+          "proposed": "DEAD (404) — source a replacement digital-multimeter photo, download to public/figures/digital-multimeter.jpg, set src={`${import.meta.env.BASE_URL}figures/digital-multimeter.jpg`}, update attribution + sourceUrl. Keep className='mb-6'/alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404, verified twice). Old attribution 'Wikimedia Commons, CC BY-SA 4.0' must be updated for the new file."
+        },
+        {
+          "file": "src/circuits/components/modules/SDomainAnalysis.tsx",
+          "location": "line 24 (FigureImage at lines 22-29)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Asymptotic_Bode_plot.svg/500px-Asymptotic_Bode_plot.svg.png\"",
+          "proposed": "Download to public/figures/bode-plot.png and set src={`${import.meta.env.BASE_URL}figures/bode-plot.png`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET, SVG-rendered PNG thumb; was 429 rate-limited — a reason to vendor); attribution='Wikimedia Commons, Public Domain'; className='mb-6' preserved."
+        },
+        {
+          "file": "src/circuits/components/modules/LaplaceTheory.tsx",
+          "location": "line 22 (FigureImage at lines 20-27)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Pierre-Simon_Laplace.jpg/500px-Pierre-Simon_Laplace.jpg\"",
+          "proposed": "Download to public/figures/pierre-simon-laplace.jpg and set src={`${import.meta.env.BASE_URL}figures/pierre-simon-laplace.jpg`}. alt/caption/attribution/sourceUrl/className unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Public Domain — Wikimedia Commons'; className='mb-6' preserved."
+        },
+        {
+          "file": "src/circuits/components/modules/ComponentPhysics/index.tsx",
+          "location": "line 70 (FigureImage at lines 69-75)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Resistors.jpg/500px-Resistors.jpg\"",
+          "proposed": "Download to public/figures/resistors.jpg and set src={`${import.meta.env.BASE_URL}figures/resistors.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET; was 429 rate-limited — reason to vendor); attribution='Evan-Amos, Public Domain — Wikimedia Commons'."
+        },
+        {
+          "file": "src/circuits/components/modules/ComponentPhysics/index.tsx",
+          "location": "line 77 (FigureImage at lines 76-82)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Condensators.JPG/500px-Condensators.JPG\"",
+          "proposed": "Download to public/figures/capacitors.jpg and set src={`${import.meta.env.BASE_URL}figures/capacitors.jpg`}. alt/caption/attribution/sourceUrl unchanged.",
+          "rationale": "ALIVE (HTTP 206 via range-GET); vendor. attribution='Eric Schrader, CC BY-SA 2.5 — Wikimedia Commons'."
+        },
+        {
+          "file": "src/circuits/components/modules/ComponentPhysics/index.tsx",
+          "location": "line 84 (FigureImage at lines 83-89)",
+          "current": "src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Inductor_RF_choke.jpg/500px-Inductor_RF_choke.jpg\"",
+          "proposed": "DEAD (404) — source a replacement inductor / RF-choke photo, download to public/figures/inductors-rf-choke.jpg, set src={`${import.meta.env.BASE_URL}figures/inductors-rf-choke.jpg`}, update attribution + sourceUrl. Keep alt/caption.",
+          "rationale": "CONFIRMED DEAD (HTTP 404, verified twice). Old attribution 'Honina, CC BY-SA 3.0 — Wikimedia Commons' must be updated for the new file."
+        },
+        {
+          "file": "vite.config.ts",
+          "location": "VitePWA workbox.globPatterns (line ~36: globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'])",
+          "current": "globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}']",
+          "proposed": "Add jpg/jpeg/JPG extensions so vendored photo figures are precached/served by the service worker, e.g. globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,woff,woff2}'] (note: Workbox glob is case-sensitive — files with .JPG extensions like several Wikimedia originals should be saved with lowercase .jpg when vendored).",
+          "rationale": "Current PWA precache glob omits jpg/jpeg, so the many vendored .jpg figures would not be picked up by the service worker; saving all figures with lowercase extensions keeps the glob simple and avoids case-sensitivity misses."
+        }
+      ],
+      "risks": [
+        "HTTP 404 confirmed for 11 of 27 images: Network_Analyzer_Agilent_8714ET.jpg (VNA), Ringing_on_unterminated_transmission_line.jpg, Eye_diagram_of_a_4-level_signal.png, Transformer_au_poste_de_Bondy.jpg, Polarizing_filter.jpg, James_Clerk_Maxwell.png, Polarlicht_2.jpg (aurora), Electromagnet.svg.png, Rc_charge_discharge.svg.png, Fluke_87_V_on_holder.jpg, Inductor_RF_choke.jpg. These cannot simply be downloaded — each needs a NEW substitute image sourced, with its own attribution string and sourceUrl File: page. Do NOT keep the stale attribution lines for these.",
+        "Wikimedia aggressively rate-limits hotlinking (many URLs returned HTTP 429 before resolving to 200/206 on retry with a browser User-Agent and delays). This same throttling can intermittently break the live app for end users, which is itself a strong reason to vendor — but it also means the original status of a URL can be masked by 429; the per-image statuses here were each re-verified until a definitive 200/206/404 was obtained.",
+        "Wikimedia content licenses are mostly CC BY-SA / CC BY (a few Public Domain). Re-hosting locally is permitted but the BY/SA attribution MUST remain rendered (FigureImage already shows attribution + links sourceUrl), and SA images technically require the same-license notice — verify the course's overall licensing is compatible before bulk-vendoring.",
+        "The 500px-wide Wikimedia thumbnails are the assets being hotlinked; vendoring those exact thumbnails preserves current visual size. Downloading full-resolution originals instead would change layout/file size — pull the same 500px thumbnail (or regenerate an equivalent width) to keep parity.",
+        "Several sources are SVG files served as rasterized .svg.png thumbnails (Dipole, Transformer3d, Coaxial, Microstrip, Eddy_currents, Faraday_emf, EM_Spectrum, Bode_plot, and the dead Electromagnet/Rc_charge). Vendor the .png raster (not the .svg) to match exactly what the app currently renders.",
+        "This is read-only scoping; no files were created. The proposed public/figures/ directory and all downloads/edits are recommendations only."
+      ],
+      "openQuestions": [
+        "Replacement-image policy for the 11 dead (404) figures: should we (a) find the closest equivalent current Wikimedia image and rewrite attribution/sourceUrl per file, or (b) drop the figure entirely where no good substitute exists? This needs an owner decision and per-image curation (especially the VNA, eye-diagram, ringing, and RC-charge technical diagrams).",
+        "Filename convention: I proposed descriptive kebab-case names (e.g. sma-connector.jpg). Confirm whether you prefer descriptive names or preserving the original Wikimedia filenames (e.g. SMA_connector.jpg) for traceability back to source.",
+        "Should vendored assets be the 500px thumbnail (current behavior, smaller payload) or a higher-resolution original (sharper on retina/zoom, since FigureImage links src for full-size view via the click-to-zoom anchor)? The click-to-zoom <a href={src}> currently opens the same image; vendoring a small thumb means 'full size' is only 500px wide.",
+        "Licensing/attribution sign-off: many images are CC BY-SA which requires same-license redistribution. Confirm the course app's license permits re-hosting these and that the rendered attribution line satisfies the BY/SA requirement, or whether an explicit /CREDITS or attribution page is also wanted.",
+        "Should a lightweight guard (lint rule, test, or CI check) be added to fail the build if any FigureImage src points at an external http(s) URL again, to prevent regressions back to hotlinking?"
+      ]
+    },
+    {
+      "theme": "Section numbering standardization (derive Part.Section from curriculum order; delete stale per-module numbers)",
+      "summary": "The 3-module→5-Part consolidation left every transmission-domain module file carrying its OLD per-module numbering, which now contradicts the curriculum spine: Transformers uses \"1.x\" but is curriculum 3.4; LumpedDistributed uses \"2.x\" but is 5.1; TransmissionLines uses \"3.x\" but is 5.2; Transients uses \"4.x\" but is 5.3; Antennas uses \"5.x\" but is 4.4. These stale numbers appear as user-facing h2 headings (\"3.2 — Reflections…\"), eyebrow paragraphs (\"Section 5.3\"), LabStation number= props, the LabStation unit test, and banner code comments. The circuits and em sections are clean (only image-attribution dashes are false positives), and Part-level numbering already derives correctly from PARTS[].number in Sidebar/CourseLanding. Fix: add a getSectionNumber(id) helper to curriculum.ts that computes \"<Part.number>.<1-based index within Part>\" from PARTS, then feed it (with a sub-index for in-section headings) at every call site and delete the hardcoded numbers.",
+      "changes": [
+        {
+          "file": "src/shared/constants/curriculum.ts",
+          "location": "after getExpectedChecks (end of file, ~line 167); CourseSection interface ~lines 23-38",
+          "current": "export interface CourseSection { id; title; route; domain; expectedChecks } … (no number field) … export function getExpectedChecks(sectionId: string): number { … }",
+          "proposed": "Add a derived-number helper (do NOT add a stored field — keep number derived so re-ordering stays a config edit):\n\n/** The course-wide \"Part.Section\" number for a section, derived from PARTS\n *  order (e.g. transmission-lines → \"5.2\"). Empty string if not wired in. */\nexport function getSectionNumber(sectionId: string): string {\n  const part = PARTS.find((p) => p.sectionIds.includes(sectionId));\n  if (!part) return '';\n  const idx = part.sectionIds.indexOf(sectionId);\n  return `${part.number}.${idx + 1}`;\n}",
+          "rationale": "Single source of truth: derive Part.Section from the existing PARTS index instead of storing/hardcoding numbers, so re-ordering the spine auto-renumbers everything."
+        },
+        {
+          "file": "src/shared/constants/curriculum.ts",
+          "location": "test coverage (new) — add to an existing curriculum test or create src/shared/constants/__tests__/curriculum.test.ts",
+          "current": "(no test asserts section numbering)",
+          "proposed": "Add an assertion that getSectionNumber returns the expected map for the 20 sections, e.g. expect(getSectionNumber('transmission-lines')).toBe('5.2'); expect(getSectionNumber('transformers')).toBe('3.4'); expect(getSectionNumber('antennas')).toBe('4.4'); expect(getSectionNumber('component-physics')).toBe('1.1'); expect(getSectionNumber('unknown')).toBe('').",
+          "rationale": "Locks the derived numbering against future spine edits and documents the corrected positions."
+        },
+        {
+          "file": "src/shared/components/common/LabStation.tsx",
+          "location": "LabStationProps `number?: string` (line 10); usage lines 57-61",
+          "current": "interface LabStationProps { number?: string; … }  … {number && (<span …>{number}</span>)}",
+          "proposed": "Keep the optional `number?: string` prop and its render as-is — the component should stay presentational and accept a formatted number string. (Callers will now pass a curriculum-derived value instead of a hardcoded one.) No code change required here unless the team prefers passing `sectionId` + computing inside; see open questions.",
+          "rationale": "LabStation is shared/presentational; it must not import curriculum to avoid shared→config coupling, so the derived number is injected by callers."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 218 (LabStation number= for Reflections)",
+          "current": "number=\"3.2\"",
+          "proposed": "Replace with the in-section sub-number derived from curriculum, e.g. number={`${getSectionNumber('transmission-lines')}.2`}  → renders \"5.2.2\". Add import { getSectionNumber } from '@shared/constants/curriculum'. (If 3-level numbers are undesirable, drop number= entirely — see open questions.)",
+          "rationale": "transmission-lines is curriculum 5.2; the hardcoded module-relative \"3.2\" is stale and wrong under the new spine."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 335 (LabStation number= for Smith Chart)",
+          "current": "number=\"3.3\"",
+          "proposed": "number={`${getSectionNumber('transmission-lines')}.3`}  → \"5.2.3\" (or remove).",
+          "rationale": "Stale per-module number; correct base section is 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 416 (LabStation number= for Inverse Problem)",
+          "current": "number=\"3.4\"",
+          "proposed": "number={`${getSectionNumber('transmission-lines')}.4`}  → \"5.2.4\" (or remove).",
+          "rationale": "Stale per-module number; correct base section is 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 69 (visible h2 heading)",
+          "current": "3.1 &mdash; Characteristic Impedance",
+          "proposed": "Use the derived sub-number, e.g. {`${getSectionNumber('transmission-lines')}.1`} &mdash; Characteristic Impedance  → \"5.2.1 — Characteristic Impedance\" (or drop the number and keep just the title).",
+          "rationale": "User-facing heading with a stale module number; must reflect curriculum position 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 142 (visible h2 heading)",
+          "current": "3.2 &mdash; Reflections &amp; Standing Waves",
+          "proposed": "{`${getSectionNumber('transmission-lines')}.2`} &mdash; Reflections &amp; Standing Waves  → \"5.2.2 — …\" (or drop number).",
+          "rationale": "Stale heading number; base section is 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 258 (visible h2 heading)",
+          "current": "3.3 &mdash; The Smith Chart",
+          "proposed": "{`${getSectionNumber('transmission-lines')}.3`} &mdash; The Smith Chart  → \"5.2.3 — …\" (or drop number).",
+          "rationale": "Stale heading number; base section is 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "line 374 (visible h2 heading)",
+          "current": "3.4 &mdash; Inverse Problem: Identifying Terminations",
+          "proposed": "{`${getSectionNumber('transmission-lines')}.4`} &mdash; Inverse Problem: Identifying Terminations  → \"5.2.4 — …\" (or drop number).",
+          "rationale": "Stale heading number; base section is 5.2."
+        },
+        {
+          "file": "src/transmission/components/modules/TransmissionLines.tsx",
+          "location": "banner comments lines 64, 137, 253, 369",
+          "current": "// \"3.1 — Characteristic impedance …\", \"3.2 — Reflections … (lab)\", \"3.3 — The Smith Chart (lab)\", \"3.4 — Inverse problem … (lab)\"",
+          "proposed": "Update the four banner comments to the corrected sub-numbers (5.2.1 / 5.2.2 / 5.2.3 / 5.2.4) so code navigation matches the rendered numbers. Non-user-facing but should not contradict the spine.",
+          "rationale": "Comments document the same stale scheme; leaving them creates drift between code and UI."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "line 69 (visible h2 heading)",
+          "current": "2.1 &mdash; The Ladder Network",
+          "proposed": "{`${getSectionNumber('lumped-distributed')}.1`} &mdash; The Ladder Network → \"5.1.1 — …\" (or drop number). Add getSectionNumber import.",
+          "rationale": "lumped-distributed is curriculum 5.1; hardcoded \"2.1\" is stale."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "line 262 (visible h2 heading)",
+          "current": "2.2 &mdash; The Ladder Animation",
+          "proposed": "{`${getSectionNumber('lumped-distributed')}.2`} &mdash; The Ladder Animation → \"5.1.2 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 5.1."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "line 163 (visible h2 heading)",
+          "current": "2.3 &mdash; Telegrapher&rsquo;s Equations (Derivation Sketch)",
+          "proposed": "{`${getSectionNumber('lumped-distributed')}.3`} &mdash; Telegrapher&rsquo;s Equations (Derivation Sketch) → \"5.1.3 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 5.1."
+        },
+        {
+          "file": "src/transmission/components/modules/LumpedDistributed.tsx",
+          "location": "banner comments lines 66, 160, 259",
+          "current": "// \"── 2.1 — The ladder network ──\", \"── 2.3 — Telegrapher's equations ──\", \"── 2.2 — The ladder animation ──\"",
+          "proposed": "Renumber the three banner comments to 5.1.1 / 5.1.3 / 5.1.2 to match the corrected headings.",
+          "rationale": "Keep navigation comments consistent with the spine."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "line 94 (visible h2 heading)",
+          "current": "4.1 &mdash; Step Response on a Transmission Line",
+          "proposed": "{`${getSectionNumber('transients')}.1`} &mdash; Step Response on a Transmission Line → \"5.3.1 — …\" (or drop number). Add getSectionNumber import.",
+          "rationale": "transients is curriculum 5.3; hardcoded \"4.1\" is stale."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "line 212 (visible h2 heading)",
+          "current": "4.2 &mdash; Bounce Diagram Builder",
+          "proposed": "{`${getSectionNumber('transients')}.2`} &mdash; Bounce Diagram Builder → \"5.3.2 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 5.3."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "line 179 (visible h2 heading)",
+          "current": "4.3 &mdash; Bridge to Antennas",
+          "proposed": "{`${getSectionNumber('transients')}.3`} &mdash; Bridge to Antennas → \"5.3.3 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 5.3."
+        },
+        {
+          "file": "src/transmission/components/modules/Transients.tsx",
+          "location": "banner comments lines 90, 176, 208",
+          "current": "// \"── 4.1 Step Response ──\", \"── 4.3 Bridge to Antennas ──\", \"── 4.2 Bounce Diagram Builder ──\"",
+          "proposed": "Renumber the three banner comments to 5.3.1 / 5.3.3 / 5.3.2 to match corrected headings.",
+          "rationale": "Keep navigation comments consistent with the spine."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 90 (visible h2 heading)",
+          "current": "1.1 &mdash; Coupling Coefficient &amp; Dot Convention",
+          "proposed": "{`${getSectionNumber('transformers')}.1`} &mdash; Coupling Coefficient &amp; Dot Convention → \"3.4.1 — …\" (or drop number). Add getSectionNumber import.",
+          "rationale": "transformers is curriculum 3.4; hardcoded \"1.1\" is stale (and most confusing — collides with circuits 1.x)."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 248 (visible h2 heading)",
+          "current": "1.2 &mdash; Ideal Transformer",
+          "proposed": "{`${getSectionNumber('transformers')}.2`} &mdash; Ideal Transformer → \"3.4.2 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 3.4."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "line 398 (visible h2 heading)",
+          "current": "1.3 &mdash; Coupled Coils Simulation",
+          "proposed": "{`${getSectionNumber('transformers')}.3`} &mdash; Coupled Coils Simulation → \"3.4.3 — …\" (or drop number).",
+          "rationale": "Stale module number; base section 3.4."
+        },
+        {
+          "file": "src/transmission/components/modules/Transformers.tsx",
+          "location": "banner comments lines 86, 244, 394",
+          "current": "// \"1.1 Coupling Coefficient & Dot Convention\", \"1.2 Ideal Transformer\", \"1.3 Coupled Coils Simulation\"",
+          "proposed": "Renumber the three banner comments to 3.4.1 / 3.4.2 / 3.4.3 to match corrected headings.",
+          "rationale": "Keep navigation comments consistent with the spine."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 102 (visible eyebrow <p>Section 5.1</p>)",
+          "current": "Section 5.1",
+          "proposed": "Render the derived number, e.g. {`Section ${getSectionNumber('antennas')}.1`} → \"Section 4.4.1\" (or just the eyebrow label without a number). Add getSectionNumber import.",
+          "rationale": "antennas is curriculum 4.4, NOT Part 5; the \"Section 5.x\" eyebrows are stale and mislead the learner into thinking Antennas is in the transmission Part."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 379 (visible eyebrow <p>Section 5.2</p>)",
+          "current": "Section 5.2",
+          "proposed": "{`Section ${getSectionNumber('antennas')}.2`} → \"Section 4.4.2\" (or drop number).",
+          "rationale": "Stale; antennas base section is 4.4."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 216 (visible eyebrow <p>Section 5.3</p>)",
+          "current": "Section 5.3",
+          "proposed": "{`Section ${getSectionNumber('antennas')}.3`} → \"Section 4.4.3\" (or drop number).",
+          "rationale": "Stale; antennas base section is 4.4."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "line 303 (visible eyebrow <p>Section 5.4</p>)",
+          "current": "Section 5.4",
+          "proposed": "{`Section ${getSectionNumber('antennas')}.4`} → \"Section 4.4.4\" (or drop number).",
+          "rationale": "Stale; antennas base section is 4.4."
+        },
+        {
+          "file": "src/transmission/components/modules/Antennas.tsx",
+          "location": "banner comments lines 211, 298, 374 (Section 5.3/5.4/5.2 …)",
+          "current": "// \"Section 5.3 — Near field vs far field\", \"Section 5.4 — Practical antennas …\", \"Section 5.2 — Radiation pattern simulation\"",
+          "proposed": "Renumber the three banner comments to 4.4.3 / 4.4.4 / 4.4.2 to match corrected eyebrows. (The Section 5.1 sub-section has no banner comment, only the eyebrow at line 102.)",
+          "rationale": "Keep navigation comments consistent with the spine."
+        },
+        {
+          "file": "src/shared/components/common/__tests__/LabStation.test.tsx",
+          "location": "lines 10 and 16",
+          "current": "<LabStation number=\"3.3\" title=\"Reflections & Standing Waves\" …>  …  expect(screen.getByRole('heading', { level: 2, name: /3\\.3\\s*Reflections & Standing Waves/ }))",
+          "proposed": "This is a UNIT test of LabStation rendering an arbitrary number string — it does not need to match curriculum. Keep it but, to avoid implying \"3.3\" is a real course number, switch the literal to a neutral example (e.g. number=\"X.Y\" with matching regex /X\\.Y\\s*Reflections/) OR leave as-is since the component stays number-string-agnostic. No behavior change to the helper.",
+          "rationale": "Distinguish the presentational unit test (legitimately uses a literal) from real course numbering; optional cosmetic update to prevent confusion."
+        }
+      ],
+      "risks": [
+        "Sub-section depth decision: each old file is now ONE curriculum section, so its internal headings need a 3rd level (e.g. 5.2.1). If the team prefers only two-level numbering, the in-section numbers should be DROPPED entirely (title-only headings), changing ~20 of the 27 sites from 'renumber' to 'delete the number'. This is the single biggest design fork.",
+        "LabStation API choice: passing a pre-formatted string (number={`${getSectionNumber(id)}.2`}) keeps shared/ decoupled from curriculum but spreads the format string across call sites; passing sectionId+subIndex into LabStation would centralize it but makes a shared presentational component import the curriculum config (the file header explicitly warns shared must not depend upward — though curriculum.ts is itself in shared, so this is allowed; still a design call).",
+        "Test transmissionLines.test.tsx asserts heading/tab names by Title only (Reflections/Smith Chart/Inverse) and NOT by number, so renumbering headings won't break it; but the LabStation unit test hard-codes /3\\.3/ and must be updated if that literal is changed.",
+        "Renumbering visible Antennas eyebrows from 'Section 5.x' to '4.4.x' is a visible content change reviewers/owner should sign off on (it corrects a real pedagogical mislabel where Antennas appeared to live in Part 5).",
+        "If the helper computes index per-call at render time across 27 sites it is trivially cheap, but if any heading is generated in a .map the derived base should be computed once per file to avoid repetition."
+      ],
+      "openQuestions": [
+        "Two-level vs three-level numbering: should in-section headings show '5.2.1' (Part.Section.Sub) or should the per-heading number be removed entirely now that the file IS a single numbered section? This determines whether ~20 sites are renumbered or deleted.",
+        "Should getSectionNumber live in curriculum.ts (recommended) and be imported by domain module files, or should each LabStation/heading receive sectionId and a sub-index so the format string is centralized in one place?",
+        "Should the main section H1 (rendered by SectionLayout for em sections / by each module's own H1) ALSO be prefixed with its Part.Section number for consistency, or do numbers only appear on sub-headings? Currently no section H1 shows a number; adding them would be a broader, separate change beyond deleting the stale ones.",
+        "Does the owner want the banner CODE comments renumbered too (cosmetic, non-user-facing), or only the user-facing headings/props/eyebrows? I included them for code↔UI consistency but they could be left out of scope.",
+        "For the LabStation unit test literal 'number=\"3.3\"': keep it as an arbitrary presentational example, or change to a neutral placeholder to avoid implying it is a real course number?"
+      ]
+    },
+    {
+      "theme": "Theme D — Clickable landing section names",
+      "summary": "On the CourseLanding page (route `/`), each Part card lists its section names as plain, non-interactive text inside `<li>` elements, while only a single \"Start Part N\" link at the bottom of the card is clickable. This theme makes every individual section name a react-router `<Link>` deep-linking to `SECTIONS[id].route`, so users can jump straight to any section from the landing page. `Link` is already imported in CourseLanding.tsx, so no new import is required; the change is localized to the section-list `<li>` render and needs a focus ring for keyboard a11y.",
+      "changes": [
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "Lines 38-43 (the `part.sectionIds.map((id) => ( ... ))` block rendering each `<li>`); specifically line 41 `{SECTIONS[id].title}`",
+          "current": "{part.sectionIds.map((id) => (\n  <li key={id} className=\"flex items-center gap-2\">\n    <span className=\"w-1.5 h-1.5 rounded-full bg-engineering-blue-400 shrink-0\" aria-hidden=\"true\" />\n    {SECTIONS[id].title}\n  </li>\n))}",
+          "proposed": "Wrap the section title in a react-router `<Link>` that targets the section's own route, making each name an individual deep link. Replace the bare `{SECTIONS[id].title}` text node with a Link, keeping the decorative bullet. Concretely:\n\n{part.sectionIds.map((id) => (\n  <li key={id} className=\"flex items-center gap-2\">\n    <span className=\"w-1.5 h-1.5 rounded-full bg-engineering-blue-400 shrink-0\" aria-hidden=\"true\" />\n    <Link\n      to={SECTIONS[id].route}\n      className=\"rounded-sm hover:text-engineering-blue-600 dark:hover:text-engineering-blue-400 hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-engineering-blue-500\"\n    >\n      {SECTIONS[id].title}\n    </Link>\n  </li>\n))}\n\nNotes: `SECTIONS[id].route` is the existing per-section flat route (e.g. `/coulomb`) defined in curriculum.ts; the bullet `<span>` already has `aria-hidden`, so the link is the only focusable/announced element. The focus-ring classes match the codebase convention used in AiTutor.tsx (`focus:outline-none focus:ring-2 focus:ring-engineering-blue-500`).",
+          "rationale": "Turns each listed section name into a keyboard- and screen-reader-accessible deep link to that section, the core goal of the theme."
+        }
+      ],
+      "risks": [
+        "Visual-only risk: each section name becomes a clickable link with hover/underline styling, slightly changing the card's appearance — confirm with the owner that link styling (vs. the current muted plain text) is desired; this is the deferred 'MANUAL VISUAL walk' the owner already flagged.",
+        "No automated test currently asserts the landing section names are plain text, so nothing breaks. `src/__tests__/app.test.tsx` line 26 uses `getAllByText('Component Physics')` expecting >=1 match (sidebar NavLink + landing); since the title text content is preserved inside the new Link, that assertion still passes. The landing card now exposes 2 links for the first section's text path (the new section Link plus the existing 'Start Part 1' link still points at the first section's route) — harmless duplication, but worth noting if a future test counts links by role/name.",
+        "The bullet `<span>` stays outside the Link (decorative, aria-hidden), so only the text is the click/focus target. If a larger click area is desired, the Link could wrap the bullet too, but that would require moving `aria-hidden` handling — out of scope unless requested."
+      ],
+      "openQuestions": [
+        "Should the entire `<li>` row (bullet + name) be the clickable target for a larger hit area, or only the section name text (as proposed)? Proposed keeps the bullet decorative and only the name interactive.",
+        "Desired hover/focus visual treatment: the proposal uses hover color + underline + a focus ring matching the AiTutor convention. Confirm whether underline-on-hover fits the intended landing aesthetic, or whether it should match the sidebar NavLink hover-background style instead.",
+        "The existing 'Start Part N' link (line 45-51) targets the first section's route, which now duplicates the first section name's new Link target. Keep both, or is the per-section linking intended to replace/restyle the 'Start Part N' CTA? Proposed keeps both unchanged."
+      ]
+    },
+    {
+      "theme": "Theme E — Apply the locked \"Lab Instrument\" visual language (light cool-grey chassis)",
+      "summary": "Express the locked \"Lab Instrument\" palette by adding a token layer to src/index.css (a cool-grey chassis page bg, a per-Part quantity accent scale --color-part-1..5 plus matching label/LED/CTA tokens, and a deepened-for-light physics scale), then apply it to the four chrome surfaces: the page chassis (Layout/body), CourseLanding Part cards (white card + 4px left border colour-keyed per Part + mono \"PART NN · QUANTITY\" tag + green LED), the shared Sidebar (chassis rail, neutral header, Part labels with quantity tags, completion as a green LED), the docked LabStation frame, and the em PhysicsChart container. Dark mode stays as the existing `.dark`-class variant: every new light token gets a `.dark`-scoped override so the instrument look is light-default and dark coexists unchanged.",
+      "changes": [
+        {
+          "file": "src/index.css",
+          "location": "@theme block, after the engineering-blue scale (after line 22), before the physics colors (line 24)",
+          "current": "  --color-engineering-blue-950: #172554;\n\n  /* Physics domain colors (M1 canonical) */",
+          "proposed": "Add instrument-chassis + Part-accent tokens inside @theme (so Tailwind generates utilities like bg-chassis / border-part-1 / text-part-1-label and they are available as var(--…)):\n  --color-chassis: #f1f5f9;            /* page bg */\n  --color-card: #ffffff;               /* card bg */\n  --color-card-border: #e2e8f0;        /* card border */\n  --color-title: #0f172a;              /* heading text */\n  --color-muted: #64748b;              /* muted text / mono labels */\n  --color-led: #10b981;                /* green \"live\" LED */\n  --color-cta: #2563eb;                /* primary CTA */\n  /* Per-Part accent (left border + quantity tag), keyed to a physics quantity */\n  --color-part-1: #d97706;  --color-part-1-label: #b45309;  /* current */\n  --color-part-2: #dc2626;  --color-part-2-label: #b91c1c;  /* e-field */\n  --color-part-3: #2563eb;  --color-part-3-label: #1d4ed8;  /* b-field */\n  --color-part-4: #7c3aed;  --color-part-4-label: #6d28d9;  /* waves  */\n  --color-part-5: #059669;  --color-part-5-label: #047857;  /* power  */",
+          "rationale": "Single source of truth for the locked palette; Part tokens give CourseLanding/Sidebar a numeric (1..5) lookup that maps directly to getPartForSection().number."
+        },
+        {
+          "file": "src/index.css",
+          "location": "@theme block, the four physics tokens, lines 24-28",
+          "current": "  /* Physics domain colors (M1 canonical) */\n  --color-e-field: #dc2626;\n  --color-b-field: #2563eb;\n  --color-current: #d97706;\n  --color-power: #9333ea;",
+          "proposed": "Deepen physics accents for the light chassis (only --color-power actually changes value; the others are re-affirmed and gain *-label companions used by mono tags):\n  --color-e-field: #dc2626;  --color-e-field-label: #b91c1c;\n  --color-b-field: #2563eb;  --color-b-field-label: #1d4ed8;\n  --color-current: #d97706;  --color-current-label: #b45309;\n  --color-waves: #7c3aed;    --color-waves-label: #6d28d9;\n  --color-power: #059669;    --color-power-label: #047857;",
+          "rationale": "Locked spec changes power from purple #9333ea to green #059669 and introduces a waves accent; the *-label deepenings back the mono quantity tags. (See risk: power #9333ea is referenced as a canvas color elsewhere — coordinate.)"
+        },
+        {
+          "file": "src/index.css",
+          "location": "after the @theme block, new dark-mode token overrides (insert near the existing `.dark body` rule, around lines 41-43)",
+          "current": ".dark body {\n  @apply bg-slate-900 text-slate-100;\n}",
+          "proposed": "Keep `.dark body` and add a `.dark { … }` (or `.dark:root`) block that re-points the new light tokens for dark mode so the instrument look is light-default and dark coexists:\n.dark {\n  --color-chassis: #0f172a;\n  --color-card: #1e293b;\n  --color-card-border: #334155;\n  --color-title: #f1f5f9;\n  --color-muted: #94a3b8;\n  /* LED/CTA can stay; Part accents may lighten one step for contrast on dark cards if desired */\n}",
+          "rationale": "Tokens defined in @theme are global; without a .dark override the chassis/card/title tokens would render light surfaces in dark mode. This is the explicit coexistence mechanism the spec asks to note."
+        },
+        {
+          "file": "src/index.css",
+          "location": "body rule, lines 36-39",
+          "current": "body {\n  @apply bg-slate-50 text-slate-900 antialiased;\n  margin: 0;\n}",
+          "proposed": "Point the body background at the chassis token (and title text token):\nbody {\n  @apply text-[color:var(--color-title)] antialiased;\n  background-color: var(--color-chassis);\n  margin: 0;\n}\n(Equivalently keep @apply and swap bg-slate-50 → a `bg-chassis` utility once the token exists. slate-50=#f8fafc differs from locked chassis #f1f5f9=slate-100.)",
+          "rationale": "Locked chassis is #f1f5f9 (slate-100), not the current slate-50; route it through the token so dark mode override applies."
+        },
+        {
+          "file": "src/shared/components/layout/Layout.tsx",
+          "location": "root wrapper div, line 24",
+          "current": "    <div className=\"flex h-screen bg-slate-50 dark:bg-slate-900\">",
+          "proposed": "Use the chassis token: <div className=\"flex h-screen bg-chassis\"> (the token's .dark override supplies the dark surface, so the explicit dark:bg-slate-900 can be dropped).",
+          "rationale": "Layout owns the visible page chassis behind the scrolling content; it must read #f1f5f9, not slate-50."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "imports, line 3",
+          "current": "import { PARTS, SECTIONS } from '@shared/constants/curriculum';",
+          "proposed": "Add the heading text token / no import change strictly needed for Part number (part.number already available). If a quantity NAME tag is desired (\"PART 01 · CURRENT\"), add a small const QUANTITY_BY_PART = {1:'CURRENT',2:'E-FIELD',3:'B-FIELD',4:'WAVES',5:'POWER'} in this file (or export from curriculum) keyed by part.number.",
+          "rationale": "The mono tag needs a quantity word per Part; part.number drives both the accent token (--color-part-N) and the label text."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "Part card wrapper, lines 27-30",
+          "current": "            <div\n              key={part.id}\n              className=\"bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col\"\n            >",
+          "proposed": "White card + token border + 4px Part-keyed left border:\n            <div\n              key={part.id}\n              style={{ borderLeftColor: `var(--color-part-${part.number})` }}\n              className=\"bg-card rounded-xl border border-card-border border-l-4 p-6 shadow-sm flex flex-col\"\n            >\n(left-border colour set via inline style/CSS var because part.number is dynamic; Tailwind can't statically generate border-part-N classes.)",
+          "rationale": "Locked card = white, border #e2e8f0, with a 4px left border colour-keyed per Part to its physics quantity."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "Part number badge + heading, lines 31-36",
+          "current": "              <div className=\"flex items-center gap-3 mb-3\">\n                <span className=\"w-9 h-9 rounded-full bg-engineering-blue-600 text-white flex items-center justify-center font-bold shrink-0\">\n                  {part.number}\n                </span>\n                <h2 className=\"text-lg font-bold text-slate-900 dark:text-white\">{part.title}</h2>\n              </div>",
+          "proposed": "Replace the blue badge with a mono quantity tag tinted in the Part accent, add a green live LED, and route the title through the title token:\n              <div className=\"mb-3\">\n                <p className=\"font-mono text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1.5\"\n                   style={{ color: `var(--color-part-${part.number}-label)` }}>\n                  <span className=\"w-1.5 h-1.5 rounded-full\" style={{ background: 'var(--color-led)' }} aria-hidden=\"true\" />\n                  PART {String(part.number).padStart(2,'0')} · {QUANTITY_BY_PART[part.number]}\n                </p>\n                <h2 className=\"mt-1 text-lg font-bold text-[color:var(--color-title)]\">{part.title}</h2>\n              </div>",
+          "rationale": "Locked spec: mono Part labels carry a quantity tag (e.g. \"PART 01 · CURRENT\") tinted in the accent, plus the green live LED; drops the engineering-blue circular badge."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "section bullet markers, line 40",
+          "current": "                    <span className=\"w-1.5 h-1.5 rounded-full bg-engineering-blue-400 shrink-0\" aria-hidden=\"true\" />",
+          "proposed": "Tint bullets in the Part accent: <span className=\"w-1.5 h-1.5 rounded-full shrink-0\" style={{ background: `var(--color-part-${part.number})` }} aria-hidden=\"true\" />",
+          "rationale": "Carry the per-Part physics accent through the card body instead of generic engineering-blue."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "list text + muted copy, lines 17 and 37",
+          "current": "        <p className=\"mt-3 text-slate-600 dark:text-slate-400\"> … </p>\n              <ul className=\"text-sm text-slate-600 dark:text-slate-400 space-y-1 mb-4 flex-1\">",
+          "proposed": "Route muted copy through the muted token: text-[color:var(--color-muted)] (drop the dark: variant — token handles it). Apply to the intro <p> (line 17) and the section <ul> (line 37).",
+          "rationale": "Locked muted text is #64748b; centralising it on the token keeps light/dark consistent."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "\"Start Part N\" CTA link, lines 45-51",
+          "current": "              <Link\n                to={first.route}\n                className=\"inline-flex items-center gap-1.5 text-sm font-semibold text-engineering-blue-600 dark:text-engineering-blue-400 hover:gap-2.5 transition-all\"\n              >",
+          "proposed": "Tint the CTA in the CTA token (#2563eb) or the Part accent. Minimal: className=\"inline-flex items-center gap-1.5 text-sm font-semibold text-[color:var(--color-cta)] hover:gap-2.5 transition-all\".",
+          "rationale": "Locked CTA colour is #2563eb; make it a token so it survives palette tweaks."
+        },
+        {
+          "file": "src/shared/components/CourseLanding.tsx",
+          "location": "page title, line 14",
+          "current": "        <h1 className=\"text-3xl md:text-4xl font-bold text-slate-900 dark:text-white\">",
+          "proposed": "Route through the title token: text-[color:var(--color-title)] (drop dark:text-white).",
+          "rationale": "Locked title colour #0f172a centralised via token; dark override handled in CSS."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "aside root, line 18",
+          "current": "    <aside className=\"w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full\">",
+          "proposed": "Make the rail a card surface on the chassis: className=\"w-64 bg-card border-r border-card-border flex flex-col h-full\" (token handles dark).",
+          "rationale": "Sidebar is a white instrument panel; route bg/border through card tokens for consistency with cards."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "header band, lines 19-22",
+          "current": "      <div className=\"p-6 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-br from-engineering-blue-600 to-engineering-blue-800\">\n        <h1 className=\"text-xl font-bold text-white\">EM&AC Lab</h1>\n        <p className=\"text-sm text-engineering-blue-200 mt-1\">Electromagnetism &amp; Circuit Analysis</p>",
+          "proposed": "Replace the engineering-blue gradient with a neutral instrument header (chassis tint + title/muted tokens), optionally with a green LED for the \"live\" instrument cue:\n      <div className=\"p-6 border-b border-card-border bg-chassis\">\n        <h1 className=\"text-xl font-bold text-[color:var(--color-title)] flex items-center gap-2\">\n          <span className=\"w-2 h-2 rounded-full\" style={{ background: 'var(--color-led)' }} aria-hidden=\"true\" />EM&AC Lab</h1>\n        <p className=\"text-sm text-[color:var(--color-muted)] mt-1\">Electromagnetism &amp; Circuit Analysis</p>\n      </div>",
+          "rationale": "The locked language is a cool-grey chassis with a green live LED, not a saturated blue gradient masthead."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "Course Home active/idle states, lines 31-35",
+          "current": "              isActive\n                ? 'bg-engineering-blue-50 dark:bg-engineering-blue-900/30 text-engineering-blue-700 dark:text-engineering-blue-300 font-semibold'\n                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700',",
+          "proposed": "Use the CTA token for the active state and muted token for idle:\n              isActive\n                ? 'bg-[color:var(--color-cta)]/10 text-[color:var(--color-cta)] font-semibold'\n                : 'text-[color:var(--color-muted)] hover:bg-chassis',",
+          "rationale": "Active nav = CTA-tinted; keeps the instrument neutral elsewhere."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "Part group label, lines 44-46",
+          "current": "            <p className=\"text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 px-2\">\n              Part {part.number} · {part.title}\n            </p>",
+          "proposed": "Mono Part label carrying a quantity tag tinted in the Part accent:\n            <p className=\"font-mono text-[10px] font-semibold uppercase tracking-widest mb-2 px-2\"\n               style={{ color: `var(--color-part-${part.number}-label)` }}>\n              PART {String(part.number).padStart(2,'0')} · {QUANTITY_BY_PART[part.number]}\n            </p>\n(QUANTITY_BY_PART shared with CourseLanding, ideally exported from curriculum.)",
+          "rationale": "Locked spec: mono Part labels carry a quantity tag tinted in the accent (e.g. \"PART 01 · CURRENT\")."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "section NavLink active/idle states, lines 58-62",
+          "current": "                          isActive\n                            ? 'bg-engineering-blue-50 dark:bg-engineering-blue-900/30 text-engineering-blue-700 dark:text-engineering-blue-300 font-semibold border-l-3 border-engineering-blue-600'\n                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white',",
+          "proposed": "Key the active row's left-border to the Part accent (the left-border is the section equivalent of the card's 4px keyed border):\n                          isActive\n                            ? 'bg-chassis text-[color:var(--color-title)] font-semibold border-l-[3px]'\n                            : 'text-[color:var(--color-muted)] hover:bg-chassis hover:text-[color:var(--color-title)]',\n   plus, on the active NavLink, style={{ borderLeftColor: isActive ? `var(--color-part-${part.number})` : 'transparent' }} (the section's part is getPartForSection(id) or simply `part` from the enclosing map).",
+          "rationale": "Carries the per-Part physics accent onto the active nav marker instead of fixed engineering-blue."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "completion icon, lines 65-68",
+          "current": "                      <CheckCircle2\n                        className={cn('w-4 h-4 shrink-0', done ? 'text-green-500' : 'text-slate-300 dark:text-slate-600')}\n                        aria-hidden=\"true\"\n                      />",
+          "proposed": "Express completion as the green \"live\" LED token rather than a generic green icon:\n                      <span\n                        className=\"w-2 h-2 rounded-full shrink-0\"\n                        style={{ background: done ? 'var(--color-led)' : 'var(--color-card-border)' }}\n                        aria-hidden=\"true\"\n                      />\n(or keep CheckCircle2 but set its colour to var(--color-led) when done). Keep an accessible label/aria for completion status.",
+          "rationale": "Locked language uses a green #10b981 LED to signal a completed/live station."
+        },
+        {
+          "file": "src/shared/components/layout/Sidebar.tsx",
+          "location": "footer block, lines 79-91",
+          "current": "      <div className=\"p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50\"> … toggle button … <p className=\"text-[10px] text-slate-400 dark:text-slate-500 …\">",
+          "proposed": "Route footer surface/border/text through tokens: border-card-border, bg-chassis, text-[color:var(--color-muted)]; the dark-mode toggle button stays functional (it flips the .dark class which re-points all tokens).",
+          "rationale": "Keep the footer consistent with the chassis tokens; confirms the existing theme toggle is the dark-coexistence entry point."
+        },
+        {
+          "file": "src/shared/components/common/LabStation.tsx",
+          "location": "section wrapper, lines 41-45",
+          "current": "      className={cn(\n        'rounded-xl border border-engineering-blue-200 dark:border-engineering-blue-800',\n        'bg-white dark:bg-slate-800 shadow-md overflow-hidden',\n        className,\n      )}",
+          "proposed": "Make the station a white instrument card with the neutral token border (and, if the station should read as part of a Part, a 4px left border in the Part accent — optional, depends on whether LabStation receives a part/accent prop):\n      className={cn(\n        'rounded-xl border border-card-border bg-card shadow-md overflow-hidden',\n        className,\n      )}",
+          "rationale": "Locked cards are white with #e2e8f0 border; the current engineering-blue tinted border is off-palette."
+        },
+        {
+          "file": "src/shared/components/common/LabStation.tsx",
+          "location": "header band, line 47",
+          "current": "      <div className=\"flex items-start gap-3 px-5 py-3 border-b border-engineering-blue-100 dark:border-engineering-blue-900/40 bg-engineering-blue-50/60 dark:bg-engineering-blue-900/10\">",
+          "proposed": "Neutral header band on the chassis tint: className=\"flex items-start gap-3 px-5 py-3 border-b border-card-border bg-chassis\". Consider a green live LED next to the FlaskConical icon to signal an interactive (live) station.",
+          "rationale": "Removes the saturated blue band; the instrument header is cool-grey with an optional LED cue."
+        },
+        {
+          "file": "src/shared/components/common/LabStation.tsx",
+          "location": "FlaskConical icon + \"Interactive Lab\" eyebrow + number, lines 48-60",
+          "current": "        <FlaskConical className=\"w-5 h-5 text-engineering-blue-600 dark:text-engineering-blue-400 shrink-0 mt-0.5\" … />\n          <p className=\"text-[10px] font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-widest mb-0.5\">Interactive Lab</p>\n          <h2 …> … <span className=\"font-mono text-sm text-engineering-blue-600 dark:text-engineering-blue-400 mr-2\">{number}</span> …",
+          "proposed": "Tint the icon and the mono eyebrow/number in the muted/accent tokens rather than engineering-blue. Minimal: icon → text-[color:var(--color-muted)] (or a passed Part accent); eyebrow \"Interactive Lab\" → font-mono uppercase tracking-widest text-[color:var(--color-muted)]; the {number} mono span → text-[color:var(--color-muted)] (or accent). Title h2 → text-[color:var(--color-title)].",
+          "rationale": "Aligns the mono labels with the instrument palette (muted #64748b labels, accent reserved for the Part); keeps the existing mono treatment which the locked language endorses."
+        },
+        {
+          "file": "src/shared/components/common/LabStation.tsx",
+          "location": "objective text, lines 64-66",
+          "current": "            <p className=\"text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-1\">",
+          "proposed": "Route through muted token: text-[color:var(--color-muted)].",
+          "rationale": "Consistent muted body text token across surfaces."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "card container + title, lines 34-35",
+          "current": "    <div className=\"bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm\">\n      <h3 className=\"text-sm font-bold text-slate-800 dark:text-slate-200 mb-3\">{title}</h3>",
+          "proposed": "White card with token border + title token:\n    <div className=\"bg-card rounded-xl border border-card-border p-4 shadow-sm\">\n      <h3 className=\"text-sm font-bold text-[color:var(--color-title)] mb-3\">{title}</h3>",
+          "rationale": "Bring the chart container onto the locked card tokens (white #fff, border #e2e8f0)."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "axis text + grid colors, lines 30-31",
+          "current": "  const textColor = isDarkMode ? '#94a3b8' : '#64748b';\n  const gridColor = isDarkMode ? '#334155' : '#e2e8f0';",
+          "proposed": "Keep the JS values (recharts needs concrete strings, not CSS vars on SVG attrs) but note they already match the locked palette: light text #64748b = --color-muted, light grid #e2e8f0 = --color-card-border. No value change needed; optionally read them from a small token map if one is introduced. Leave dark branch as-is.",
+          "rationale": "Recharts axis/grid colours are passed as literal strings; they already equal the locked muted/border values, so light mode is already on-palette — this is a confirm-only touchpoint, not a required edit."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "Tooltip contentStyle, lines 48-55",
+          "current": "            contentStyle={{\n              backgroundColor: isDarkMode ? '#1e293b' : '#fff',\n              border: `1px solid ${gridColor}`,\n              borderRadius: '8px',\n              fontSize: '11px',\n              color: isDarkMode ? '#e2e8f0' : '#1e293b',\n            }}",
+          "proposed": "Light tooltip already uses #fff bg + #e2e8f0 border (on-palette); optionally swap text color from #1e293b to the title token value #0f172a for exact match. Low priority.",
+          "rationale": "Tooltip light styling is already essentially the locked card; only the text colour differs slightly from locked #0f172a."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "Line stroke (caller-provided color), lines 58-67 + ChartLine.color prop (lines 13-17)",
+          "current": "              stroke={line.color}",
+          "proposed": "No change in this file: line.color is caller-supplied. Action item lives at the CALL SITES — series colours should be passed from the deepened physics tokens (--color-e-field/-b-field/-current/-waves/-power) so traces match the locked accents. Audit em section call sites of PhysicsChart to pass token-aligned hex (notably any old purple power #9333ea → #059669).",
+          "rationale": "PhysicsChart is colour-agnostic; the locked accent alignment must happen where each <PhysicsChart lines={[…]}/> is built (out of this file's scope, flag for the call-site sweep)."
+        }
+      ],
+      "risks": [
+        "--color-power changes from #9333ea (purple) to #059669 (green). em/constants/physics.ts COLORS.POWER (#9333ea) and COLORS_DARK.POWER (#a78bfa) are SEPARATE canvas constants, not the CSS token — they will NOT change automatically and could drift from the new green power accent. Decide whether canvas power should also move to green (consistency) or stay purple (avoid clashing with the new --color-part-5/power green). This is the highest-impact cross-file inconsistency.",
+        "Tailwind v4 @theme generates utilities only for STATIC class names; per-Part accents (border-part-1..5) cannot be applied via dynamic `border-part-${n}` class strings. The scoping uses inline style={{…: `var(--color-part-${n})`}} for the dynamic cases (cards, bullets, active nav border) — confirm this is acceptable vs. a static map of 5 className strings.",
+        "Body bg currently slate-50 (#f8fafc) vs locked chassis #f1f5f9 (slate-100): a real, if subtle, value change across every page. Verify against the manual visual walk.",
+        "174 occurrences of engineering-blue / physics-token classes across 36 files. Theme E only retints the 5 enumerated chrome surfaces; the broader engineering-blue usage in section bodies, Tabs, AiTutor, CourseNavigation, transmission/circuits modules is OUT OF SCOPE here and will look mixed (blue brand + new instrument palette) until a later content sweep.",
+        "Removing the engineering-blue gradient sidebar header and the blue Part badge is a visible brand change; confirm the owner wants the masthead neutralised rather than re-tinted.",
+        "Recharts axis/grid/tooltip colours are literal JS strings (cannot consume CSS vars on SVG attributes); they happen to already match the locked light palette, but if the tokens are ever retuned, PhysicsChart's hardcoded values will silently diverge.",
+        "Replacing the CheckCircle2 completion icon with a plain LED dot drops an icon affordance; ensure an accessible completion label/aria-label is retained (current icon is aria-hidden and conveys state only visually)."
+      ],
+      "openQuestions": [
+        "Should the per-Part quantity word for the mono tag (CURRENT/E-FIELD/B-FIELD/WAVES/POWER) be exported from curriculum.ts (single source, reused by CourseLanding + Sidebar) or kept as a local const in each component? curriculum.ts is deliberately metadata-only with no styling — adding a quantity LABEL is arguably metadata, but a colour/accent would be styling. Where should the Part→quantity mapping live?",
+        "Should LabStation accept a Part/accent prop so its card gets the 4px left border keyed to the section's Part (matching CourseLanding cards), or stay a neutral white card with no Part accent? It currently has no awareness of which section/Part it sits in.",
+        "Should the canvas physics palette in em/constants/physics.ts (COLORS/COLORS_DARK) be brought in line with the deepened CSS tokens (esp. POWER purple→green, and a new WAVES accent), or is that explicitly out of Theme E's scope (canvas styling = a different theme)?",
+        "Does the locked language want section-body engineering-blue accents (Tabs, CTAs, AiTutor, CourseNavigation, prediction gates) retinted in this pass, or is Theme E strictly the 5 enumerated chrome surfaces (CSS tokens + CourseLanding + Sidebar + LabStation + PhysicsChart)?",
+        "For dark mode, should the Part accents (--color-part-N) lighten one step on dark cards for contrast (e.g. current #d97706→#f59e0b), or stay identical to light? The spec only specifies the light values and says dark must 'coexist'.",
+        "Exact green for the completion/live LED in dark mode — keep #10b981 or lighten? And should the existing CheckCircle2 icon be kept (recoloured to the LED) or replaced by a dot?"
+      ]
+    },
+    {
+      "theme": "Theme F — Add blocking predict-first PredictionGate to the 9 sections missing it",
+      "summary": "Wraps the primary interactive sim/element in each of the 9 ungated sections (Parts 1/2/4) in a blocking PredictionGate, following the two established patterns: the EM sections copy the faraday model (blocking gate as the first child of SectionLayout, wired via onPredict={(c)=>markPredictionGate('<id>', c)}); the three circuits sections copy the transmission-lines model where the gate is reused across remounts (tab-driven sims need lifted unlocked state via initialPassed/onPassed). All store keys equal the section id. No curriculum or expectedChecks change is required — markPredictionGate only bumps predictionGatesAnswered/Correct and never feeds isModuleComplete (which keys solely off conceptChecksCompleted >= getExpectedChecks), so completion badges are unaffected.",
+      "changes": [
+        {
+          "file": "src/em/sections/coulomb/index.tsx",
+          "location": "Imports block (after line 14 `import { ConceptCheck } ...`); and the JSX `{/* ── Interactive simulation ── */}` block at lines 458-550 (the `<div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\">` … `</ControlPanel></div>`), which is the first child of <SectionLayout>",
+          "current": "import { ConceptCheck } from '@shared/components/common/ConceptCheck';\n...\n  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n...\n      {/* ── Interactive simulation ── */}\n      <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\"> ... </ControlPanel>\n      </div>\n\n      {/* Check: field-line direction ... */}",
+          "proposed": "1) Add import: `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add store hook in component body: `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the entire interactive-sim grid div (lines 459-550) in a blocking PredictionGate as the FIRST child of SectionLayout (faraday pattern), e.g.\n<PredictionGate\n  question=\"Two equal positive charges sit side by side. At the exact midpoint between them, what is the net electric field?\"\n  options={[{id:'zero',label:'Zero'},{id:'toward',label:'Points toward one charge'},{id:'max',label:'Maximum (largest on the line)'},{id:'up',label:'Points straight up'}]}\n  getCorrectAnswer={() => 'zero'}\n  explanation={<span>The two equal charges push a test charge in opposite directions along the line joining them, so the horizontal contributions cancel and |E| = 0 at the midpoint — vector superposition.</span>}\n  onPredict={(correct) => markPredictionGate('coulomb', correct)}\n>\n  {/* existing interactive-simulation grid */}\n</PredictionGate>",
+          "rationale": "Gates the draggable-charge field/force canvas (the primary sim) behind a superposition prediction; faraday-style blocking gate, store key 'coulomb'."
+        },
+        {
+          "file": "src/em/sections/gauss/index.tsx",
+          "location": "Imports (after line 14 `import { ConceptCheck } ...`); component body store hooks (lines 90-91); JSX interactive-sim block lines 324-372 (`{/* ── Interactive simulation ── */}` `<div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\">` … closing `</ControlPanel></div>`), first child of <SectionLayout sectionId=\"gauss\">",
+          "current": "  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n...\n      {/* ── Interactive simulation ── */}\n      <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\"> ... </ControlPanel>\n      </div>\n\n      {/* ── Inline concept checks ... */}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the interactive-sim grid (lines 325-372) in a blocking PredictionGate:\n<PredictionGate\n  question=\"You enclose a fixed charge +Q in a Gaussian sphere, then double the sphere's radius. What happens to the total electric flux through it?\"\n  options={[{id:'quadruples',label:'It quadruples'},{id:'doubles',label:'It doubles'},{id:'same',label:'It stays the same'},{id:'quarter',label:'It drops to one quarter'}]}\n  getCorrectAnswer={() => 'same'}\n  explanation={<span>Gauss's law gives Φ_E = Q_enc/ε₀ — flux depends only on the enclosed charge, not on the surface radius, so it is unchanged.</span>}\n  onPredict={(correct) => markPredictionGate('gauss', correct)}\n>\n  {/* existing interactive-simulation grid */}\n</PredictionGate>",
+          "rationale": "Gates the Gaussian-surface E/B flux canvas (resizable radius slider) behind the flux-independence-of-radius prediction; store key 'gauss'. (Mirrors the existing Q_FLUX_RADIUS concept check.)"
+        },
+        {
+          "file": "src/em/sections/ampere/index.tsx",
+          "location": "Imports (after line 15 `import { ConceptCheck } ...`); component body store hooks (lines 79-80); JSX interactive-sim block lines 322-371 (`{/* ── Interactive simulation ── */}` `<div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\">` … closing `</ControlPanel></div>`), first child of <SectionLayout sectionId=\"ampere\">",
+          "current": "  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n  const onCheckComplete = () => incrementConceptChecks('ampere');\n...\n      {/* ── Interactive simulation ── */}\n      <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\"> ... </ControlPanel>\n      </div>\n\n      {/* Check: right-hand grip rule ... */}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the interactive-sim grid (lines 323-371) in a blocking PredictionGate:\n<PredictionGate\n  question=\"You measure B at distance r from a long straight wire, then move the probe to 2r. How does the field magnitude change?\"\n  options={[{id:'half',label:'It halves'},{id:'quarter',label:'It drops to one quarter'},{id:'same',label:'It stays the same'},{id:'double',label:'It doubles'}]}\n  getCorrectAnswer={() => 'half'}\n  explanation={<span>For a straight wire B = μ₀I/(2πr) ∝ 1/r, so doubling r halves the field (a 1/r law, not 1/r²).</span>}\n  onPredict={(correct) => markPredictionGate('ampere', correct)}\n>\n  {/* existing interactive-simulation grid */}\n</PredictionGate>",
+          "rationale": "Gates the current-carrying-wire B-field canvas (draggable radius marker) behind the 1/r-distance prediction; store key 'ampere'."
+        },
+        {
+          "file": "src/em/sections/maxwell/index.tsx",
+          "location": "Imports (after line 8 `import { ConceptCheck } ...`); component body store hooks (lines 171-172); JSX animated 4-card block lines 316-349 (`{/* ── Animated 4-equation overview ── */}` `<div className=\"grid grid-cols-1 md:grid-cols-2 gap-6 p-2\">` … closing `</div>`), first child of <SectionLayout sectionId=\"maxwell\">",
+          "current": "  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n  const onCheckComplete = () => incrementConceptChecks('maxwell');\n...\n      {/* ── Animated 4-equation overview ── */}\n      <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6 p-2\"> ...4 MaxwellCard... </div>\n\n      {/* Check: which equation introduces displacement current ... */}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the 4-card animated overview grid (lines 316-349) in a blocking PredictionGate:\n<PredictionGate\n  question=\"Which single addition to Ampère's law let Maxwell predict self-propagating electromagnetic waves?\"\n  options={[{id:'monopole',label:'A magnetic monopole term'},{id:'displacement',label:'The displacement current ε₀ dΦ_E/dt'},{id:'gravity',label:'A gravitational coupling term'},{id:'charge',label:'A new electric-charge source term'}]}\n  getCorrectAnswer={() => 'displacement'}\n  explanation={<span>Maxwell added the displacement current ε₀ dΦ_E/dt, which closes the E↔B feedback loop and yields the wave equation with c = 1/√(μ₀ε₀).</span>}\n  onPredict={(correct) => markPredictionGate('maxwell', correct)}\n>\n  {/* existing 4-card animated overview grid */}\n</PredictionGate>",
+          "rationale": "Maxwell has no slider/canvas sim — the primary interactive element is the 4 clickable animated MaxwellCards; gate them behind the displacement-current prediction; store key 'maxwell'."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "Imports (after line 16 `import { ConceptCheck } ...`); component body store hooks (lines 83-84); JSX interactive-sim block lines 958-1109 (`{/* ── Interactive simulation with internal view selector ── */}` `<div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\">` … its closing `</div>`), first child of <SectionLayout sectionId=\"em-wave\">",
+          "current": "  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n  const onCheckComplete = () => incrementConceptChecks('em-wave');\n...\n      {/* ── Interactive simulation with internal view selector (genuine sim state) ── */}\n      <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\"> ...canvas + ControlPanel... </div>\n\n      {/* ── Inline concept checks ... */}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the interactive-sim grid (lines 959-1109) in a blocking PredictionGate:\n<PredictionGate\n  question=\"A plane EM wave travels in +z with its E field along x. Along which axis does the B field oscillate?\"\n  options={[{id:'x',label:'Along x (parallel to E)'},{id:'y',label:'Along y'},{id:'z',label:'Along z (direction of travel)'},{id:'none',label:'B does not oscillate'}]}\n  getCorrectAnswer={() => 'y'}\n  explanation={<span>E, B and k form a right-handed triad with E×B ∝ k. With E along x̂ and k along ẑ, B must lie along ŷ (x̂×ŷ=ẑ).</span>}\n  onPredict={(correct) => markPredictionGate('em-wave', correct)}\n>\n  {/* existing interactive-simulation grid */}\n</PredictionGate>",
+          "rationale": "Gates the multi-view wave/phasor canvas (the primary sim) behind the E/B/k right-handed-triad prediction; store key 'em-wave'. (Mirrors existing Q_TRIAD.) Note: the gate must wrap ONLY the sim grid, not the inline ConceptCheck list that follows."
+        },
+        {
+          "file": "src/em/sections/polarization/index.tsx",
+          "location": "Imports (after line 17 `import { ConceptCheck } ...`); component body store hooks (lines 84-85); JSX interactive-sim block lines 384-480 (`{/* ── Interactive simulation ── */}` `<div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\">` … closing `</ControlPanel></div>`), first child of <SectionLayout sectionId=\"polarization\">",
+          "current": "  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n  const onCheckComplete = () => incrementConceptChecks('polarization');\n...\n      {/* ── Interactive simulation ── */}\n      <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-6\"> ...canvas + ControlPanel... </div>\n\n      {/* Check: linear as superposition ... */}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the interactive-sim grid (lines 385-480) in a blocking PredictionGate:\n<PredictionGate\n  question=\"Two orthogonal E-field components of EQUAL amplitude are combined with a 90° phase difference. What polarization state results?\"\n  options={[{id:'linear',label:'Linear'},{id:'circular',label:'Circular'},{id:'elliptical',label:'Elliptical (axial ratio ≠ 1)'},{id:'unpolarized',label:'Unpolarized'}]}\n  getCorrectAnswer={() => 'circular'}\n  explanation={<span>Equal amplitudes with δ = ±90° make the E-vector tip trace a circle (Ex²+Ey² = const) — circular polarization. δ = 0°/180° gives linear; unequal amplitudes give elliptical.</span>}\n  onPredict={(correct) => markPredictionGate('polarization', correct)}\n>\n  {/* existing interactive-simulation grid */}\n</PredictionGate>",
+          "rationale": "Gates the Lissajous/3D polarization canvas (Ex/Ey/δ sliders) behind the circular-polarization condition prediction; store key 'polarization'. (Mirrors existing Q_CIRCULAR.)"
+        },
+        {
+          "file": "src/circuits/components/modules/ComponentPhysics/index.tsx",
+          "location": "Imports (after line 13 `import { GuidedChallenge } ...`); component body store hooks (lines 33-35); JSX tab-strip + tab-panel block lines 92-154 (the `<div className=\"flex border-b-2 ...\">` tab strip plus the three `{activeComponent === '...' && <...Section .../>}` panels)",
+          "current": "import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';\nimport { useProgressStore } from '@shared/store/progressStore';\n...\n  const markVisited = useProgressStore((s) => s.markVisited);\n  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n...\n      <div className=\"flex border-b-2 ...\"> ...resistor/capacitor/inductor tabs... </div>\n      {activeComponent === 'resistor' && (<ResistorSection .../>)}\n      {activeComponent === 'capacitor' && (<CapacitorSection .../>)}\n      {activeComponent === 'inductor' && (<InductorSection .../>)}\n      <GuidedChallenge challenge={CHALLENGE} />",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Insert a blocking, non-skippable PredictionGate wrapping the tab strip + the three component panels (lines 92-154). Because the panels are gated state-toggled (not remounted by a TabSet), a plain blocking gate suffices — but use allowSkip={false} per the transmission model:\n<PredictionGate\n  allowSkip={false}\n  question=\"A solenoid's inductance is L = μN²A/l. If you double the number of turns N (keeping geometry fixed), how does L change?\"\n  options={[{id:'2x',label:'Doubles (×2)'},{id:'4x',label:'Quadruples (×4)'},{id:'same',label:'Unchanged'},{id:'half',label:'Halves'}]}\n  getCorrectAnswer={() => '4x'}\n  explanation={<span>L depends on N², so doubling N multiplies L by 2² = 4. (R and C scale linearly with their geometry; only the inductor has a squared dependence.)</span>}\n  onPredict={(correct) => markPredictionGate('component-physics', correct)}\n>\n  {/* tab strip + active component panel */}\n</PredictionGate>",
+          "rationale": "Gates the R/C/L interactive parameter-explorer tabs (the primary sim) behind the N² inductance prediction; circuits section so allowSkip={false} per transmission model; store key 'component-physics'. See open question on whether to also gate the 3 figures above."
+        },
+        {
+          "file": "src/circuits/components/modules/TimeDomain/index.tsx",
+          "location": "Imports (after line 16 `import { CircuitAnalysisExercise } ...`); component body store hooks (lines 42-44); JSX circuit-type tab strip + comparison panels lines 71-89 (the `<div id=\"circuit-analysis\" ... flex border-b-2 ...>` RC/RL/RLC tab strip plus the three `{selectedCircuit === '...' && <...CircuitComparison />}` lines). NOTE the loader maps section id 'circuit-analysis' → this `TimeDomain` component.",
+          "current": "  const markVisited = useProgressStore((s) => s.markVisited);\n  const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);\n  const incrementHints = useProgressStore((s) => s.incrementHints);\n...\n      <div id=\"circuit-analysis\" className=\"scroll-mt-4 flex border-b-2 ...\"> ...RC/RL/RLC tabs... </div>\n\n      {selectedCircuit === 'RC' && <RCCircuitComparison />}\n      {selectedCircuit === 'RL' && <RLCircuitComparison />}\n      {selectedCircuit === 'RLC' && <RLCCircuitComparison />}",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) Add `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);`. 3) Wrap the circuit-type tab strip + the three comparison panels (lines 71-89) in a blocking, non-skippable PredictionGate. The panels are toggled by `selectedCircuit` (not a remounting TabSet), so a plain blocking gate is sufficient:\n<PredictionGate\n  allowSkip={false}\n  question=\"You double R in a series RC circuit (C fixed). What happens to the time constant τ and the s-domain pole at s = −1/τ?\"\n  options={[{id:'slower',label:'τ doubles; pole moves toward the origin (slower)'},{id:'faster',label:'τ halves; pole moves away from origin (faster)'},{id:'same',label:'τ unchanged; pole fixed'},{id:'gain',label:'Only the DC gain changes'}]}\n  getCorrectAnswer={() => 'slower'}\n  explanation={<span>τ = RC, so doubling R doubles τ; the pole at s = −1/τ slides toward the origin and the circuit responds more slowly. (RL is the opposite — there τ = L/R.)</span>}\n  onPredict={(correct) => markPredictionGate('circuit-analysis', correct)}\n>\n  {/* circuit-type tab strip + selected comparison panel */}\n</PredictionGate>",
+          "rationale": "Gates the RC/RL/RLC interactive comparison selector (the primary interactive element) behind the τ/pole prediction; store key 'circuit-analysis' (section id), NOT 'circuit' or the component name. allowSkip={false} per transmission model."
+        },
+        {
+          "file": "src/circuits/components/modules/SDomainAnalysis.tsx",
+          "location": "Imports (top, alongside line 9 `import { ConceptCheck } ...`); SDomainAnalysis component body (lines 361-364, currently only wires markVisited); JSX `<Tabs ... />` block lines 376-394 inside the SDomainAnalysis return (first content child after the page header)",
+          "current": "import { ConceptCheck } from '@shared/components/common/ConceptCheck';\n...\nexport function SDomainAnalysis() {\n  const markVisited = useProgressStore((s) => s.markVisited);\n  useEffect(() => { markVisited('s-domain'); }, [markVisited]);\n  return (\n    <div className=\"space-y-8\"> ...header...\n      <Tabs tabs={[ {label:'Theory',...}, {label:'Damping & Takeaways',...}, {label:'Read the Plot',...} ]} />\n      <CourseNavigation />",
+          "proposed": "1) Add `import { PredictionGate } from '@shared/components/common/PredictionGate';`. 2) In SDomainAnalysis body add the store hook + lifted unlock state (transmission model — the `<Tabs>` from @circuits/components/common/Tabs remounts panels on switch, so the gate is inside the always-rendered top-level return, NOT inside a tab): `const markPredictionGate = useProgressStore((s) => s.markPredictionGate);` and `const [unlocked, setUnlocked] = useState(false);`. 3) Wrap the `<Tabs ... />` element (lines 376-394) in a blocking, non-skippable gate:\n<PredictionGate\n  allowSkip={false}\n  initialPassed={unlocked}\n  onPassed={() => setUnlocked(true)}\n  question=\"A second-order system has poles at s = +1 ± 2j (right half-plane). Is it stable?\"\n  options={[{id:'unstable',label:'Unstable — the response grows without bound'},{id:'stable',label:'Stable — it decays'},{id:'marginal',label:'Marginally stable — sustained oscillation'},{id:'cant',label:\"Can't tell from pole location\"}]}\n  getCorrectAnswer={() => 'unstable'}\n  explanation={<span>Any pole with a positive real part (right half-plane) makes the response grow as e^{+σt}. The ±2j gives oscillation, but the +1 real part means it blows up — unstable.</span>}\n  onPredict={(correct) => markPredictionGate('s-domain', correct)}\n>\n  <Tabs tabs={[ ... ]} />\n</PredictionGate>\nAdd `useState` to the React import on line 1 (currently only `useEffect` is imported).",
+          "rationale": "The s-domain primary interactive element is the Tabs (Theory/Damping/Read-the-Plot) carrying the recharts pole-zero plots. Because Tabs remounts panels, use the transmission initialPassed/onPassed lifted-state pattern so the gate stays unlocked. Store key 's-domain'. The component currently imports only `useEffect` from react (line 1) — must add `useState`."
+        }
+      ],
+      "risks": [
+        "EM sections (faraday model) DO NOT need lifted unlock state — their sim grid is a static child of SectionLayout and never remounts, so a plain blocking `onPredict`-only gate matches the faraday reference exactly. The 3 circuits sections differ: ComponentPhysics and TimeDomain toggle panels via state (conditional &&, no remount) so a plain blocking gate works, but SDomainAnalysis uses `@circuits/components/common/Tabs` whose panels remount — there the gate wraps the whole <Tabs> at the top level (so it does not itself remount) and is fine without initialPassed; the initialPassed/onPassed wiring proposed for s-domain is belt-and-suspenders and harmless.",
+        "Each EM sim runs a requestAnimationFrame loop inside a useEffect whose canvasRef lives inside the gated children. Faraday's comment (lines 103-105) explicitly notes the loop is scheduled unconditionally so it starts drawing once the gate reveals the canvas; the other EM canvases use the same `if (!canvas) return` guard inside render() and re-schedule via rAF, so they will begin drawing on reveal too. Verify each still animates after Continue (no canvas-sizing race) before merging — this is the main behavioral risk.",
+        "em-wave: the gate must wrap ONLY the sim grid (lines 959-1109) and must NOT swallow the inline ConceptCheck list (lines 1111-1116) or the theory — otherwise blocking mode would hide the concept checks until a prediction is made. Same care for gauss (concept checks at 374-382 stay outside) and polarization (checks at 482-486 stay outside).",
+        "maxwell has no canvas sim with sliders — gating the 4 clickable MaxwellCards is the closest 'primary interactive element'. If the intent is strictly 'gate a parameter-driven simulation', maxwell may instead warrant a non-blocking gate or no gate; flagged as an open question.",
+        "Adding `allowSkip={false}` to the 3 circuits gates (per the transmission model) makes them hard-blocking with no skip link; the faraday EM model leaves allowSkip at its default (true). The proposal keeps EM gates skippable (faraday-consistent) and circuits gates non-skippable (transmission-consistent) — confirm this asymmetry is desired or standardize.",
+        "No expectedChecks/curriculum change is needed (verified: isModuleComplete keys only off conceptChecksCompleted >= getExpectedChecks; markPredictionGate touches only predictionGatesAnswered/Correct). If Phase 1 later wants gates to count toward completion, the store's isModuleComplete and curriculum.expectedChecks would need editing — out of scope here."
+      ],
+      "openQuestions": [
+        "Blocking vs allowSkip policy: should all 9 gates be hard-blocking (allowSkip={false}, transmission model) or keep the EM gates skippable to match the existing faraday reference (which uses the default allowSkip=true)? The two model implementations disagree, so a single house rule is needed.",
+        "Maxwell has no slider/canvas parameter sim — only 4 clickable animated equation cards. Is gating those cards acceptable, or should maxwell be excluded / given a non-blocking gate instead? (It is one of the 9 named sections, so it cannot simply be dropped without an owner decision.)",
+        "For ComponentPhysics: gate just the R/C/L tab explorer (proposed), or also gate the 3 FigureImages (lines 68-90) above it? The figures are static context, so the proposal leaves them visible above the gate — confirm.",
+        "Draft prediction wording/options are placeholders pending pedagogy review; each correctIndex/getCorrectAnswer is physically correct as written, but the distractor phrasing and the exact question framing should be reviewed by the course author.",
+        "Should the prediction question for each EM section deliberately mirror that section's existing first ConceptCheck (e.g. gauss↔Q_FLUX_RADIUS, ampere↔Q_FIELD, em-wave↔Q_TRIAD, polarization↔Q_CIRCULAR)? The drafts intentionally reuse the same physics to reinforce predict-then-verify, but that creates near-duplicate Q&A within a section — confirm that is desired rather than redundant."
+      ]
+    },
+    {
+      "theme": "Theme G — EM chart-quality fixes (PhysicsChart numeric/log/dual-axis)",
+      "summary": "The shared `PhysicsChart` wrapper (src/em/components/common/PhysicsChart.tsx) renders a single linear-y recharts LineChart and is consumed in exactly 4 places across the EM domain (coulomb, gauss, em-wave ×2). Three systemic defects recur: (1) every data generator stringifies the x-value via toFixed/toString, forcing recharts onto a categorical (band) x-axis with distorted spacing; (2) inverse-square data (coulomb F, gauss E) is plotted on a linear y-axis so it spikes then visually flattens; (3) gauss mixes two different-unit series (constant flux N·m²/C and E-field N/C) on one shared \"Value\" axis. The fix is to extend PhysicsChart with an optional numeric x-type, optional log y-scale, and an optional second y-axis (all natively supported by the installed recharts 3.8.1), then update each call site's data-gen to keep x numeric and route series to the right axis/scale.",
+      "changes": [
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "lines 13-26 (ChartLine + PhysicsChartProps interfaces)",
+          "current": "interface ChartLine {\n  dataKey: string;\n  color: string;\n  name: string;\n}\n\ninterface PhysicsChartProps {\n  title: string;\n  data: Record<string, number | string>[];\n  xKey: string;\n  xLabel: string;\n  yLabel: string;\n  lines: ChartLine[];\n}",
+          "proposed": "Add an optional `axis?: 'left' | 'right'` field to ChartLine (default 'left'). Extend PhysicsChartProps with: `xType?: 'number' | 'category'` (default 'category' to preserve current behavior, callers opt into 'number'); `xDomain?: [number | string, number | string]` (optional, e.g. ['dataMin','dataMax'] or [0,'dataMax']); `yScale?: 'linear' | 'log'` (default 'linear'); `yDomain?: [number | string, number | string]` (needed because log scale requires an explicit positive domain, e.g. ['auto','auto'] or [min, 'dataMax']); and `y2Label?: string` + `y2Scale?: 'linear' | 'log'` to enable a secondary right-hand y-axis. Change `data` element type to `Record<string, number | string>[]` (already is) — fine. ",
+          "rationale": "Component must expose numeric-x, log-y, and dual-axis options before any call site can be fixed; defaults keep the other (non-EM) usages byte-for-byte unchanged."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "lines 39-43 (XAxis element)",
+          "current": "<XAxis\n  dataKey={xKey}\n  tick={{ fontSize: 10, fill: textColor }}\n  label={{ value: xLabel, position: 'insideBottom', offset: -10, fontSize: 11, fill: textColor }}\n/>",
+          "proposed": "Add `type={xType ?? 'category'}` and, when xType==='number', `domain={xDomain ?? ['dataMin', 'dataMax']}` plus `allowDecimals` so numeric x is laid out by true value rather than as equal-width bands. recharts 3.8.1 XAxis supports `type`, `domain`, and `scale` (confirmed in node_modules/recharts/types/cartesian/XAxis.d.ts:19,65,81).",
+          "rationale": "Categorical x-axis is the root cause of distorted spacing; numeric type restores proportional positioning for the (already numeric) r/x/t values."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "lines 44-47 (single YAxis element)",
+          "current": "<YAxis\n  tick={{ fontSize: 10, fill: textColor }}\n  label={{ value: yLabel, angle: -90, position: 'insideLeft', offset: 5, fontSize: 11, fill: textColor }}\n/>",
+          "proposed": "Give the left axis an explicit `yAxisId=\"left\"`, add `scale={yScale ?? 'linear'}`, `domain={yDomain ?? ['auto','auto']}`, and (for log) `allowDataOverflow`. When `y2Label` is provided, render a second `<YAxis yAxisId=\"right\" orientation=\"right\" scale={y2Scale ?? 'linear'} label={{ value: y2Label, angle: 90, position: 'insideRight', ... }} tick={{ fontSize: 10, fill: textColor }} />`. recharts 3.8.1 YAxis supports `scale` (ScaleType incl. 'log'), `domain`, and `yAxisId` (confirmed in node_modules/recharts/types/cartesian/YAxis.d.ts; ScaleType union includes 'log' at types/util/types.d.ts:137).",
+          "rationale": "Log y-scale fixes the inverse-square spike-then-flatten; a second right axis lets different-unit series share one chart without compressing one into invisibility."
+        },
+        {
+          "file": "src/em/components/common/PhysicsChart.tsx",
+          "location": "lines 58-68 (lines.map -> <Line>)",
+          "current": "{lines.map((line) => (\n  <Line\n    key={line.dataKey}\n    type=\"monotone\"\n    dataKey={line.dataKey}\n    stroke={line.color}\n    name={line.name}\n    dot={false}\n    strokeWidth={2}\n  />\n))}",
+          "proposed": "Bind each Line to its axis: `yAxisId={line.axis === 'right' ? 'right' : 'left'}`. recharts 3.8.1 Line supports `yAxisId` (confirmed node_modules/recharts/types/cartesian/Line.d.ts:175).",
+          "rationale": "Required so the new ChartLine.axis routing actually attaches a series to the secondary axis; defaults to 'left' so existing single-axis charts are unaffected."
+        },
+        {
+          "file": "src/em/sections/coulomb/index.tsx",
+          "location": "lines 591-594 (forceData generation)",
+          "current": "const forceData = Array.from({ length: 40 }, (_, i) => {\n  const r = 0.02 + i * 0.012;\n  return { r: r.toFixed(2), F: +(K_COULOMB * q1 * q2 / (r * r)).toExponential(2) };\n});",
+          "proposed": "Keep r numeric (do NOT call r.toFixed(2)): `return { r: +r.toFixed(3), F: K_COULOMB * q1 * q2 / (r * r) };` (round r for label cleanliness only, keep as number; keep F as a full number, not a re-parsed toExponential string).",
+          "rationale": "Numeric r enables a true continuous x-axis; raw F preserves precision for the now-log y-axis."
+        },
+        {
+          "file": "src/em/sections/coulomb/index.tsx",
+          "location": "lines 596-603 (<PhysicsChart> for Coulomb Force vs Distance)",
+          "current": "<PhysicsChart\n  title=\"Coulomb Force vs Distance\"\n  data={forceData}\n  xKey=\"r\"\n  xLabel=\"Distance (m)\"\n  yLabel=\"Force (N)\"\n  lines={[{ dataKey: 'F', color: '#dc2626', name: 'F (N)' }]}\n/>",
+          "proposed": "Add `xType=\"number\"` and `yScale=\"log\"` (with `yDomain={['auto','auto']}`). Final: <PhysicsChart title=\"Coulomb Force vs Distance\" data={forceData} xKey=\"r\" xType=\"number\" xLabel=\"Distance r (m)\" yLabel=\"Force F (N, log scale)\" yScale=\"log\" lines={[{ dataKey: 'F', color: '#dc2626', name: 'F (N)' }]} />",
+          "rationale": "1/r² spans many decades; log y + numeric x turns the spike-then-flat curve into a readable straight-ish decay and labels the units."
+        },
+        {
+          "file": "src/em/sections/gauss/index.tsx",
+          "location": "lines 398-408 (flux+E data generation)",
+          "current": "const data = Array.from({ length: 30 }, (_, i) => {\n  const r = 0.2 + i * 0.06;\n  const E = mode === 'ELECTRIC' && charge !== 0\n    ? Math.abs(Q) / (4 * Math.PI * EPSILON_0 * r * r)\n    : 0;\n  return {\n    r: r.toFixed(2),\n    Flux: +flux.toExponential(2),\n    E: +E.toExponential(2),\n  };\n});",
+          "proposed": "Keep r numeric and keep raw numeric values: `return { r: +r.toFixed(2), Flux: flux, E: E };` (no toFixed/toExponential string coercion on r; keep Flux and E as full numbers).",
+          "rationale": "Numeric r restores continuous spacing; un-stringified values let the E series use a log axis and the flux series use its own linear axis."
+        },
+        {
+          "file": "src/em/sections/gauss/index.tsx",
+          "location": "lines 410-424 (<PhysicsChart> Flux & Field vs Radius / Magnetic)",
+          "current": "<PhysicsChart\n  title={mode === 'ELECTRIC' ? 'Flux & Field vs Radius' : 'Magnetic Flux (always zero)'}\n  data={data}\n  xKey=\"r\"\n  xLabel=\"Radius (m)\"\n  yLabel={mode === 'ELECTRIC' ? 'Value' : 'Flux (Wb)'}\n  lines={\n    mode === 'ELECTRIC'\n      ? [\n          { dataKey: 'E', color: '#dc2626', name: 'E-field (N/C)' },\n          { dataKey: 'Flux', color: '#9333ea', name: 'Flux (N·m²/C)' },\n        ]\n      : [{ dataKey: 'Flux', color: '#2563eb', name: 'Magnetic Flux' }]\n  }",
+          "proposed": "ELECTRIC mode: add `xType=\"number\"`; put E on a log left axis labelled with its unit and Flux on a linear right axis labelled with its unit, e.g. yLabel=\"E-field (N/C, log)\", yScale=\"log\", y2Label=\"Flux (N·m²/C)\", and tag lines: { dataKey:'E', axis:'left', ... }, { dataKey:'Flux', axis:'right', ... }. Non-ELECTRIC mode: add `xType=\"number\"` and keep single linear axis (yLabel \"Flux (Wb)\"). Replace the ambiguous 'Value' yLabel entirely.",
+          "rationale": "Splitting unrelated units (N·m²/C constant vs N/C 1/r² decay) onto separate, unit-labelled axes — with log for the field — is the only honest way to show both; removes the meaningless shared 'Value' axis."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "lines 1160-1167 (E & B snapshot data generation)",
+          "current": "const data = Array.from({ length: 50 }, (_, i) => {\n  const x = i * 6;\n  const E = state.amplitude * Math.sin(k * x);\n  const Braw = (state.amplitude * state.refractiveIndex / 300) * Math.sin(k * x);\n  // Multiply B by c so it is visible alongside E on the same scale\n  const Bscaled = Braw * 300;\n  return { x: x.toFixed(0), E: +E.toFixed(2), B: +Bscaled.toFixed(2) };\n});",
+          "proposed": "Keep x numeric: `return { x, E: +E.toFixed(2), B: +Braw.toFixed(4) };` and stop hand-scaling B by 300; instead put B on the secondary right axis at its true magnitude. (If retaining the ×c presentation is preferred pedagogically, at minimum drop x.toFixed(0) so x stays numeric.)",
+          "rationale": "x.toFixed(0) forces categorical spacing; the manual Bscaled = Braw*300 is exactly the 'mix two units on one axis' anti-pattern a secondary axis is meant to remove."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "lines 1169-1179 (<PhysicsChart> E & B Field Snapshot)",
+          "current": "<PhysicsChart\n  title=\"E & B Field Snapshot (t = 0)\"\n  data={data}\n  xKey=\"x\"\n  xLabel=\"Position (arb.)\"\n  yLabel=\"Amplitude\"\n  lines={[\n    { dataKey: 'E', color: '#dc2626', name: 'E-field' },\n    { dataKey: 'B', color: '#2563eb', name: 'B-field (×c)' },\n  ]}\n/>",
+          "proposed": "Add `xType=\"number\"`. Preferred: give B its own right axis at true scale — yLabel=\"E (V/m, arb.)\", y2Label=\"B (T, arb.)\", lines: { dataKey:'E', axis:'left', name:'E-field' }, { dataKey:'B', axis:'right', name:'B-field' }. Minimum: keep single axis but add `xType=\"number\"` and rename 'B-field (×c)' honestly. Both x and y are linear here (no log needed — sinusoid).",
+          "rationale": "Numeric x fixes spacing; a secondary axis lets E and B be shown at physical scale instead of an arbitrary ×c fudge, while keeping both visible."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "lines 1185-1190 (instantaneous power data generation)",
+          "current": "const data = Array.from({ length: 60 }, (_, i) => {\n  const t = i * 0.05;\n  const v = state.vAmplitude * Math.sin(omegaVal * t + phiV);\n  const iVal = state.iAmplitude * Math.sin(omegaVal * t + phiI);\n  return { t: t.toFixed(2), P: +(v * iVal / 1000).toFixed(2) };\n});",
+          "proposed": "Keep t numeric: `return { t: +t.toFixed(2), P: +(v * iVal / 1000).toFixed(3) };` (do not stringify t).",
+          "rationale": "t.toFixed(2) makes time categorical, distorting the 2ω power waveform spacing; numeric t restores correct temporal layout (this chart is single linear axis, no log needed)."
+        },
+        {
+          "file": "src/em/sections/em-wave/index.tsx",
+          "location": "lines 1191-1199 (<PhysicsChart> Instantaneous Power)",
+          "current": "<PhysicsChart\n  title=\"Instantaneous Power p(t) = v·i\"\n  data={data}\n  xKey=\"t\"\n  xLabel=\"Time (s)\"\n  yLabel=\"Power (kW)\"\n  lines={[{ dataKey: 'P', color: '#9333ea', name: 'p(t)' }]}\n/>",
+          "proposed": "Add `xType=\"number\"`. Final: <PhysicsChart title=\"Instantaneous Power p(t) = v·i\" data={data} xKey=\"t\" xType=\"number\" xLabel=\"Time t (s)\" yLabel=\"Power p (kW)\" lines={[{ dataKey: 'P', color: '#9333ea', name: 'p(t)' }]} />",
+          "rationale": "Single-unit single-axis chart; only the numeric-x fix applies (no log, no second axis)."
+        }
+      ],
+      "risks": [
+        "Switching XAxis to type='number' changes which ticks recharts renders; the `interval`/tick density may need tuning (label={...} offset already set) — verify visually that x labels are not crowded for the 40/30/50/60-point series.",
+        "Log y-scale (coulomb F, gauss E) requires strictly positive, non-zero values across the domain. In gauss, E is 0 when charge===0 or in non-ELECTRIC mode, and the log axis is only applied in ELECTRIC mode — but charge===0 within ELECTRIC mode would emit E=0, which a log axis cannot plot. The data-gen must guard (e.g. skip the chart, or only-positive filtering) when charge===0.",
+        "Coulomb F is always positive (product of |q|), so log is safe there; but if amplitude/charge can be zero the series collapses — confirm the existing `charges.length >= 2` guard plus non-zero magnitudes hold.",
+        "Removing the manual Bscaled=Braw*300 in em-wave and moving B to a right axis changes the visual the author deliberately engineered ('multiply B by c so it is visible'); this is a pedagogical-presentation change, not purely a bug fix — may need author sign-off.",
+        "Default xType is 'category' to protect the other (non-EM) chart consumers, but a grep shows PhysicsChart is EM-only (4 sites). Still, defaulting conservatively avoids any surprise if PhysicsChart is reused later.",
+        "Two existing recharts casts elsewhere in the repo (circuits InteractiveLab/SDomainPanel Tooltip `as unknown as`) hint at v3 typing friction; adding a second YAxis + yAxisId on Line should be clean per the 3.8.1 .d.ts, but tsc -b should be re-run after the change.",
+        "PhysicsChart has associated tests (per memory, leaf-component tests exist) — adding props with safe defaults should keep them green, but the test file (if any) for PhysicsChart should be checked; it was not located in this read-only scope."
+      ],
+      "openQuestions": [
+        "For gauss ELECTRIC mode, the flux series is a horizontal constant line (flux independent of r) — is a dual-axis line chart the desired presentation, or would a single annotated value + a separate E-vs-r chart communicate 'flux is constant, field falls as 1/r²' more clearly? (Two separate charts is an alternative to the secondary-axis approach.)",
+        "em-wave E&B snapshot: keep the pedagogical ×c scaling (single axis) or move to a true-scale secondary axis? The current code comment shows the ×c was intentional. Owner decision needed.",
+        "Should the log-scale charts (coulomb F, gauss E) display a small 'log scale' caption/badge to avoid misreading, and what y-domain bounds are pedagogically appropriate (auto vs fixed decades)?",
+        "Is it acceptable to change the default xType to 'category' (preserving current behavior) and have each EM call site opt into 'number', or should xType default to 'number' since all 4 current consumers want numeric x? (Defaulting to 'number' is cleaner but riskier for future non-numeric consumers.)",
+        "Confirm whether a PhysicsChart unit test exists that asserts on the rendered axis/line structure (could break when a second YAxis is conditionally added)."
+      ]
+    }
+  ]
+}
