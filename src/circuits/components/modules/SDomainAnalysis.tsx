@@ -12,6 +12,7 @@ import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 
 function TheoryTab() {
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
@@ -367,7 +368,12 @@ export function SDomainAnalysis() {
       <SectionHook text="Every audio amplifier, every feedback control system, every switching power supply has a pole-zero plot. Stability, bandwidth, and transient behavior are all visible in that plot before a single component is chosen." />
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">S-Domain Theory</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('s-domain')}
+          </span>
+          S-Domain Theory
+        </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Transfer functions, poles, zeros, and stability analysis
         </p>

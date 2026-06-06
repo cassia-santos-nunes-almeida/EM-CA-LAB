@@ -9,6 +9,7 @@ import { BookOpen, Zap as ZapIcon, ArrowRightLeft, Table2 } from 'lucide-react';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { LaplaceMotivation } from '@circuits/components/modules/LaplaceMotivation';
 
 function TheoryTab() {
@@ -370,7 +371,12 @@ export function LaplaceTheory() {
       <SectionHook text="Oliver Heaviside developed the operational calculus that became Laplace transforms in the 1880s, largely to analyze telegraph lines. He was self-taught, often wrong in his methods, and completely right in his results. The transform tables you use today are his legacy." />
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Laplace Transform Theory</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('laplace-theory')}
+          </span>
+          Laplace Transform Theory
+        </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Mathematical foundation for s-domain circuit analysis
         </p>

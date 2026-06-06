@@ -17,6 +17,7 @@ import { CircuitDiagram } from '@circuits/components/modules/InteractiveLab/Circ
 import { SDomainPanel } from '@circuits/components/modules/InteractiveLab/SDomainPanel';
 import { getChallenges } from '@circuits/components/modules/InteractiveLab/challenges';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -566,7 +567,12 @@ export function InteractiveLab() {
       <SectionHook text="In 1926, the same mathematics used here predicted that a radio receiver's selectivity depended on the Q factor of its tank circuit. Engineers have been tuning poles ever since." />
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Interactive Lab</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('interactive-lab')}
+          </span>
+          Interactive Lab
+        </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Real-time circuit simulation and visualization
         </p>

@@ -12,6 +12,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 
 type ComponentType = 'resistor' | 'capacitor' | 'inductor';
 
@@ -59,7 +60,12 @@ export function ComponentPhysics() {
       <SectionHook text="A 100μF capacitor and a 100μH inductor are physically very different objects — one stores energy in an electric field, one in a magnetic field. Yet in circuit equations they appear as near-mirror images of each other. Understanding why requires going inside the physics." />
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Component Physics</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('component-physics')}
+          </span>
+          Component Physics
+        </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Understanding the physical foundations of circuit components
         </p>

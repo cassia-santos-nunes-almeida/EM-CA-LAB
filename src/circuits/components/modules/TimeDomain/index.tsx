@@ -13,6 +13,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { CircuitAnalysisExercise } from '@circuits/components/modules/CircuitAnalysisExercise';
 
 import type { CircuitType } from '@circuits/types/circuit';
@@ -51,7 +52,12 @@ export function TimeDomain() {
       <SectionHook text="The differential equation approach and the Laplace approach give identical answers. One takes three pages of algebra. The other takes three lines. This section shows both — and why engineers stopped using the first." />
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Circuit Analysis</h1>
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
+            {getSectionNumber('circuit-analysis')}
+          </span>
+          Circuit Analysis
+        </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Comparing time-domain differential equations with Laplace transform s-domain methods
         </p>
