@@ -174,3 +174,13 @@ export function getSectionNumber(sectionId: string): string {
   if (!part) return '';
   return `${part.number}.${part.sectionIds.indexOf(sectionId) + 1}`;
 }
+
+/** The physics quantity each Part foregrounds, used as the mono `PART 0N · QUANTITY`
+ *  instrument tag on the landing cards and in the sidebar. Keyed by Part number. */
+export const PART_QUANTITIES: Record<number, string> = {
+  1: 'CIRCUITS',
+  2: 'E-FIELD',
+  3: 'B-FIELD',
+  4: 'WAVES',
+  5: 'LINES',
+};
