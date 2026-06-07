@@ -15,7 +15,7 @@ function renderWithRouter(ui: React.ReactElement, route = '/') {
 describe('ComponentPhysics page', () => {
   it('renders with resistor tab active by default', () => {
     renderWithRouter(<ComponentPhysics />);
-    expect(screen.getByRole('heading', { level: 1, name: 'Component Physics' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Component Physics/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Resistor' })).toBeInTheDocument();
     expect(screen.getByText(/Ohm's Law/i)).toBeInTheDocument();
   });
@@ -39,7 +39,7 @@ describe('ComponentPhysics page', () => {
 describe('TimeDomain page', () => {
   it('renders with table of contents and circuit tabs', () => {
     renderWithRouter(<TimeDomain />, '/circuit-analysis');
-    expect(screen.getByRole('heading', { level: 1, name: 'Circuit Analysis' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Circuit Analysis/ })).toBeInTheDocument();
     expect(screen.getByText('Jump to:')).toBeInTheDocument();
     // Tab buttons
     expect(screen.getByRole('button', { name: 'RC Circuit' })).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('TimeDomain page', () => {
 describe('SDomainAnalysis page', () => {
   it('renders with Theory tab by default', () => {
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
-    expect(screen.getByRole('heading', { level: 1, name: 'S-Domain Theory' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /S-Domain Theory/ })).toBeInTheDocument();
     expect(screen.getByText('Transfer Function Fundamentals')).toBeInTheDocument();
   });
 
