@@ -31,8 +31,8 @@ export function PhysicsChart({ title, data, xKey, xLabel, yLabel, lines }: Physi
   const gridColor = isDarkMode ? '#334155' : '#e2e8f0';
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">{title}</h3>
+    <div className="bg-card rounded-xl border border-card-border p-4 shadow-sm">
+      <h3 className="text-sm font-bold text-title mb-3">{title}</h3>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 5, right: 20, bottom: 20, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
