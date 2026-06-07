@@ -68,9 +68,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                       <NavLink
                         to={section.route}
                         onClick={onNavigate}
-                        style={({ isActive }) =>
-                          isActive ? { borderLeftWidth: '3px', borderLeftColor: accent } : undefined
-                        }
+                        style={({ isActive }) => ({
+                          borderLeftWidth: '3px',
+                          borderLeftColor: isActive ? accent : 'transparent',
+                        })}
                         className={({ isActive }) =>
                           cn(
                             'flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm',

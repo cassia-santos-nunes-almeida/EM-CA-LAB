@@ -20,8 +20,8 @@ describe('App integration', () => {
 
     // Sidebar: Course Home + Part grouping straight from the curriculum spine
     expect(screen.getByText('Course Home')).toBeInTheDocument();
-    expect(screen.getAllByText(/PART 01/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/PART 05/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/PART 01/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/PART 05/).length).toBeGreaterThanOrEqual(2);
 
     // A section from the spine appears (sidebar link + landing card)
     expect(screen.getAllByText('Component Physics').length).toBeGreaterThan(0);
