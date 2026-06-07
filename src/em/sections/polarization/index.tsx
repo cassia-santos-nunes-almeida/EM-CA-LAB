@@ -487,14 +487,22 @@ export function PolarizationSection() {
 
       {/* ── Theory ── */}
       <div className="space-y-6">
-        <FigureImage
-          className="mb-6"
-          src={`${import.meta.env.BASE_URL}figures/polarizing-filter.jpg`}
-          alt="Effect of a polarizing filter on reflected light from water"
-          caption="Polarizing filter in action: reflected light from water is partially polarized, and a filter can block it to reduce glare."
-          attribution="Angus MacRae, CC BY 2.0 — Wikimedia Commons"
-          sourceUrl="https://commons.wikimedia.org/wiki/File:Polarizer_Comparison_(4489206505).jpg"
-        />
+        <div className="grid gap-4 sm:grid-cols-2 mb-6">
+          <FigureImage
+            src={`${import.meta.env.BASE_URL}figures/polarizing-filter.jpg`}
+            alt="Effect of a polarizing filter on reflected light from water"
+            caption="Polarizing filter in action: reflected light from water is partially polarized, and a filter can block it to reduce glare."
+            attribution="Angus MacRae, CC BY 2.0 — Wikimedia Commons"
+            sourceUrl="https://commons.wikimedia.org/wiki/File:Polarizer_Comparison_(4489206505).jpg"
+          />
+          <FigureImage
+            src={`${import.meta.env.BASE_URL}figures/circular-polarization-rh.gif`}
+            alt="Animation of a right-hand circularly polarized electromagnetic wave"
+            caption="Right-hand circular polarization: the electric-field vector rotates as the wave advances, tracing a helix in space."
+            attribution="Dave3457, Public Domain — Wikimedia Commons"
+            sourceUrl="https://commons.wikimedia.org/wiki/File:Circular.Polarization.Circularly.Polarized.Light_Right.Handed.Animation.305x190.255Colors.gif"
+          />
+        </div>
         <EquationBox title="Instantaneous Field Equations" equations={equations} />
         <TheoryGuide>
           <p>

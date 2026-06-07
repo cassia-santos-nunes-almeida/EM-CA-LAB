@@ -177,6 +177,14 @@ export function TransmissionLines() {
         </div>
       </div>
 
+      <FigureImage
+        src={`${import.meta.env.BASE_URL}figures/standing-wave-forward-reflected.gif`}
+        alt="Animation of a forward wave and its reflection forming a standing wave"
+        caption="A forward wave and its reflection superposing into a standing-wave pattern (here SWR = 9): the nodes and antinodes stay fixed in space."
+        attribution="Pyrometer, Public Domain — Wikimedia Commons"
+        sourceUrl="https://commons.wikimedia.org/wiki/File:Standing_wave_SWR_9_(forward,_reflected).gif"
+      />
+
       <ConceptCheck
         onComplete={onConcept}
         onHint={onHint}

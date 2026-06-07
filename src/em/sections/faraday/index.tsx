@@ -331,6 +331,14 @@ export function FaradaySection() {
             sourceUrl="https://commons.wikimedia.org/wiki/File:Three_Gorges_Dam,_Yangtze_River,_China.jpg"
           />
         </div>
+        <FigureImage
+          className="mb-6"
+          src={`${import.meta.env.BASE_URL}figures/eddy-current-induction.gif`}
+          alt="Animation of a changing magnetic field inducing eddy currents in a conductor"
+          caption="A changing magnetic field inducing eddy currents in a conductor — Faraday's law in action, with Lenz's law setting their opposing direction."
+          attribution="Ariste2, CC0 Public Domain — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:Animation_Controle_Non_Destructif_Courants_Foucault.gif"
+        />
         <EquationBox
           title="Faraday's Law"
           equations={[

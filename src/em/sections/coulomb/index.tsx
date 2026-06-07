@@ -554,7 +554,7 @@ export function CoulombSection() {
 
       {/* ── Theory ── */}
       <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 mb-6">
+        <div className="grid gap-4 sm:grid-cols-2 mb-4">
           <FigureImage
             src={`${import.meta.env.BASE_URL}figures/coulomb-torsion-balance.png`}
             alt="Coulomb's torsion balance used to measure electrostatic force"
@@ -570,6 +570,14 @@ export function CoulombSection() {
             sourceUrl="https://commons.wikimedia.org/wiki/File:Van_de_Graaff_Generator_-_Science_City_-_Calcutta_1997_444.JPG"
           />
         </div>
+        <FigureImage
+          className="mb-6"
+          src={`${import.meta.env.BASE_URL}figures/electric-field-lines-charge.gif`}
+          alt="Animation of the electric field lines of a point charge"
+          caption="The electric field lines of a point charge — radial, with line density indicating field strength and the inverse-square fall-off."
+          attribution="Estebanillo, CC0 Public Domain — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:Líneas_de_campo_eléctrico.gif"
+        />
         <EquationBox
           title="Superposition Principle"
           equations={[

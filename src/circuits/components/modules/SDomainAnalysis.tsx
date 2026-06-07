@@ -88,6 +88,14 @@ function TheoryTab() {
               Poles: <MathWrapper formula="s_{1,2} = -\alpha \pm \sqrt{\alpha^2 - \omega_0^2}" />
             </p>
           </div>
+
+          <FigureImage
+            src={`${import.meta.env.BASE_URL}figures/lc-tuned-circuit-oscillation.gif`}
+            alt="Animation of energy oscillating between a capacitor and an inductor in an LC circuit"
+            caption="Energy sloshing between a capacitor's electric field and an inductor's magnetic field — the lossless LC oscillation behind resonance and the s-plane poles."
+            attribution="Chetvorno, CC0 Public Domain — Wikimedia Commons"
+            sourceUrl="https://commons.wikimedia.org/wiki/File:Tuned_circuit_animation_3.gif"
+          />
         </div>
       </section>
 

@@ -176,6 +176,14 @@ export function Transients() {
           </div>
         </CollapsibleSection>
 
+        <FigureImage
+          src={`${import.meta.env.BASE_URL}figures/transmission-line-open-short.gif`}
+          alt="Animation comparing wave reflection on open- vs short-circuited transmission lines"
+          caption="A voltage step reflecting off an open vs. a short termination: the open end reflects with the same polarity, the short end with inverted polarity."
+          attribution="Sbyrnes321, CC0 Public Domain — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:Transmission_line_animation_open_short.gif"
+        />
+
       </section>
 
       {/* ── Bridge to Antennas ───────────────────────────────────── */}
