@@ -23,9 +23,8 @@ interface LabStationProps {
 /**
  * A consistent, discoverable frame that docks an interactive simulation inline
  * with the surrounding theory — the core building block of the "virtual lab"
- * template. It replaces the pattern of burying simulations behind a tab or a
- * blocking prediction gate: the station header makes the lab obvious, and the
- * simulation (passed as children) is always visible.
+ * template. Styled in the neutral "Lab Instrument" palette with a green "live"
+ * LED in the header; the simulation (passed as children) is always visible.
  */
 export function LabStation({
   number,
@@ -39,38 +38,30 @@ export function LabStation({
     <section
       id={id}
       className={cn(
-        'rounded-xl border border-engineering-blue-200 dark:border-engineering-blue-800',
-        'bg-white dark:bg-slate-800 shadow-md overflow-hidden',
+        'rounded-xl border border-card-border bg-card shadow-md overflow-hidden',
         className,
       )}
     >
-      <div className="flex items-start gap-3 px-5 py-3 border-b border-engineering-blue-100 dark:border-engineering-blue-900/40 bg-engineering-blue-50/60 dark:bg-engineering-blue-900/10">
-        <FlaskConical
-          className="w-5 h-5 text-engineering-blue-600 dark:text-engineering-blue-400 shrink-0 mt-0.5"
-          aria-hidden="true"
-        />
+      <div className="flex items-start gap-3 px-5 py-3 border-b border-card-border bg-chassis">
+        <FlaskConical className="w-5 h-5 text-cta shrink-0 mt-0.5" aria-hidden="true" />
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-widest mb-0.5">
+          <p className="flex items-center gap-2 text-[10px] font-semibold text-cta uppercase tracking-widest mb-0.5">
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-led shadow-[0_0_6px_var(--color-led)]"
+              aria-hidden="true"
+            />
             Interactive Lab
           </p>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {number && (
-              <span className="font-mono text-sm text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
-                {number}
-              </span>
-            )}
+          <h2 className="text-lg font-bold text-title">
+            {number && <span className="font-mono text-sm text-muted mr-2">{number}</span>}
             {title}
           </h2>
           {objective && (
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-1">
-              {objective}
-            </p>
+            <p className="text-sm text-muted leading-relaxed mt-1">{objective}</p>
           )}
         </div>
       </div>
-      <div className="p-5 space-y-6">
-        {children}
-      </div>
+      <div className="p-5 space-y-6">{children}</div>
     </section>
   );
 }
