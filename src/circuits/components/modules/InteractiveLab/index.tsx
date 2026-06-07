@@ -580,11 +580,11 @@ export function InteractiveLab() {
 
       <FigureImage
         className="mb-6"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Fluke_87_V_on_holder.jpg/500px-Fluke_87_V_on_holder.jpg"
+        src={`${import.meta.env.BASE_URL}figures/digital-multimeter.jpg`}
         alt="Digital multimeter on a lab bench"
         caption="A digital multimeter: the interactive lab below simulates the same measurements you'd make with real instruments."
-        attribution="Wikimedia Commons, CC BY-SA 4.0"
-        sourceUrl="https://commons.wikimedia.org/wiki/File:Fluke_87_V_on_holder.jpg"
+        attribution="André Karwath (Aka), CC BY-SA 2.5 — Wikimedia Commons"
+        sourceUrl="https://commons.wikimedia.org/wiki/File:Digital_Multimeter_Aka.jpg"
       />
 
       {/* Circuit type tabs + input type toggle */}

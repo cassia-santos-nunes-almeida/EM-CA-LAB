@@ -259,11 +259,11 @@ export function TransmissionLines() {
       </h2>
 
       <FigureImage
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Network_Analyzer_Agilent_8714ET.jpg/500px-Network_Analyzer_Agilent_8714ET.jpg"
+        src={`${import.meta.env.BASE_URL}figures/vector-network-analyzer.jpg`}
         alt="Agilent vector network analyzer displaying S-parameter measurements on a Smith chart"
         caption="A Vector Network Analyzer (VNA) measuring impedance and displaying results on a Smith chart. This is the primary instrument for characterizing transmission line and antenna impedance in the lab."
-        attribution="Binarysequence, CC BY-SA 4.0 — Wikimedia Commons"
-        sourceUrl="https://commons.wikimedia.org/wiki/File:Network_Analyzer_Agilent_8714ET.jpg"
+        attribution="Rohde &amp; Schwarz GmbH &amp; Co. KG, CC BY 3.0 — Wikimedia Commons"
+        sourceUrl="https://commons.wikimedia.org/wiki/File:Netzwerkanalysator_ZVA40_RSD.jpg"
         className="sm:max-w-md"
       />
 

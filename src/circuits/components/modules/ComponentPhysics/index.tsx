@@ -87,11 +87,11 @@ export function ComponentPhysics() {
           sourceUrl="https://commons.wikimedia.org/wiki/File:Condensators.JPG"
         />
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Inductor_RF_choke.jpg/500px-Inductor_RF_choke.jpg"
+          src={`${import.meta.env.BASE_URL}figures/ec24-axial-inductors.jpg`}
           alt="Various inductors and RF chokes"
           caption="Inductors store energy in magnetic fields. Core material and turns determine L = μN²A/l."
-          attribution="Honina, CC BY-SA 3.0 — Wikimedia Commons"
-          sourceUrl="https://commons.wikimedia.org/wiki/File:Inductor_RF_choke.jpg"
+          attribution="Retired electrician, CC0 Public Domain — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:EC24_miniature_axial_inductors.jpg"
         />
       </div>
 

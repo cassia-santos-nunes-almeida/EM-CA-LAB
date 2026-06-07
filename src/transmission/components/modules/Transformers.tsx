@@ -75,11 +75,11 @@ export function Transformers() {
           sourceUrl="https://commons.wikimedia.org/wiki/File:Transformer3d_col3.svg"
         />
         <FigureImage
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Transformer_au_poste_%C3%A9lectrique_de_Bondy.jpg/500px-Transformer_au_poste_%C3%A9lectrique_de_Bondy.jpg"
+          src={`${import.meta.env.BASE_URL}figures/power-transformer.jpg`}
           alt="Large power transformer at an electrical substation with high-voltage bushings"
           caption="A utility-scale power transformer at an electrical substation. These transformers step voltage up or down for efficient long-distance power transmission."
-          attribution="Lionel Allorge, CC BY-SA 3.0 — Wikimedia Commons"
-          sourceUrl="https://commons.wikimedia.org/wiki/File:Transformer_au_poste_%C3%A9lectrique_de_Bondy.jpg"
+          attribution="Bidgee, CC BY 3.0 — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:Pole_mounted_Transformer.jpg"
         />
       </div>
 

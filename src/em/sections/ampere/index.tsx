@@ -384,11 +384,11 @@ export function AmpereSection() {
             sourceUrl="https://commons.wikimedia.org/wiki/File:Solenoid-1.png"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Electromagnet.svg/500px-Electromagnet.svg.png"
+            src={`${import.meta.env.BASE_URL}figures/electromagnet.jpg`}
             alt="Diagram of an electromagnet with iron core and coil"
             caption="An electromagnet: current through coils creates a strong magnetic field in the iron core, demonstrating Ampere's law."
-            attribution="Wikimedia Commons, Public Domain"
-            sourceUrl="https://commons.wikimedia.org/wiki/File:Electromagnet.svg"
+            attribution="Setreset and Marco Angelucci, CC BY-SA 3.0 — Wikimedia Commons"
+            sourceUrl="https://commons.wikimedia.org/wiki/File:Electromagnet.jpg"
           />
         </div>
         <EquationBox

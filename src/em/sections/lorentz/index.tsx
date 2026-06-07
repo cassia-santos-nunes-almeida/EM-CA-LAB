@@ -441,11 +441,11 @@ export function LorentzSection() {
             sourceUrl="https://commons.wikimedia.org/wiki/File:Cyclotron_patent.png"
           />
           <FigureImage
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Polarlicht_2.jpg/500px-Polarlicht_2.jpg"
+            src={`${import.meta.env.BASE_URL}figures/aurora-borealis.jpg`}
             alt="Aurora borealis (Northern Lights)"
             caption="Aurora borealis: solar wind particles spiral along Earth's magnetic field due to the Lorentz force, exciting atmospheric gases."
-            attribution="United States Air Force, Public Domain — Wikimedia Commons"
-            sourceUrl="https://commons.wikimedia.org/wiki/File:Polarlicht_2.jpg"
+            attribution="Sr. Airman Joshua Strang, U.S. Air Force — Public Domain — Wikimedia Commons"
+            sourceUrl="https://commons.wikimedia.org/wiki/File:Aurora_borealis_over_Eielson_Air_Force_Base,_Alaska.jpg"
           />
         </div>
         <EquationBox

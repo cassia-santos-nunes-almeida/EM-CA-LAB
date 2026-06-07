@@ -489,11 +489,11 @@ export function PolarizationSection() {
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Polarizing_filter.jpg/500px-Polarizing_filter.jpg"
+          src={`${import.meta.env.BASE_URL}figures/polarizing-filter.jpg`}
           alt="Effect of a polarizing filter on reflected light from water"
           caption="Polarizing filter in action: reflected light from water is partially polarized, and a filter can block it to reduce glare."
-          attribution="Amithm, CC BY-SA 3.0 — Wikimedia Commons"
-          sourceUrl="https://commons.wikimedia.org/wiki/File:Polarizing_filter.jpg"
+          attribution="Angus MacRae, CC BY 2.0 — Wikimedia Commons"
+          sourceUrl="https://commons.wikimedia.org/wiki/File:Polarizer_Comparison_(4489206505).jpg"
         />
         <EquationBox title="Instantaneous Field Equations" equations={equations} />
         <TheoryGuide>
