@@ -28,18 +28,62 @@
   --color-power: #9333ea;
 }
 
+/* ── Lab Instrument chrome tokens (Phase 1 Batch 2) ────────────────────────
+ * `static` forces emission of every token to :root even when consumed only via
+ * inline var() (the Part accents). Plain @theme (NOT inline) so utilities like
+ * bg-card keep referencing var(--color-*); the unlayered `.dark` block re-points them. */
+@theme static {
+  --color-chassis: #f1f5f9;
+  --color-card: #ffffff;
+  --color-card-border: #e2e8f0;
+  --color-title: #0f172a;
+  --color-muted: #64748b;
+  --color-led: #10b981;
+  --color-cta: #2563eb;
+
+  /* Per-Part physics-quantity accents (deepened for light surfaces) */
+  --color-part-1: #d97706;
+  --color-part-2: #dc2626;
+  --color-part-3: #2563eb;
+  --color-part-4: #7c3aed;
+  --color-part-5: #059669;
+  --color-part-1-label: #b45309;
+  --color-part-2-label: #b91c1c;
+  --color-part-3-label: #1d4ed8;
+  --color-part-4-label: #6d28d9;
+  --color-part-5-label: #047857;
+}
+
 /* Base styles */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-chassis text-title antialiased;
   margin: 0;
 }
 
-.dark body {
-  @apply bg-slate-900 text-slate-100;
+/* Dark mode re-points the chrome tokens (chassis→slate-900, card→slate-800, …)
+ * and lightens the Part accents one step (E4). `.dark` lives on <html>
+ * (progressStore.applyTheme), so these custom properties inherit everywhere. */
+.dark {
+  --color-chassis: #0f172a;
+  --color-card: #1e293b;
+  --color-card-border: #334155;
+  --color-title: #f1f5f9;
+  --color-muted: #94a3b8;
+
+  --color-part-1: #f59e0b;
+  --color-part-2: #ef4444;
+  --color-part-3: #3b82f6;
+  --color-part-4: #a855f7;
+  --color-part-5: #10b981;
+  --color-part-1-label: #fbbf24;
+  --color-part-2-label: #f87171;
+  --color-part-3-label: #60a5fa;
+  --color-part-4-label: #c084fc;
+  --color-part-5-label: #34d399;
 }
 
 #root {
