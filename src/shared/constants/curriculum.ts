@@ -184,3 +184,11 @@ export const PART_QUANTITIES: Record<number, string> = {
   4: 'WAVES',
   5: 'LINES',
 };
+
+// Fail fast if a Part lacks a quantity word (mirrors the dup-id / Part-reference
+// guards above): better a load-time throw than rendering "PART 0N · undefined".
+for (const part of PARTS) {
+  if (!PART_QUANTITIES[part.number]) {
+    throw new Error(`curriculum: PART_QUANTITIES is missing a word for Part ${part.number}`);
+  }
+}

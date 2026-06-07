@@ -65,8 +65,9 @@ body {
 }
 
 /* Dark mode re-points the chrome tokens (chassis→slate-900, card→slate-800, …)
- * and lightens the Part accents one step (E4). `.dark` lives on <html>
- * (progressStore.applyTheme), so these custom properties inherit everywhere. */
+ * and lightens the Part accents one step (E4). led + cta are intentionally NOT
+ * re-pointed — they read identically in both modes by design. `.dark` lives on
+ * <html> (progressStore.applyTheme), so these custom properties inherit everywhere. */
 .dark {
   --color-chassis: #0f172a;
   --color-card: #1e293b;
