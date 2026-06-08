@@ -6,6 +6,7 @@ import {
   getAdjacentSections,
   getPartForSection,
   getExpectedChecks,
+  PART_QUANTITIES,
 } from '@shared/constants/curriculum';
 
 describe('curriculum — 5-part circuits-first spine', () => {
@@ -103,5 +104,19 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(getExpectedChecks('component-physics')).toBe(0);
     expect(getExpectedChecks('transformers')).toBe(0);
     expect(getExpectedChecks('unknown-section')).toBe(0);
+  });
+
+  it('PART_QUANTITIES maps each Part number to its physics-quantity word', () => {
+    expect(PART_QUANTITIES[1]).toBe('CIRCUITS');
+    expect(PART_QUANTITIES[2]).toBe('E-FIELD');
+    expect(PART_QUANTITIES[3]).toBe('B-FIELD');
+    expect(PART_QUANTITIES[4]).toBe('WAVES');
+    expect(PART_QUANTITIES[5]).toBe('LINES');
+  });
+
+  it('PART_QUANTITIES covers every Part in the spine', () => {
+    for (const part of PARTS) {
+      expect(PART_QUANTITIES[part.number], `Part ${part.number}`).toBeTruthy();
+    }
   });
 });

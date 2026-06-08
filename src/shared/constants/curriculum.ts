@@ -174,3 +174,21 @@ export function getSectionNumber(sectionId: string): string {
   if (!part) return '';
   return `${part.number}.${part.sectionIds.indexOf(sectionId) + 1}`;
 }
+
+/** The physics quantity each Part foregrounds, used as the mono `PART 0N · QUANTITY`
+ *  instrument tag on the landing cards and in the sidebar. Keyed by Part number. */
+export const PART_QUANTITIES: Record<number, string> = {
+  1: 'CIRCUITS',
+  2: 'E-FIELD',
+  3: 'B-FIELD',
+  4: 'WAVES',
+  5: 'LINES',
+};
+
+// Fail fast if a Part lacks a quantity word (mirrors the dup-id / Part-reference
+// guards above): better a load-time throw than rendering "PART 0N · undefined".
+for (const part of PARTS) {
+  if (!PART_QUANTITIES[part.number]) {
+    throw new Error(`curriculum: PART_QUANTITIES is missing a word for Part ${part.number}`);
+  }
+}
