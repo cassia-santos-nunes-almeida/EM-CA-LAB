@@ -14,6 +14,7 @@ interface ChartLine {
   dataKey: string;
   color: string;
   name: string;
+  axis?: 'left' | 'right';   // default 'left'
 }
 
 interface PhysicsChartProps {
@@ -23,9 +24,28 @@ interface PhysicsChartProps {
   xLabel: string;
   yLabel: string;
   lines: ChartLine[];
+  xType?: 'number' | 'category';                 // default 'category' (preserves current behavior)
+  xDomain?: [number | string, number | string];
+  yScale?: 'linear' | 'log';                      // default 'linear'
+  yDomain?: [number | string, number | string];
+  y2Label?: string;                               // presence enables a right axis
+  y2Scale?: 'linear' | 'log';
 }
 
-export function PhysicsChart({ title, data, xKey, xLabel, yLabel, lines }: PhysicsChartProps) {
+export function PhysicsChart({
+  title,
+  data,
+  xKey,
+  xLabel,
+  yLabel,
+  lines,
+  xType = 'category',
+  xDomain,
+  yScale = 'linear',
+  yDomain,
+  y2Label,
+  y2Scale = 'linear',
+}: PhysicsChartProps) {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');
   const textColor = isDarkMode ? '#94a3b8' : '#64748b';
   const gridColor = isDarkMode ? '#334155' : '#e2e8f0';
@@ -38,13 +58,28 @@ export function PhysicsChart({ title, data, xKey, xLabel, yLabel, lines }: Physi
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
           <XAxis
             dataKey={xKey}
+            type={xType}
+            {...(xType === 'number' ? { domain: xDomain ?? ['dataMin', 'dataMax'], allowDecimals: true } : {})}
             tick={{ fontSize: 10, fill: textColor }}
             label={{ value: xLabel, position: 'insideBottom', offset: -10, fontSize: 11, fill: textColor }}
           />
           <YAxis
+            yAxisId="left"
+            scale={yScale}
+            {...(yScale === 'log' ? { allowDataOverflow: true } : {})}
+            {...(yDomain ? { domain: yDomain } : yScale === 'log' ? { domain: ['auto', 'auto'] } : {})}
             tick={{ fontSize: 10, fill: textColor }}
             label={{ value: yLabel, angle: -90, position: 'insideLeft', offset: 5, fontSize: 11, fill: textColor }}
           />
+          {y2Label && (
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              scale={y2Scale}
+              tick={{ fontSize: 10, fill: textColor }}
+              label={{ value: y2Label, angle: 90, position: 'insideRight', offset: 5, fontSize: 11, fill: textColor }}
+            />
+          )}
           <Tooltip
             contentStyle={{
               backgroundColor: isDarkMode ? '#1e293b' : '#fff',
@@ -62,6 +97,7 @@ export function PhysicsChart({ title, data, xKey, xLabel, yLabel, lines }: Physi
               dataKey={line.dataKey}
               stroke={line.color}
               name={line.name}
+              yAxisId={line.axis === 'right' && y2Label ? 'right' : 'left'}
               dot={false}
               strokeWidth={2}
             />
