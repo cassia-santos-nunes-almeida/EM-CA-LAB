@@ -16,6 +16,7 @@ import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, Charge, QuizQuestion } from '@em/types/index';
+import { buildForceData } from './chartData';
 
 const K_COULOMB = 8.988e9;
 
@@ -612,17 +613,16 @@ export function CoulombSection() {
         {charges.length >= 2 && (() => {
           const q1 = Math.abs(charges[0].q * 1e-6);
           const q2 = Math.abs(charges[1].q * 1e-6);
-          const forceData = Array.from({ length: 40 }, (_, i) => {
-            const r = 0.02 + i * 0.012;
-            return { r: r.toFixed(2), F: +(K_COULOMB * q1 * q2 / (r * r)).toExponential(2) };
-          });
+          const forceData = buildForceData(q1, q2, K_COULOMB);
           return (
             <PhysicsChart
               title="Coulomb Force vs Distance"
               data={forceData}
               xKey="r"
-              xLabel="Distance (m)"
-              yLabel="Force (N)"
+              xType="number"
+              xLabel="Distance r (m)"
+              yLabel="Force F (N, log scale)"
+              yScale="log"
               lines={[{ dataKey: 'F', color: '#dc2626', name: 'F (N)' }]}
             />
           );

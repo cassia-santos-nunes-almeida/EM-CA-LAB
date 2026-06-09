@@ -16,6 +16,7 @@ import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { buildGaussData } from './chartData';
 
 const EPSILON_0 = 8.854e-12;
 
@@ -411,29 +412,24 @@ export function GaussSection() {
         {(() => {
           const Q = charge * 1e-6;
           const flux = mode === 'ELECTRIC' ? Q / EPSILON_0 : 0;
-          const data = Array.from({ length: 30 }, (_, i) => {
-            const r = 0.2 + i * 0.06;
-            const E = mode === 'ELECTRIC' && charge !== 0
-              ? Math.abs(Q) / (4 * Math.PI * EPSILON_0 * r * r)
-              : 0;
-            return {
-              r: r.toFixed(2),
-              Flux: +flux.toExponential(2),
-              E: +E.toExponential(2),
-            };
-          });
+          const data = buildGaussData(mode, charge, flux, EPSILON_0);
+          const isElectric = mode === 'ELECTRIC';
+          const eLog = isElectric && charge !== 0;
           return (
             <PhysicsChart
-              title={mode === 'ELECTRIC' ? 'Flux & Field vs Radius' : 'Magnetic Flux (always zero)'}
+              title={isElectric ? 'Flux & Field vs Radius' : 'Magnetic Flux (always zero)'}
               data={data}
               xKey="r"
+              xType="number"
               xLabel="Radius (m)"
-              yLabel={mode === 'ELECTRIC' ? 'Value' : 'Flux (Wb)'}
+              yLabel={isElectric ? 'E-field (N/C, log)' : 'Flux (Wb)'}
+              yScale={eLog ? 'log' : 'linear'}
+              y2Label={isElectric ? 'Flux (N·m²/C)' : undefined}
               lines={
-                mode === 'ELECTRIC'
+                isElectric
                   ? [
-                      { dataKey: 'E', color: '#dc2626', name: 'E-field (N/C)' },
-                      { dataKey: 'Flux', color: '#9333ea', name: 'Flux (N·m²/C)' },
+                      { dataKey: 'E', color: '#dc2626', name: 'E-field (N/C)', axis: 'left' },
+                      { dataKey: 'Flux', color: '#9333ea', name: 'Flux (N·m²/C)', axis: 'right' },
                     ]
                   : [{ dataKey: 'Flux', color: '#2563eb', name: 'Magnetic Flux' }]
               }

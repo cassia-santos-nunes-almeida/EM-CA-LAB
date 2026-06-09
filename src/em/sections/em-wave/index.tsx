@@ -12,6 +12,7 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import type { Challenge, EMWaveState, QuizQuestion } from '@em/types/index';
+import { buildSnapshotData, buildPowerData } from './chartData';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -1174,24 +1175,19 @@ export function EMWaveSection() {
         {(() => {
           const k = (2 * Math.PI * state.frequency * state.refractiveIndex) / 300;
           if (viewMode !== WaveViewMode.VIEW_VI) {
-            const data = Array.from({ length: 50 }, (_, i) => {
-              const x = i * 6;
-              const E = state.amplitude * Math.sin(k * x);
-              const Braw = (state.amplitude * state.refractiveIndex / 300) * Math.sin(k * x);
-              // Multiply B by c so it is visible alongside E on the same scale
-              const Bscaled = Braw * 300;
-              return { x: x.toFixed(0), E: +E.toFixed(2), B: +Bscaled.toFixed(2) };
-            });
+            const data = buildSnapshotData(state.amplitude, k, state.refractiveIndex);
             return (
               <PhysicsChart
                 title="E & B Field Snapshot (t = 0)"
                 data={data}
                 xKey="x"
+                xType="number"
                 xLabel="Position (arb.)"
-                yLabel="Amplitude"
+                yLabel="E (V/m, arb.)"
+                y2Label="B (T, arb.)"
                 lines={[
-                  { dataKey: 'E', color: '#dc2626', name: 'E-field' },
-                  { dataKey: 'B', color: '#2563eb', name: 'B-field (×c)' },
+                  { dataKey: 'E', color: '#dc2626', name: 'E-field', axis: 'left' },
+                  { dataKey: 'B', color: '#2563eb', name: 'B-field', axis: 'right' },
                 ]}
               />
             );
@@ -1199,18 +1195,14 @@ export function EMWaveSection() {
           const omegaVal = 2 * Math.PI * state.frequency;
           const phiV = state.vPhase * Math.PI / 180;
           const phiI = state.iPhase * Math.PI / 180;
-          const data = Array.from({ length: 60 }, (_, i) => {
-            const t = i * 0.05;
-            const v = state.vAmplitude * Math.sin(omegaVal * t + phiV);
-            const iVal = state.iAmplitude * Math.sin(omegaVal * t + phiI);
-            return { t: t.toFixed(2), P: +(v * iVal / 1000).toFixed(2) };
-          });
+          const data = buildPowerData(state.vAmplitude, state.iAmplitude, omegaVal, phiV, phiI);
           return (
             <PhysicsChart
               title="Instantaneous Power p(t) = v·i"
               data={data}
               xKey="t"
-              xLabel="Time (s)"
+              xType="number"
+              xLabel="Time t (s)"
               yLabel="Power (kW)"
               lines={[{ dataKey: 'P', color: '#9333ea', name: 'p(t)' }]}
             />
