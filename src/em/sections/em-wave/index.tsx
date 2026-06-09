@@ -76,6 +76,30 @@ const CHALLENGE: Challenge = {
   hint: `The same sinusoid drives both halves of this section: a faster-oscillating or denser medium reshapes the wave (v = c/n, λ shrinks, f fixed), and the angle between two rotating phasors sets the AC power through the cos(Δφ) factor — line up the phasors and power peaks, cross them at 90° and power vanishes.`,
 };
 
+export function buildSnapshotData(amplitude: number, k: number, refractiveIndex: number) {
+  return Array.from({ length: 50 }, (_, i) => {
+    const x = i * 6;
+    const E = amplitude * Math.sin(k * x);
+    const Braw = (amplitude * refractiveIndex / 300) * Math.sin(k * x);
+    return { x, E: +E.toFixed(2), B: +Braw.toFixed(4) };
+  });
+}
+
+export function buildPowerData(
+  vAmplitude: number,
+  iAmplitude: number,
+  omega: number,
+  phiV: number,
+  phiI: number,
+) {
+  return Array.from({ length: 60 }, (_, i) => {
+    const t = i * 0.05;
+    const v = vAmplitude * Math.sin(omega * t + phiV);
+    const iVal = iAmplitude * Math.sin(omega * t + phiI);
+    return { t: +t.toFixed(2), P: +(v * iVal / 1000).toFixed(2) };
+  });
+}
+
 export function EMWaveSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');
   const c = isDarkMode ? COLORS_DARK : COLORS;
@@ -1157,24 +1181,19 @@ export function EMWaveSection() {
         {(() => {
           const k = (2 * Math.PI * state.frequency * state.refractiveIndex) / 300;
           if (viewMode !== WaveViewMode.VIEW_VI) {
-            const data = Array.from({ length: 50 }, (_, i) => {
-              const x = i * 6;
-              const E = state.amplitude * Math.sin(k * x);
-              const Braw = (state.amplitude * state.refractiveIndex / 300) * Math.sin(k * x);
-              // Multiply B by c so it is visible alongside E on the same scale
-              const Bscaled = Braw * 300;
-              return { x: x.toFixed(0), E: +E.toFixed(2), B: +Bscaled.toFixed(2) };
-            });
+            const data = buildSnapshotData(state.amplitude, k, state.refractiveIndex);
             return (
               <PhysicsChart
                 title="E & B Field Snapshot (t = 0)"
                 data={data}
                 xKey="x"
+                xType="number"
                 xLabel="Position (arb.)"
-                yLabel="Amplitude"
+                yLabel="E (V/m, arb.)"
+                y2Label="B (T, arb.)"
                 lines={[
-                  { dataKey: 'E', color: '#dc2626', name: 'E-field' },
-                  { dataKey: 'B', color: '#2563eb', name: 'B-field (×c)' },
+                  { dataKey: 'E', color: '#dc2626', name: 'E-field', axis: 'left' },
+                  { dataKey: 'B', color: '#2563eb', name: 'B-field', axis: 'right' },
                 ]}
               />
             );
@@ -1182,18 +1201,14 @@ export function EMWaveSection() {
           const omegaVal = 2 * Math.PI * state.frequency;
           const phiV = state.vPhase * Math.PI / 180;
           const phiI = state.iPhase * Math.PI / 180;
-          const data = Array.from({ length: 60 }, (_, i) => {
-            const t = i * 0.05;
-            const v = state.vAmplitude * Math.sin(omegaVal * t + phiV);
-            const iVal = state.iAmplitude * Math.sin(omegaVal * t + phiI);
-            return { t: t.toFixed(2), P: +(v * iVal / 1000).toFixed(2) };
-          });
+          const data = buildPowerData(state.vAmplitude, state.iAmplitude, omegaVal, phiV, phiI);
           return (
             <PhysicsChart
               title="Instantaneous Power p(t) = v·i"
               data={data}
               xKey="t"
-              xLabel="Time (s)"
+              xType="number"
+              xLabel="Time t (s)"
               yLabel="Power (kW)"
               lines={[{ dataKey: 'P', color: '#9333ea', name: 'p(t)' }]}
             />
