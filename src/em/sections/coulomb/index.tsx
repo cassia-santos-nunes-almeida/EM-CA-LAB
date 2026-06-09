@@ -14,6 +14,7 @@ import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, Charge, QuizQuestion } from '@em/types/index';
 
 const K_COULOMB = 8.988e9;
@@ -90,6 +91,7 @@ export function CoulombSection() {
 
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   const onCheckComplete = () => incrementConceptChecks('coulomb');
   const onCheckHint = () => incrementHints('coulomb');
 
@@ -456,6 +458,19 @@ export function CoulombSection() {
       hook="The force between charges on a DNA strand is strong enough to hold the molecule together yet weak enough for enzymes to unzip it. The same inverse-square law governs both."
     >
       {/* ── Interactive simulation ── */}
+      <PredictionGate
+        allowSkip={false}
+        question="Two equal positive charges sit side by side. At the exact midpoint between them, what is the net electric field?"
+        options={[
+          { id: 'zero', label: 'Zero' },
+          { id: 'toward', label: 'Points toward one charge' },
+          { id: 'max', label: 'Maximum (largest on the line)' },
+          { id: 'up', label: 'Points straight up' },
+        ]}
+        getCorrectAnswer={() => 'zero'}
+        explanation={<span>The two equal charges push a test charge in opposite directions along the line joining them, so the horizontal contributions cancel and |E| = 0 at the midpoint — vector superposition.</span>}
+        onPredict={(correct) => markPredictionGate('coulomb', correct)}
+      >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div
@@ -548,6 +563,7 @@ export function CoulombSection() {
           </HintBox>
         </ControlPanel>
       </div>
+      </PredictionGate>
 
       {/* Check: field-line direction (right after the field-line visualization) */}
       <ConceptCheck data={toConceptCheck(Q_FIELD_LINES)} onComplete={onCheckComplete} onHint={onCheckHint} />

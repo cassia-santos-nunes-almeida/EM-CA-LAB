@@ -80,4 +80,25 @@ describe('Section smoke tests', () => {
     renderSection(MagneticCircuitsSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
   });
+
+  it('CoulombSection gates the sim behind a Predict First prediction', async () => {
+    const { CoulombSection } = await import('@em/sections/coulomb/index');
+    renderSection(CoulombSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/net electric field/i)).toBeInTheDocument();
+  });
+
+  it('GaussSection gates the sim behind a Predict First prediction', async () => {
+    const { GaussSection } = await import('@em/sections/gauss/index');
+    renderSection(GaussSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/double the sphere's radius/i)).toBeInTheDocument();
+  });
+
+  it('AmpereSection gates the sim behind a Predict First prediction', async () => {
+    const { AmpereSection } = await import('@em/sections/ampere/index');
+    renderSection(AmpereSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/distance r from a long straight wire/i)).toBeInTheDocument();
+  });
 });
