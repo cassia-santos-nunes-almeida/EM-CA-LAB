@@ -101,4 +101,25 @@ describe('Section smoke tests', () => {
     expect(screen.getByText('Predict First')).toBeInTheDocument();
     expect(screen.getByText(/distance r from a long straight wire/i)).toBeInTheDocument();
   });
+
+  it('MaxwellSection gates the cards behind a Predict First prediction', async () => {
+    const { MaxwellSection } = await import('@em/sections/maxwell/index');
+    renderSection(MaxwellSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/let Maxwell predict self-propagating/i)).toBeInTheDocument();
+  });
+
+  it('EMWaveSection gates the sim behind a Predict First prediction', async () => {
+    const { EMWaveSection } = await import('@em/sections/em-wave/index');
+    renderSection(EMWaveSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/Along which axis does the B field oscillate/i)).toBeInTheDocument();
+  });
+
+  it('PolarizationSection gates the sim behind a Predict First prediction', async () => {
+    const { PolarizationSection } = await import('@em/sections/polarization/index');
+    renderSection(PolarizationSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/90° phase difference/i)).toBeInTheDocument();
+  });
 });
