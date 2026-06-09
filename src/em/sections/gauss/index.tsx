@@ -15,6 +15,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { buildGaussData } from './chartData';
 
 const EPSILON_0 = 8.854e-12;
 
@@ -82,22 +83,6 @@ const CHALLENGE: Challenge = {
   ],
   hint: `Gauss's law guarantees Φ_E = Q_enc/ε₀ — only the enclosed charge matters, never the surface radius. Field strength |E| changes with distance, but the total flux through the closed surface does not.`,
 };
-
-export function buildGaussData(
-  mode: 'ELECTRIC' | 'MAGNETIC',
-  charge: number,
-  flux: number,
-  epsilon0: number,
-) {
-  const Q = charge * 1e-6;
-  return Array.from({ length: 30 }, (_, i) => {
-    const r = 0.2 + i * 0.06;
-    const E = mode === 'ELECTRIC' && charge !== 0
-      ? Math.abs(Q) / (4 * Math.PI * epsilon0 * r * r)
-      : 0;
-    return { r: +r.toFixed(2), Flux: flux, E };
-  });
-}
 
 export function GaussSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');

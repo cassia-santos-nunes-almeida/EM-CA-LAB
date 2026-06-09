@@ -15,6 +15,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, Charge, QuizQuestion } from '@em/types/index';
+import { buildForceData } from './chartData';
 
 const K_COULOMB = 8.988e9;
 
@@ -83,13 +84,6 @@ const CHALLENGE: Challenge = {
   ],
   hint: `Two equal charges placed symmetrically about a point create equal-and-opposite contributions along the line joining them, so those components cancel at the midpoint — only the un-cancelled (here, vertical) contribution survives.`,
 };
-
-export function buildForceData(q1: number, q2: number, kCoulomb: number) {
-  return Array.from({ length: 40 }, (_, i) => {
-    const r = 0.02 + i * 0.012;
-    return { r: +r.toFixed(3), F: kCoulomb * q1 * q2 / (r * r) };
-  });
-}
 
 export function CoulombSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');

@@ -12,6 +12,7 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import type { Challenge, EMWaveState, QuizQuestion } from '@em/types/index';
+import { buildSnapshotData, buildPowerData } from './chartData';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
@@ -75,30 +76,6 @@ const CHALLENGE: Challenge = {
   ],
   hint: `The same sinusoid drives both halves of this section: a faster-oscillating or denser medium reshapes the wave (v = c/n, λ shrinks, f fixed), and the angle between two rotating phasors sets the AC power through the cos(Δφ) factor — line up the phasors and power peaks, cross them at 90° and power vanishes.`,
 };
-
-export function buildSnapshotData(amplitude: number, k: number, refractiveIndex: number) {
-  return Array.from({ length: 50 }, (_, i) => {
-    const x = i * 6;
-    const E = amplitude * Math.sin(k * x);
-    const Braw = (amplitude * refractiveIndex / 300) * Math.sin(k * x);
-    return { x, E: +E.toFixed(2), B: +Braw.toFixed(4) };
-  });
-}
-
-export function buildPowerData(
-  vAmplitude: number,
-  iAmplitude: number,
-  omega: number,
-  phiV: number,
-  phiI: number,
-) {
-  return Array.from({ length: 60 }, (_, i) => {
-    const t = i * 0.05;
-    const v = vAmplitude * Math.sin(omega * t + phiV);
-    const iVal = iAmplitude * Math.sin(omega * t + phiI);
-    return { t: +t.toFixed(2), P: +(v * iVal / 1000).toFixed(2) };
-  });
-}
 
 export function EMWaveSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');

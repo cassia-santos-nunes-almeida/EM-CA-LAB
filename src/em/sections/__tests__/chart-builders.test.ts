@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildForceData } from '@em/sections/coulomb/index';
-import { buildGaussData } from '@em/sections/gauss/index';
-import { buildSnapshotData, buildPowerData } from '@em/sections/em-wave/index';
+import { buildForceData } from '@em/sections/coulomb/chartData';
+import { buildGaussData } from '@em/sections/gauss/chartData';
+import { buildSnapshotData, buildPowerData } from '@em/sections/em-wave/chartData';
 
 const K_COULOMB = 8.988e9;
 const EPSILON_0 = 8.854e-12;
