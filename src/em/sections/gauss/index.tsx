@@ -14,6 +14,7 @@ import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 
 const EPSILON_0 = 8.854e-12;
@@ -89,6 +90,7 @@ export function GaussSection() {
 
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
 
   const [mode, setMode] = useState<'ELECTRIC' | 'MAGNETIC'>('ELECTRIC');
   const [charge, setCharge] = useState(5);
@@ -322,6 +324,19 @@ export function GaussSection() {
       hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
     >
       {/* ── Interactive simulation ── */}
+      <PredictionGate
+        allowSkip={false}
+        question="You enclose a fixed charge +Q in a Gaussian sphere, then double the sphere's radius. What happens to the total electric flux through it?"
+        options={[
+          { id: 'quadruples', label: 'It quadruples' },
+          { id: 'doubles', label: 'It doubles' },
+          { id: 'same', label: 'It stays the same' },
+          { id: 'quarter', label: 'It drops to one quarter' },
+        ]}
+        getCorrectAnswer={() => 'same'}
+        explanation={<span>Gauss's law gives Φ_E = Q_enc/ε₀ — flux depends only on the enclosed charge, not on the surface radius, so it is unchanged.</span>}
+        onPredict={(correct) => markPredictionGate('gauss', correct)}
+      >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
@@ -370,6 +385,7 @@ export function GaussSection() {
           </HintBox>
         </ControlPanel>
       </div>
+      </PredictionGate>
 
       {/* ── Inline concept checks (distributed by mode: 2 electric, 1 magnetic) ── */}
       {mode === 'ELECTRIC' ? (
