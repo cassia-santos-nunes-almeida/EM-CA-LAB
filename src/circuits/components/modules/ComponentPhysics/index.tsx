@@ -11,6 +11,7 @@ import { InductorSection } from '@circuits/components/modules/ComponentPhysics/I
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 
@@ -34,6 +35,7 @@ export function ComponentPhysics() {
   const markVisited = useProgressStore((s) => s.markVisited);
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('component-physics'); }, [markVisited]);
 
   const [activeComponent, setActiveComponent] = useState<ComponentType>('resistor');
@@ -95,69 +97,84 @@ export function ComponentPhysics() {
         />
       </div>
 
-      <div className="flex border-b-2 border-slate-200 dark:border-slate-700">
-        {([
-          { id: 'resistor' as const, label: 'Resistor', color: 'border-red-500 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20' },
-          { id: 'capacitor' as const, label: 'Capacitor', color: 'border-green-500 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' },
-          { id: 'inductor' as const, label: 'Inductor', color: 'border-purple-500 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20' },
-        ]).map((component) => (
-          <button
-            key={component.id}
-            onClick={() => setActiveComponent(component.id)}
-            className={`px-6 py-3 font-semibold text-sm transition-colors border-b-3 -mb-[2px] ${
-              activeComponent === component.id
-                ? component.color
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
-          >
-            {component.label}
-          </button>
-        ))}
-      </div>
+      <PredictionGate
+        allowSkip={false}
+        question="A solenoid's inductance is L = μN²A/l. If you double the number of turns N (keeping geometry fixed), how does L change?"
+        options={[
+          { id: '2x', label: 'Doubles (×2)' },
+          { id: '4x', label: 'Quadruples (×4)' },
+          { id: 'same', label: 'Unchanged' },
+          { id: 'half', label: 'Halves' },
+        ]}
+        getCorrectAnswer={() => '4x'}
+        explanation={<span>L depends on N², so doubling N multiplies L by 2² = 4. (R and C scale linearly with their geometry; only the inductor has a squared dependence.)</span>}
+        onPredict={(correct) => markPredictionGate('component-physics', correct)}
+      >
+        {/* tab strip + active component panel */}
+        <div className="flex border-b-2 border-slate-200 dark:border-slate-700">
+          {([
+            { id: 'resistor' as const, label: 'Resistor', color: 'border-red-500 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20' },
+            { id: 'capacitor' as const, label: 'Capacitor', color: 'border-green-500 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' },
+            { id: 'inductor' as const, label: 'Inductor', color: 'border-purple-500 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20' },
+          ]).map((component) => (
+            <button
+              key={component.id}
+              onClick={() => setActiveComponent(component.id)}
+              className={`px-6 py-3 font-semibold text-sm transition-colors border-b-3 -mb-[2px] ${
+                activeComponent === component.id
+                  ? component.color
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              {component.label}
+            </button>
+          ))}
+        </div>
 
-      {activeComponent === 'resistor' && (
-        <ResistorSection
-          length={resistorLength}
-          area={resistorArea}
-          resistivity={resistorMaterial}
-          resistance={resistance}
-          onLengthChange={setResistorLength}
-          onAreaChange={setResistorArea}
-          onResistivityChange={setResistorMaterial}
-          onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
-          onHint={() => incrementHints('component-physics')}
-        />
-      )}
+        {activeComponent === 'resistor' && (
+          <ResistorSection
+            length={resistorLength}
+            area={resistorArea}
+            resistivity={resistorMaterial}
+            resistance={resistance}
+            onLengthChange={setResistorLength}
+            onAreaChange={setResistorArea}
+            onResistivityChange={setResistorMaterial}
+            onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
+            onHint={() => incrementHints('component-physics')}
+          />
+        )}
 
-      {activeComponent === 'capacitor' && (
-        <CapacitorSection
-          area={capacitorArea}
-          distance={capacitorDistance}
-          permittivity={capacitorPermittivity}
-          capacitance={capacitance}
-          onAreaChange={setCapacitorArea}
-          onDistanceChange={setCapacitorDistance}
-          onPermittivityChange={setCapacitorPermittivity}
-          onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
-          onHint={() => incrementHints('component-physics')}
-        />
-      )}
+        {activeComponent === 'capacitor' && (
+          <CapacitorSection
+            area={capacitorArea}
+            distance={capacitorDistance}
+            permittivity={capacitorPermittivity}
+            capacitance={capacitance}
+            onAreaChange={setCapacitorArea}
+            onDistanceChange={setCapacitorDistance}
+            onPermittivityChange={setCapacitorPermittivity}
+            onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
+            onHint={() => incrementHints('component-physics')}
+          />
+        )}
 
-      {activeComponent === 'inductor' && (
-        <InductorSection
-          turns={inductorTurns}
-          area={inductorArea}
-          length={inductorLength}
-          permeability={inductorPermeability}
-          inductance={inductance}
-          onTurnsChange={setInductorTurns}
-          onAreaChange={setInductorArea}
-          onLengthChange={setInductorLength}
-          onPermeabilityChange={setInductorPermeability}
-          onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
-          onHint={() => incrementHints('component-physics')}
-        />
-      )}
+        {activeComponent === 'inductor' && (
+          <InductorSection
+            turns={inductorTurns}
+            area={inductorArea}
+            length={inductorLength}
+            permeability={inductorPermeability}
+            inductance={inductance}
+            onTurnsChange={setInductorTurns}
+            onAreaChange={setInductorArea}
+            onLengthChange={setInductorLength}
+            onPermeabilityChange={setInductorPermeability}
+            onConceptCheckComplete={() => incrementConceptChecks('component-physics')}
+            onHint={() => incrementHints('component-physics')}
+          />
+        )}
+      </PredictionGate>
 
       <GuidedChallenge challenge={CHALLENGE} />
 

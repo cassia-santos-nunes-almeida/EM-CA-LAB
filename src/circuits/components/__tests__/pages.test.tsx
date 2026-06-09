@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { UserEvent } from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { ComponentPhysics } from '@circuits/components/modules/ComponentPhysics/index';
@@ -12,9 +13,23 @@ function renderWithRouter(ui: React.ReactElement, route = '/') {
   );
 }
 
+/** Click a prediction option, then Continue, to reveal a blocking gate's children. */
+async function passPredictionGate(user: UserEvent, optionLabel: string) {
+  await user.click(screen.getByRole('button', { name: optionLabel }));
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
+}
+
 describe('ComponentPhysics page', () => {
-  it('renders with resistor tab active by default', () => {
+  it('gates the R/L/C explorer behind a Predict First prediction', () => {
     renderWithRouter(<ComponentPhysics />);
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Resistor' })).toBeNull();
+  });
+
+  it('renders with resistor tab active by default', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<ComponentPhysics />);
+    await passPredictionGate(user, 'Quadruples (×4)');
     expect(screen.getByRole('heading', { level: 1, name: /Component Physics/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Resistor' })).toBeInTheDocument();
     expect(screen.getByText(/Ohm's Law/i)).toBeInTheDocument();
@@ -23,6 +38,7 @@ describe('ComponentPhysics page', () => {
   it('switches to capacitor tab on click', async () => {
     const user = userEvent.setup();
     renderWithRouter(<ComponentPhysics />);
+    await passPredictionGate(user, 'Quadruples (×4)');
     await user.click(screen.getByRole('button', { name: 'Capacitor' }));
     // Capacitor section heading
     expect(screen.getByRole('heading', { name: /Theory/i })).toBeInTheDocument();
@@ -31,14 +47,23 @@ describe('ComponentPhysics page', () => {
   it('switches to inductor tab on click', async () => {
     const user = userEvent.setup();
     renderWithRouter(<ComponentPhysics />);
+    await passPredictionGate(user, 'Quadruples (×4)');
     await user.click(screen.getByRole('button', { name: 'Inductor' }));
     expect(screen.getByRole('heading', { name: /Theory/i })).toBeInTheDocument();
   });
 });
 
 describe('TimeDomain page', () => {
-  it('renders with table of contents and circuit tabs', () => {
+  it('gates the circuit tabs behind a Predict First prediction', () => {
     renderWithRouter(<TimeDomain />, '/circuit-analysis');
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'RC Circuit' })).toBeNull();
+  });
+
+  it('renders with table of contents and circuit tabs', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<TimeDomain />, '/circuit-analysis');
+    await passPredictionGate(user, 'τ doubles; pole moves toward the origin (slower)');
     expect(screen.getByRole('heading', { level: 1, name: /Circuit Analysis/ })).toBeInTheDocument();
     expect(screen.getByText('Jump to:')).toBeInTheDocument();
     // Tab buttons
@@ -50,6 +75,7 @@ describe('TimeDomain page', () => {
   it('switches between circuit tabs', async () => {
     const user = userEvent.setup();
     renderWithRouter(<TimeDomain />, '/circuit-analysis');
+    await passPredictionGate(user, 'τ doubles; pole moves toward the origin (slower)');
     // Click RL tab
     await user.click(screen.getByRole('button', { name: 'RL Circuit' }));
     // RL-specific concept check should now be visible
@@ -76,8 +102,16 @@ describe('TimeDomain page', () => {
 });
 
 describe('SDomainAnalysis page', () => {
-  it('renders with Theory tab by default', () => {
+  it('gates the Tabs behind a Predict First prediction', () => {
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.queryByText('Transfer Function Fundamentals')).toBeNull();
+  });
+
+  it('renders with Theory tab by default', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    await passPredictionGate(user, 'Unstable — the response grows without bound');
     expect(screen.getByRole('heading', { level: 1, name: /S-Domain Theory/ })).toBeInTheDocument();
     expect(screen.getByText('Transfer Function Fundamentals')).toBeInTheDocument();
   });
@@ -85,20 +119,24 @@ describe('SDomainAnalysis page', () => {
   it('switches to Damping tab via tablist', async () => {
     const user = userEvent.setup();
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    await passPredictionGate(user, 'Unstable — the response grows without bound');
     const tablist = screen.getByRole('tablist');
     const dampingTab = within(tablist).getByRole('tab', { name: /Damping/i });
     await user.click(dampingTab);
     expect(screen.getByText('Damping Behavior')).toBeInTheDocument();
   });
 
-  it('has a concept check with multiple choice', () => {
+  it('has a concept check with multiple choice', async () => {
+    const user = userEvent.setup();
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    await passPredictionGate(user, 'Unstable — the response grows without bound');
     expect(screen.getByText(/poles at s = -3/i)).toBeInTheDocument();
   });
 
   it('allows answering concept check correctly', async () => {
     const user = userEvent.setup();
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    await passPredictionGate(user, 'Unstable — the response grows without bound');
     await user.click(screen.getByText('Stable, underdamped'));
     expect(screen.getByText(/Correct!/)).toBeInTheDocument();
   });
@@ -106,6 +144,7 @@ describe('SDomainAnalysis page', () => {
   it('shows Try Again after answering', async () => {
     const user = userEvent.setup();
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
+    await passPredictionGate(user, 'Unstable — the response grows without bound');
     await user.click(screen.getByText('Stable, underdamped'));
     expect(screen.getByText('Try Again')).toBeInTheDocument();
   });
