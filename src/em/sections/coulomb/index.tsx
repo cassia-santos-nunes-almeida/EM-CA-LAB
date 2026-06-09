@@ -84,6 +84,13 @@ const CHALLENGE: Challenge = {
   hint: `Two equal charges placed symmetrically about a point create equal-and-opposite contributions along the line joining them, so those components cancel at the midpoint — only the un-cancelled (here, vertical) contribution survives.`,
 };
 
+export function buildForceData(q1: number, q2: number, kCoulomb: number) {
+  return Array.from({ length: 40 }, (_, i) => {
+    const r = 0.02 + i * 0.012;
+    return { r: +r.toFixed(3), F: kCoulomb * q1 * q2 / (r * r) };
+  });
+}
+
 export function CoulombSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');
   const col = isDarkMode ? COLORS_DARK : COLORS;
@@ -596,17 +603,16 @@ export function CoulombSection() {
         {charges.length >= 2 && (() => {
           const q1 = Math.abs(charges[0].q * 1e-6);
           const q2 = Math.abs(charges[1].q * 1e-6);
-          const forceData = Array.from({ length: 40 }, (_, i) => {
-            const r = 0.02 + i * 0.012;
-            return { r: r.toFixed(2), F: +(K_COULOMB * q1 * q2 / (r * r)).toExponential(2) };
-          });
+          const forceData = buildForceData(q1, q2, K_COULOMB);
           return (
             <PhysicsChart
               title="Coulomb Force vs Distance"
               data={forceData}
               xKey="r"
-              xLabel="Distance (m)"
-              yLabel="Force (N)"
+              xType="number"
+              xLabel="Distance r (m)"
+              yLabel="Force F (N, log scale)"
+              yScale="log"
               lines={[{ dataKey: 'F', color: '#dc2626', name: 'F (N)' }]}
             />
           );
