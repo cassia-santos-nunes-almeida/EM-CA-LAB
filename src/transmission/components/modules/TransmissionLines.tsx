@@ -474,17 +474,17 @@ export function TransmissionLines() {
           {
             label: 'Reflections',
             icon: flaskIcon,
-            content: <LabLayout theory={reflectionsTheory} bench={reflectionsBench} />,
+            content: <LabLayout benchId="lab-reflections" jumpLabel="Jump to lab" theory={reflectionsTheory} bench={reflectionsBench} />,
           },
           {
             label: 'Smith Chart',
             icon: flaskIcon,
-            content: <LabLayout theory={smithTheory} bench={smithBench} />,
+            content: <LabLayout benchId="lab-smith" jumpLabel="Jump to lab" theory={smithTheory} bench={smithBench} />,
           },
           {
             label: 'Inverse',
             icon: flaskIcon,
-            content: <LabLayout theory={inverseTheory} bench={inverseBench} />,
+            content: <LabLayout benchId="lab-inverse" jumpLabel="Jump to lab" theory={inverseTheory} bench={inverseBench} />,
           },
         ]}
       />
