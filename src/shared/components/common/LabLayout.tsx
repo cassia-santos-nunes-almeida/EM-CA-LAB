@@ -42,7 +42,7 @@ export function LabLayout({ theory, bench, className, benchId, jumpLabel }: LabL
             className="lg:hidden inline-flex items-center gap-1.5 mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-engineering-blue-700 dark:text-engineering-blue-400 bg-engineering-blue-50 dark:bg-engineering-blue-900/20 hover:bg-engineering-blue-100 dark:hover:bg-engineering-blue-900/30 transition-colors"
           >
             {jumpLabel}
-            <ArrowDown aria-hidden="true" className="w-4 h-4" />
+            <ArrowDown className="w-4 h-4" aria-hidden="true" />
           </a>
         )}
         {theory}

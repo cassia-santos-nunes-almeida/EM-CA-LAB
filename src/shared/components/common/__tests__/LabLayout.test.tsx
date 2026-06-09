@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { LabLayout } from '@shared/components/common/LabLayout';
 
@@ -28,12 +28,18 @@ describe('LabLayout', () => {
     const { container } = render(
       <LabLayout benchId="lab-test" jumpLabel="Jump to lab" theory={<p>t</p>} bench={<span data-testid="b">b</span>} />,
     );
-    expect(container.querySelector('#lab-test')).toBeTruthy();
-    expect(container.querySelector('#lab-test')?.querySelector('[data-testid="b"]')).toBeTruthy();
+    const benchWrapper = container.querySelector('#lab-test');
+    expect(benchWrapper).toBeTruthy();
+    expect(within(benchWrapper as HTMLElement).getByTestId('b')).toBeInTheDocument();
   });
 
   it('renders no jump anchor when jumpLabel/benchId are omitted', () => {
     render(<LabLayout theory={<p>t</p>} bench={<p>b</p>} />);
     expect(screen.queryByRole('link', { name: /Jump to lab/i })).toBeNull();
+  });
+
+  it('renders no jump anchor when benchId is set but jumpLabel is omitted', () => {
+    render(<LabLayout benchId="lab-x" theory={<p>t</p>} bench={<p>b</p>} />);
+    expect(screen.queryByRole('link')).toBeNull();
   });
 });
