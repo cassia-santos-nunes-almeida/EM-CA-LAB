@@ -14,6 +14,7 @@ import { Layers } from 'lucide-react';
 import type { Challenge, Equation, QuizQuestion } from '@em/types/index';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 
@@ -81,6 +82,7 @@ export function PolarizationSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');
   const c = isDarkMode ? COLORS_DARK : COLORS;
 
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
   const onCheckComplete = () => incrementConceptChecks('polarization');
@@ -382,8 +384,22 @@ export function PolarizationSection() {
       hook="LCD screens work by rotating the polarization of light between two crossed polarizers. Without the physics in this section, there are no flat screens, no sunglasses, and no glare-reducing camera filters."
     >
       {/* ── Interactive simulation ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-4">
+      <PredictionGate
+        allowSkip={false}
+        question="Two orthogonal E-field components of EQUAL amplitude are combined with a 90° phase difference. What polarization state results?"
+        options={[
+          { id: 'linear', label: 'Linear' },
+          { id: 'circular', label: 'Circular' },
+          { id: 'elliptical', label: 'Elliptical (axial ratio ≠ 1)' },
+          { id: 'unpolarized', label: 'Unpolarized' },
+        ]}
+        getCorrectAnswer={() => 'circular'}
+        explanation={<span>Equal amplitudes with δ = ±90° make the E-vector tip trace a circle (Ex²+Ey² = const) — circular polarization. δ = 0°/180° gives linear; unequal amplitudes give elliptical.</span>}
+        onPredict={(correct) => markPredictionGate('polarization', correct)}
+      >
+        {/* existing interactive-simulation grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
             <canvas
               ref={canvasRef}
@@ -477,7 +493,8 @@ export function PolarizationSection() {
           />
           <HintBox>For Circular polarization, magnitudes must be equal (Ex = Ey) and phase difference must be ±90°.</HintBox>
         </ControlPanel>
-      </div>
+        </div>
+      </PredictionGate>
 
       {/* Check: linear as superposition of two circular waves */}
       <ConceptCheck data={toConceptCheck(Q_LINEAR)} onComplete={onCheckComplete} onHint={onCheckHint} />

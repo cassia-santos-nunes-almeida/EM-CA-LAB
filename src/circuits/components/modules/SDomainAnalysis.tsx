@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, Activity, FlaskConical, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -11,6 +11,7 @@ import { Tabs } from '@circuits/components/common/Tabs';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 
@@ -369,6 +370,8 @@ function ReadThePlotTab() {
 
 export function SDomainAnalysis() {
   const markVisited = useProgressStore((s) => s.markVisited);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
+  const [unlocked, setUnlocked] = useState(false);
   useEffect(() => { markVisited('s-domain'); }, [markVisited]);
 
   return (
@@ -387,25 +390,41 @@ export function SDomainAnalysis() {
         </p>
       </div>
 
-      <Tabs
-        tabs={[
-          {
-            label: 'Theory',
-            icon: <BookOpen className="w-4 h-4" />,
-            content: <TheoryTab />,
-          },
-          {
-            label: 'Damping & Takeaways',
-            icon: <Activity className="w-4 h-4" />,
-            content: <DampingTab />,
-          },
-          {
-            label: 'Read the Plot',
-            icon: <Search className="w-4 h-4" />,
-            content: <ReadThePlotTab />,
-          },
+      <PredictionGate
+        allowSkip={false}
+        initialPassed={unlocked}
+        onPassed={() => setUnlocked(true)}
+        question="A second-order system has poles at s = +1 ± 2j (right half-plane). Is it stable?"
+        options={[
+          { id: 'unstable', label: 'Unstable — the response grows without bound' },
+          { id: 'stable', label: 'Stable — it decays' },
+          { id: 'marginal', label: 'Marginally stable — sustained oscillation' },
+          { id: 'cant', label: "Can't tell from pole location" },
         ]}
-      />
+        getCorrectAnswer={() => 'unstable'}
+        explanation={<span>Any pole with a positive real part (right half-plane) makes the response grow as e^(+σt). The ±2j gives oscillation, but the +1 real part means it blows up — unstable.</span>}
+        onPredict={(correct) => markPredictionGate('s-domain', correct)}
+      >
+        <Tabs
+          tabs={[
+            {
+              label: 'Theory',
+              icon: <BookOpen className="w-4 h-4" />,
+              content: <TheoryTab />,
+            },
+            {
+              label: 'Damping & Takeaways',
+              icon: <Activity className="w-4 h-4" />,
+              content: <DampingTab />,
+            },
+            {
+              label: 'Read the Plot',
+              icon: <Search className="w-4 h-4" />,
+              content: <ReadThePlotTab />,
+            },
+          ]}
+        />
+      </PredictionGate>
 
       <CourseNavigation />
     </div>

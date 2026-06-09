@@ -14,6 +14,7 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import type { Challenge, EMWaveState, QuizQuestion } from '@em/types/index';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 
@@ -80,6 +81,7 @@ export function EMWaveSection() {
   const isDarkMode = useThemeStore((s) => s.theme === 'dark');
   const c = isDarkMode ? COLORS_DARK : COLORS;
 
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
   const onCheckComplete = () => incrementConceptChecks('em-wave');
@@ -956,8 +958,22 @@ export function EMWaveSection() {
       hook="The 2.4 GHz signal from your WiFi router has a wavelength of 12.5 cm — roughly the width of a laptop. When the wavelength matches physical dimensions, wave behavior dominates. That is exactly what this section is about."
     >
       {/* ── Interactive simulation with internal view selector (genuine sim state) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-4">
+      <PredictionGate
+        allowSkip={false}
+        question="A plane EM wave travels in +z with its E field along x. Along which axis does the B field oscillate?"
+        options={[
+          { id: 'x', label: 'Along x (parallel to E)' },
+          { id: 'y', label: 'Along y' },
+          { id: 'z', label: 'Along z (direction of travel)' },
+          { id: 'none', label: 'B does not oscillate' },
+        ]}
+        getCorrectAnswer={() => 'y'}
+        explanation={<span>E, B and k form a right-handed triad with E×B ∝ k. With E along x̂ and k along ẑ, B must lie along ŷ (x̂×ŷ=ẑ).</span>}
+        onPredict={(correct) => markPredictionGate('em-wave', correct)}
+      >
+        {/* existing interactive-simulation grid ONLY */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 flex-grow relative min-h-[350px]">
             <div className="absolute top-4 left-4 z-10 flex gap-2">
               {[WaveViewMode.VIEW_2D, WaveViewMode.VIEW_3D, WaveViewMode.VIEW_VI, WaveViewMode.VIEW_PHASOR_SYNC].map((m) => (
@@ -1106,7 +1122,8 @@ export function EMWaveSection() {
             </HintBox>
           </ControlPanel>
         </div>
-      </div>
+        </div>
+      </PredictionGate>
 
       {/* ── Inline concept checks (distributed across the wave/medium/phasor views) ── */}
       <div className="space-y-4">

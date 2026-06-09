@@ -13,6 +13,7 @@ import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
@@ -78,6 +79,7 @@ export function AmpereSection() {
 
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   const onCheckComplete = () => incrementConceptChecks('ampere');
   const onCheckHint = () => incrementHints('ampere');
 
@@ -320,6 +322,19 @@ export function AmpereSection() {
       hook="MRI machines generate fields of 1.5–3 T using superconducting coils carrying hundreds of amperes through hundreds of turns. Ampère's law relates the enclosed current to the magnetic field you will calculate here."
     >
       {/* ── Interactive simulation ── */}
+      <PredictionGate
+        allowSkip={false}
+        question="You measure B at distance r from a long straight wire, then move the probe to 2r. How does the field magnitude change?"
+        options={[
+          { id: 'half', label: 'It halves' },
+          { id: 'quarter', label: 'It drops to one quarter' },
+          { id: 'same', label: 'It stays the same' },
+          { id: 'double', label: 'It doubles' },
+        ]}
+        getCorrectAnswer={() => 'half'}
+        explanation={<span>For a straight wire B = μ₀I/(2πr) ∝ 1/r, so doubling r halves the field (a 1/r law, not 1/r²).</span>}
+        onPredict={(correct) => markPredictionGate('ampere', correct)}
+      >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div
@@ -369,6 +384,7 @@ export function AmpereSection() {
           </HintBox>
         </ControlPanel>
       </div>
+      </PredictionGate>
 
       {/* Check: right-hand grip rule (after observing field circulation in the sim) */}
       <ConceptCheck data={toConceptCheck(Q_RHR)} onComplete={onCheckComplete} onHint={onCheckHint} />
