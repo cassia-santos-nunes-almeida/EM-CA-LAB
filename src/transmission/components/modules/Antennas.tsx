@@ -15,7 +15,7 @@ import { TableOfContents } from '@shared/components/common/TableOfContents';
 import { useProgressStore } from '@shared/store/progressStore';
 import { useActiveSection } from '@transmission/hooks/useActiveSection';
 import { RadiationPatternSim } from '@transmission/components/simulations/RadiationPatternSim';
-import { MODULE_URLS } from '@transmission/constants/modules';
+import { Link } from 'react-router-dom';
 
 /** Antenna type card data. */
 interface AntennaCard {
@@ -537,12 +537,12 @@ export function Antennas() {
 
         {/* Bottom navigation links */}
         <div className="flex items-center justify-between pt-4">
-          <a
-            href={MODULE_URLS.module2}
+          <Link
+            to="/circuit-analysis"
             className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-engineering-blue-600 dark:hover:text-engineering-blue-400 transition-colors"
           >
-            <span aria-hidden="true">{'\u2190'}</span> Back to Module 2
-          </a>
+            <span aria-hidden="true">{'\u2190'}</span> Revisit Circuit Analysis
+          </Link>
           <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm font-semibold">
             Course complete {'\u2713'}
           </div>

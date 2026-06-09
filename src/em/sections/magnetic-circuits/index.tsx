@@ -8,7 +8,7 @@ import { EquationBox } from '@em/components/common/EquationBox';
 import { HintBox } from '@em/components/common/HintBox';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { TheoryGuide } from '@em/components/common/TheoryGuide';
-import { MODULE_URLS } from '@em/constants/modules';
+import { Link } from 'react-router-dom';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { ArrowRight } from 'lucide-react';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
@@ -436,26 +436,24 @@ export function MagneticCircuitsSection() {
               If <MathWrapper formula="V_1 = 12\text{ V}" />, then <MathWrapper formula="V_2 = 12 \times 500/100 = 60\text{ V}" />.
             </li>
             <li className="text-xs text-slate-500 dark:text-slate-400 italic">
-              Note: Full circuit treatment (reflected impedance, dot convention) is covered in Module 3.
+              Note: Full circuit treatment (reflected impedance, dot convention) is covered in the Transformers section, up next.
             </li>
           </ul>
         </TheoryGuide>
 
-        {/* Subsection 4: Bridge to Module 2 */}
+        {/* Subsection 4: Bridge back to Part 1 (circuits-first spine: the math came first) */}
         <div className="p-5 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20">
           <p className="text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed font-medium">
-            Every inductor in Module 2 — every RL circuit, every RLC transient — has a physical origin in what you just learned.
+            Every inductor in Part 1 — every RL circuit, every RLC transient — has a physical origin in what you just learned.
             The <MathWrapper formula="L" /> in your circuit equations is the inductance of a real coil, determined by its geometry
-            and core material. The math continues in Module 2. The physics started here.
+            and core material. The math came first, in Part 1. The physics lives here.
           </p>
-          <a
-            href={MODULE_URLS.module2}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/component-physics"
             className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors"
           >
-            Continue to Module 2 <ArrowRight size={16} />
-          </a>
+            Revisit Component Physics <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
       <GuidedChallenge challenge={CHALLENGE} />
