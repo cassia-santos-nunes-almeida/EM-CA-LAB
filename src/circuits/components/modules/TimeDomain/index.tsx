@@ -12,6 +12,7 @@ import { ResponseComparisons } from '@circuits/components/modules/TimeDomain/Res
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
+import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { CircuitAnalysisExercise } from '@circuits/components/modules/CircuitAnalysisExercise';
@@ -43,6 +44,7 @@ export function TimeDomain() {
   const markVisited = useProgressStore((s) => s.markVisited);
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('circuit-analysis'); }, [markVisited]);
 
   const [selectedCircuit, setSelectedCircuit] = useState<CircuitType>('RC');
@@ -74,25 +76,40 @@ export function TimeDomain() {
 
       <TableOfContents items={tocEntries} />
 
-      <div id="circuit-analysis" className="scroll-mt-4 flex border-b-2 border-slate-200 dark:border-slate-700">
-        {(['RC', 'RL', 'RLC'] as const).map((type) => (
-          <button
-            key={type}
-            onClick={() => setSelectedCircuit(type)}
-            className={`px-6 py-3 font-semibold text-sm transition-colors border-b-3 -mb-[2px] ${
-              selectedCircuit === type
-                ? 'border-engineering-blue-600 text-engineering-blue-700 dark:text-engineering-blue-400 bg-engineering-blue-50 dark:bg-engineering-blue-900/20'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
-          >
-            {type} Circuit
-          </button>
-        ))}
-      </div>
+      <PredictionGate
+        allowSkip={false}
+        question="You double R in a series RC circuit (C fixed). What happens to the time constant τ and the s-domain pole at s = −1/τ?"
+        options={[
+          { id: 'slower', label: 'τ doubles; pole moves toward the origin (slower)' },
+          { id: 'faster', label: 'τ halves; pole moves away from origin (faster)' },
+          { id: 'same', label: 'τ unchanged; pole fixed' },
+          { id: 'gain', label: 'Only the DC gain changes' },
+        ]}
+        getCorrectAnswer={() => 'slower'}
+        explanation={<span>τ = RC, so doubling R doubles τ; the pole at s = −1/τ slides toward the origin and the circuit responds more slowly. (RL is the opposite — there τ = L/R.)</span>}
+        onPredict={(correct) => markPredictionGate('circuit-analysis', correct)}
+      >
+        {/* circuit-type tab strip + selected comparison panel */}
+        <div id="circuit-analysis" className="scroll-mt-4 flex border-b-2 border-slate-200 dark:border-slate-700">
+          {(['RC', 'RL', 'RLC'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setSelectedCircuit(type)}
+              className={`px-6 py-3 font-semibold text-sm transition-colors border-b-3 -mb-[2px] ${
+                selectedCircuit === type
+                  ? 'border-engineering-blue-600 text-engineering-blue-700 dark:text-engineering-blue-400 bg-engineering-blue-50 dark:bg-engineering-blue-900/20'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              {type} Circuit
+            </button>
+          ))}
+        </div>
 
-      {selectedCircuit === 'RC' && <RCCircuitComparison />}
-      {selectedCircuit === 'RL' && <RLCircuitComparison />}
-      {selectedCircuit === 'RLC' && <RLCCircuitComparison />}
+        {selectedCircuit === 'RC' && <RCCircuitComparison />}
+        {selectedCircuit === 'RL' && <RLCircuitComparison />}
+        {selectedCircuit === 'RLC' && <RLCCircuitComparison />}
+      </PredictionGate>
 
       <div id="concept-check" className="scroll-mt-4" />
       {selectedCircuit === 'RC' && (
