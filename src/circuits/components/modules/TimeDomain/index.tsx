@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { CollapsibleSection } from '@shared/components/common/CollapsibleSection';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -152,8 +153,15 @@ export function TimeDomain() {
 
       <section id="systematic-analysis" className="scroll-mt-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
-          Systematic Analysis Practice
+          Equation-Writing Practice (KVL &amp; KCL)
         </h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          These drills practice writing a single equation. Solving whole networks
+          systematically starts in{' '}
+          <Link to="/nodal-mesh-analysis" className="underline text-engineering-blue-600 dark:text-engineering-blue-400">
+            Nodal &amp; Mesh Analysis
+          </Link>.
+        </p>
         <CircuitAnalysisExercise
           onConceptCheckComplete={() => incrementConceptChecks('circuit-analysis')}
           onHint={() => incrementHints('circuit-analysis')}

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { Tabs } from '@circuits/components/common/Tabs';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -316,6 +317,13 @@ function ExamplesTab() {
               <MathWrapper formula="\frac{5}{s(s+2)} = \frac{A}{s} + \frac{B}{s+2}" block />
               <p className="text-sm text-slate-700 dark:text-slate-300 mt-2 mb-2">
                 Solving: <MathWrapper formula="A = 2.5" />, <MathWrapper formula="B = -2.5" />
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 italic">
+                Where do those numbers come from? The{' '}
+                <Link to="/partial-fractions" className="underline">
+                  Partial Fractions &amp; Heaviside
+                </Link>{' '}
+                section shows the ten-second method.
               </p>
               <MathWrapper formula="F(s) = \frac{2.5}{s} - \frac{2.5}{s+2}" block />
               <p className="text-sm text-slate-700 dark:text-slate-300 mt-3 mb-2">

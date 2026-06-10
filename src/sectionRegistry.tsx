@@ -27,7 +27,10 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
   // ── Part 1 · Circuit Analysis, Laplace & Transients (circuits) ──────────
   'component-physics': lazyRetry(() => import('@circuits/components/modules/ComponentPhysics').then((m) => ({ default: m.ComponentPhysics }))),
   'circuit-analysis': lazyRetry(() => import('@circuits/components/modules/TimeDomain').then((m) => ({ default: m.TimeDomain }))),
+  'nodal-mesh-analysis': lazyRetry(() => import('@circuits/components/modules/NodalMesh').then((m) => ({ default: m.NodalMesh }))),
+  'circuit-theorems': lazyRetry(() => import('@circuits/components/modules/CircuitTheorems').then((m) => ({ default: m.CircuitTheorems }))),
   'laplace-theory': lazyRetry(() => import('@circuits/components/modules/LaplaceTheory').then((m) => ({ default: m.LaplaceTheory }))),
+  'partial-fractions': lazyRetry(() => import('@circuits/components/modules/PartialFractions').then((m) => ({ default: m.PartialFractions }))),
   's-domain': lazyRetry(() => import('@circuits/components/modules/SDomainAnalysis').then((m) => ({ default: m.SDomainAnalysis }))),
   'interactive-lab': lazyRetry(() => import('@circuits/components/modules/InteractiveLab').then((m) => ({ default: m.InteractiveLab }))),
 
