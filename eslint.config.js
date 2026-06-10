@@ -22,4 +22,11 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // Playwright harness files run under Node, not the browser.
+  {
+    files: ['e2e/**/*.ts', 'playwright.config.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

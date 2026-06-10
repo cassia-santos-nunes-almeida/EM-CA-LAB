@@ -25,6 +25,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
+    // Keep vitest out of e2e/: without this, the default include glob
+    // (**/*.{test,spec}.*) would swallow the Playwright spec.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
     // Section/page smoke tests render full trees (canvas sims + recharts + katex);
     // under parallel load these exceed the 5s default, so give them headroom.
     testTimeout: 20000,

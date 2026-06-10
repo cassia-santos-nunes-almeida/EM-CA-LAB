@@ -16,6 +16,11 @@ dev-dist
 # Brainstorming visual-companion mockups (local only)
 .superpowers/
 
+# Playwright (screenshots are local eyeball artifacts, not committed in v1)
+test-results/
+playwright-report/
+e2e/__screenshots__/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
