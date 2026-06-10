@@ -24,8 +24,10 @@ const PAGES = [
 for (const { name, route, isSection } of PAGES) {
   test(`screenshot ${name}`, async ({ page, viewport }, testInfo) => {
     await page.goto(route);
-    // 1. Suspense resolved — lazy chunk arrived (spinner detached):
-    await expect(page.locator('#main-content [role="status"]')).toHaveCount(0);
+    // 1. Suspense resolved — lazy chunk arrived (spinner detached). Scoped by
+    //    aria-label because recharts tooltips also carry a persistent
+    //    role="status" on chart pages (coulomb/gauss/em-wave).
+    await expect(page.locator('#main-content [role="status"][aria-label="Loading"]')).toHaveCount(0);
     // 2. The section actually rendered a heading:
     await expect(page.locator('#main-content h1').first()).toBeVisible();
     // 3. Expand the app-shell scroll container: the document itself never
