@@ -709,6 +709,8 @@ export function InteractiveLab() {
       {/* ROW 3: Chart + Analysis side by side */}
       {circuitType === 'RLC' && inputType === 'step' && response.zeta !== undefined ? (
         <PredictionGate
+          // resetKey re-locks this gate on parameter changes; Skip is the designed one-click escape for a student who already predicted
+          allowSkip
           question="With the current R, L, C values, what do you expect the step response to look like?"
           options={predictionGateOptions}
           getCorrectAnswer={() => classifyDamping(response.zeta!)}

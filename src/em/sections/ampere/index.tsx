@@ -323,7 +323,6 @@ export function AmpereSection() {
     >
       {/* ── Interactive simulation ── */}
       <PredictionGate
-        allowSkip={false}
         question="You measure B at distance r from a long straight wire, then move the probe to 2r. How does the field magnitude change?"
         options={[
           { id: 'half', label: 'It halves' },

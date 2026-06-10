@@ -326,7 +326,6 @@ export function GaussSection() {
     >
       {/* ── Interactive simulation ── */}
       <PredictionGate
-        allowSkip={false}
         question="You enclose a fixed charge +Q in a Gaussian sphere, then double the sphere's radius. What happens to the total electric flux through it?"
         options={[
           { id: 'quadruples', label: 'It quadruples' },

@@ -460,7 +460,6 @@ export function CoulombSection() {
     >
       {/* ── Interactive simulation ── */}
       <PredictionGate
-        allowSkip={false}
         question="Two equal positive charges sit side by side. At the exact midpoint between them, what is the net electric field?"
         options={[
           { id: 'zero', label: 'Zero' },

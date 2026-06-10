@@ -391,7 +391,6 @@ export function SDomainAnalysis() {
       </div>
 
       <PredictionGate
-        allowSkip={false}
         initialPassed={unlocked}
         onPassed={() => setUnlocked(true)}
         question="A second-order system has poles at s = +1 ± 2j (right half-plane). Is it stable?"

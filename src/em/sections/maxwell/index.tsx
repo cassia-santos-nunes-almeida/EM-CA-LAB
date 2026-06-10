@@ -316,7 +316,6 @@ export function MaxwellSection() {
     >
       {/* ── Animated 4-equation overview ── */}
       <PredictionGate
-        allowSkip={false}
         question="Which single addition to Ampère's law let Maxwell predict self-propagating electromagnetic waves?"
         options={[
           { id: 'monopole', label: 'A magnetic monopole term' },

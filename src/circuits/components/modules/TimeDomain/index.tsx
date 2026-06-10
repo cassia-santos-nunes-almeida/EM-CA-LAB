@@ -77,7 +77,6 @@ export function TimeDomain() {
       <TableOfContents items={tocEntries} />
 
       <PredictionGate
-        allowSkip={false}
         question="You double R in a series RC circuit (C fixed). What happens to the time constant τ and the s-domain pole at s = −1/τ?"
         options={[
           { id: 'slower', label: 'τ doubles; pole moves toward the origin (slower)' },
