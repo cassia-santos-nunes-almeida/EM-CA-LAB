@@ -15,8 +15,9 @@
 //
 // Metadata-only by design: no component/loader imports live here, so `shared/`
 // never depends upward on a domain folder. The lazy-loaded component registry
-// lives in App.tsx (keyed by section id); a route-integrity test asserts that
-// registry covers every section defined here.
+// lives in src/sectionRegistry.tsx (keyed by section id; App.tsx imports its
+// SECTION_LOADERS); a route-integrity test asserts that registry covers every
+// section defined here.
 
 export type Domain = 'circuits' | 'em' | 'transmission';
 
