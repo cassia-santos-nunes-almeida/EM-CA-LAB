@@ -51,7 +51,6 @@ export const BRIDGE_SOLUTION = {
   vA: 7.2,
   vB: 4.8,
   i5: 0.6,
-  sourceCurrent: 2.4,
 } as const;
 
 export const REFERENCE_CONFIRMATION =

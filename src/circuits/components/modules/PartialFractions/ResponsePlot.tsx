@@ -102,8 +102,10 @@ export function ResponsePlot({ checked, onToggle }: ResponsePlotProps) {
             tick={{ fill: chartColors.text }}
             label={{ value: 'Time t (s)', position: 'insideBottom', offset: -5, fill: chartColors.text }}
           />
+          {/* -20 floor: the k2-only partial sum starts at -18, so a tighter
+              domain would silently rescale as terms are toggled. */}
           <YAxis
-            domain={[-10, 12]}
+            domain={[-20, 12]}
             tick={{ fill: chartColors.text }}
             label={{ value: 'f(t)', angle: -90, position: 'insideLeft', fill: chartColors.text }}
           />

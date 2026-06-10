@@ -158,8 +158,10 @@ export function SourceNetworkDiagram({
   const botY = 190;
   const portX = 330;
 
+  // 470 wide (not 420): the port-load label "R_L = 10 Ω" anchors rightward
+  // of the load resistor and needs the extra room to avoid clipping.
   return (
-    <svg viewBox="0 0 420 240" className={SVG_CLASS} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg viewBox="0 0 470 240" className={SVG_CLASS} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       {/* Left branch: 24 V source (or its dead short) */}
       <line x1="40" y1={topY} x2="40" y2="102" stroke={WIRE} strokeWidth="2" />
       {vOn ? (

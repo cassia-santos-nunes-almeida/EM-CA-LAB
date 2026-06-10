@@ -1,6 +1,7 @@
 import { useEffect, useId } from 'react';
 import { Link } from 'react-router-dom';
 import { SectionHook } from '@shared/components/common/SectionHook';
+import { FigureImage } from '@shared/components/common/FigureImage';
 import { TableOfContents } from '@shared/components/common/TableOfContents';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
@@ -162,6 +163,15 @@ export function NodalMesh() {
         </p>
       </div>
 
+      <FigureImage
+        className="mb-6"
+        src={`${import.meta.env.BASE_URL}figures/wheatstone-portrait.jpg`}
+        alt="Engraved portrait of Charles Wheatstone"
+        caption="Charles Wheatstone — he popularised (and credited to Samuel Christie) the bridge circuit that opens this section: the classic network that series-parallel reduction cannot touch."
+        attribution="Public Domain — Wikimedia Commons"
+        sourceUrl="https://commons.wikimedia.org/wiki/File:Wheatstone_Charles_drawing_1868.jpg"
+      />
+
       <TableOfContents items={tocEntries} />
 
       {/* ── The puzzle ─────────────────────────────────────────────────── */}
@@ -322,9 +332,9 @@ export function NodalMesh() {
               </tr>
               <tr className="bg-slate-50/50 dark:bg-slate-700/30">
                 <td className={`${TABLE_CELL_CLASSES} font-medium`}>Two-window circuit (above)</td>
-                <td className={TABLE_CELL_CLASSES}>3 non-reference nodes, two of them pinned by the sources</td>
+                <td className={TABLE_CELL_CLASSES}>1 — of three non-reference nodes, the sources pin two</td>
                 <td className={TABLE_CELL_CLASSES}>2 — two windows</td>
-                <td className={`${TABLE_CELL_CLASSES} font-semibold`}>Roughly a tie</td>
+                <td className={`${TABLE_CELL_CLASSES} font-semibold`}>Nodal slightly cheaper (1 vs 2)</td>
               </tr>
             </tbody>
           </table>
@@ -332,7 +342,8 @@ export function NodalMesh() {
         <p className="text-sm text-slate-700 dark:text-slate-300 mt-4">
           Rule of thumb: compare{' '}
           <MathWrapper formula="(\text{essential nodes} - 1 - \text{grounded V-sources})" />{' '}
-          against the number of meshes and pick the smaller. Mesh analysis additionally requires
+          against the number of meshes and pick the smaller — counting a source only when it
+          pins a node you would otherwise have solved for. Mesh analysis additionally requires
           a planar circuit — one you can draw with no crossing wires.
         </p>
       </section>
