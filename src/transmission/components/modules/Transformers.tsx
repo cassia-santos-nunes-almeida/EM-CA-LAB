@@ -14,7 +14,7 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { CoupledCoilsSim } from '@transmission/components/simulations/CoupledCoilsSim';
 
 /**
- * Section 3.4 page component: Transformers.
+ * Transformers section page component.
  *
  * Covers coupling coefficient, dot convention, ideal transformer analysis,
  * and an interactive coupled-coils simulation.
@@ -94,7 +94,7 @@ export function Transformers() {
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
           Imagine holding two coils side by side. When current flows through the first coil, it
           creates a magnetic field. Some of those field lines pass through the second coil —
-          and by Faraday's law (Module 1), that changing flux induces a voltage. Move the coils
+          and, as you saw in the Faraday's Law section, that changing flux induces a voltage. Move the coils
           closer together, and more flux links — the induced voltage increases. Pull them apart,
           and it decreases. Wrap them on the same iron core, and nearly all the flux links.
         </p>

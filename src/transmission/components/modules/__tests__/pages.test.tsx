@@ -69,7 +69,7 @@ function renderInRouter(ui: React.ReactElement) {
 
 /* ─── Page smoke tests ─────────────────────────────────────────── */
 
-describe('Module 3 page smoke tests', () => {
+describe('Transmission page smoke tests', () => {
   it('Transformers renders without crashing', async () => {
     const { Transformers } = await import('@transmission/components/modules/Transformers');
     renderInRouter(<Transformers />);
