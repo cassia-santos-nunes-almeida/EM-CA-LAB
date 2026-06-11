@@ -19,6 +19,13 @@ import {
   calculateRadiationResistance,
   calculateHPBW,
   calculateComplexReflectionCoefficient,
+  calculatePhaseConstant,
+  electricalLengthDegrees,
+  rotateGamma,
+  gammaToImpedance,
+  calculateInputImpedance,
+  calculateStubReactance,
+  quarterWaveTransformerImpedance,
 } from '@transmission/utils/transmissionMath';
 
 /* ─── Constants ───────────────────────────────────────────────────── */
@@ -355,5 +362,218 @@ describe('calculateComplexReflectionCoefficient', () => {
   it('edge case: ZL = 0, Z0 = 0 returns magnitude 1', () => {
     const g = calculateComplexReflectionCoefficient(0, 0, 0);
     expect(g.magnitude).toBe(1);
+  });
+});
+
+/* ─── Phase Constant ─────────────────────────────────────────────── */
+
+describe('calculatePhaseConstant', () => {
+  it('λ = 2 m → β = 2π/2 = π rad/m', () => {
+    expect(calculatePhaseConstant(2)).toBeCloseTo(Math.PI);
+  });
+
+  it('λ = 0.2 m → β = 2π/0.2 = 10π = 31.4159 rad/m', () => {
+    expect(calculatePhaseConstant(0.2)).toBeCloseTo(31.4159, 3);
+  });
+
+  it('λ = 0 → NaN (no wavelength, no phase constant)', () => {
+    expect(calculatePhaseConstant(0)).toBeNaN();
+  });
+});
+
+/* ─── Electrical Length ──────────────────────────────────────────── */
+
+describe('electricalLengthDegrees', () => {
+  it('0.3λ → 360·0.3 = 108°', () => {
+    expect(electricalLengthDegrees(0.3)).toBeCloseTo(108);
+  });
+
+  it('λ/8 → 360·0.125 = 45°', () => {
+    expect(electricalLengthDegrees(0.125)).toBeCloseTo(45);
+  });
+
+  it('l = 0 → 0°', () => {
+    expect(electricalLengthDegrees(0)).toBe(0);
+  });
+});
+
+/* ─── Gamma Rotation ─────────────────────────────────────────────── */
+
+describe('rotateGamma', () => {
+  it('the exam rotation: Γ_L = 1/3, l = 0.3λ (βl = 0.6π) → ⅓·e^(−j216°) = ⅓∠144°', () => {
+    // Γ(l) = ⅓·e^(−j2·0.6π) = ⅓·e^(−j216°) ≡ ⅓∠+144°
+    // real = ⅓·cos 144° = ⅓·(−0.80902) = −0.26967
+    // imag = ⅓·sin 144° = ⅓·(+0.58779) = +0.19593
+    const g = rotateGamma(1 / 3, 0, 0.6 * Math.PI);
+    expect(g.real).toBeCloseTo(-0.2697, 4);
+    expect(g.imag).toBeCloseTo(0.1959, 4);
+    expect(g.magnitude).toBeCloseTo(0.3333, 4);
+    expect(g.phaseDeg).toBeCloseTo(144.0, 1);
+  });
+
+  it('full lap: βl = π (l = λ/2) returns Γ to its start', () => {
+    const g = rotateGamma(1 / 3, 0, Math.PI);
+    expect(g.real).toBeCloseTo(0.3333, 4);
+    expect(g.imag).toBeCloseTo(0, 6);
+  });
+
+  it('quarter-wave: βl = π/2 → Γ → −Γ (half a lap)', () => {
+    const g = rotateGamma(0.5, 0, Math.PI / 2);
+    expect(g.real).toBeCloseTo(-0.5);
+    expect(g.imag).toBeCloseTo(0, 6);
+  });
+});
+
+/* ─── Gamma → Impedance ──────────────────────────────────────────── */
+
+describe('gammaToImpedance', () => {
+  it('Γ = 1/3 → Z = 50·(4/3)/(2/3) = 100 Ω', () => {
+    const z = gammaToImpedance(1 / 3, 0, 50);
+    expect(z.real).toBeCloseTo(100);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('Γ = −1/3 → Z = 50·(2/3)/(4/3) = 25 Ω', () => {
+    const z = gammaToImpedance(-1 / 3, 0, 50);
+    expect(z.real).toBeCloseTo(25);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('Γ = 0 → Z = Z₀ (matched)', () => {
+    const z = gammaToImpedance(0, 0, 50);
+    expect(z.real).toBeCloseTo(50);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('Γ = +1 → Z = ∞ (open)', () => {
+    const z = gammaToImpedance(1, 0, 50);
+    expect(z.real).toBe(Infinity);
+  });
+
+  it('Γ = −1 → Z = 0 (short)', () => {
+    const z = gammaToImpedance(-1, 0, 50);
+    expect(z.real).toBeCloseTo(0);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('the exam point: Γ = −0.2697 + j0.1959 → Z = 26.93 + j11.87 Ω', () => {
+    // Z = 50·(1+Γ)/(1−Γ) with Γ = ⅓∠144°:
+    // (0.7303 + j0.1959)/(1.2697 − j0.1959) → ×conj → den |1−Γ|² = 1.6505
+    // real = 50·0.88889/1.6505 = 26.93; imag = 50·0.39180/1.6505 = 11.87
+    const z = gammaToImpedance(-0.2697, 0.1959, 50);
+    expect(z.real).toBeCloseTo(26.93, 1);
+    expect(Math.abs(z.real - 26.93)).toBeLessThan(0.05);
+    expect(Math.abs(z.imag - 11.87)).toBeLessThan(0.05);
+  });
+});
+
+/* ─── Input Impedance of a Lossless Line ─────────────────────────── */
+
+describe('calculateInputImpedance', () => {
+  it('THE exam task: Z₀ = 50 Ω, Z_L = 100 Ω, l = 0.3λ → 26.93 + j11.87 Ω', () => {
+    // βl = 0.6π = 108°, tan 108° = −3.078 (negative past 90° — the classic trap)
+    // Z_in = 50·(100 + j50·(−3.078))/(50 + j100·(−3.078))
+    //      = 50·(100 − j153.9)/(50 − j307.8)
+    //      = 50·(183.5∠−57.0°)/(311.8∠−80.8°) = 29.4∠23.8° = 26.93 + j11.87 Ω
+    const z = calculateInputImpedance(100, 0, 50, 0.6 * Math.PI);
+    expect(Math.abs(z.real - 26.93)).toBeLessThan(0.05);
+    expect(Math.abs(z.imag - 11.87)).toBeLessThan(0.05);
+  });
+
+  it('λ/8 warm-up: βl = 45° → exactly 40 − j30 Ω (the 3-4-5 triangle)', () => {
+    // tan 45° = 1: Z_in = 50·(100 + j50)/(50 + j100)
+    // = 50·(100+j50)(50−j100)/(50²+100²) = 50·(10000 − j7500)/12500 = 40 − j30
+    const z = calculateInputImpedance(100, 0, 50, Math.PI / 4);
+    expect(z.real).toBeCloseTo(40);
+    expect(z.imag).toBeCloseTo(-30);
+  });
+
+  it('λ/4 inversion (the gate): Z_in = Z₀²/Z_L = 2500/100 = 25 Ω', () => {
+    const z = calculateInputImpedance(100, 0, 50, Math.PI / 2);
+    expect(z.real).toBeCloseTo(25);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('λ/2 identity: Z_in = Z_L for a real load', () => {
+    const z = calculateInputImpedance(100, 0, 50, Math.PI);
+    expect(z.real).toBeCloseTo(100);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('l = 0: Z_in = Z_L (tan 0 = 0)', () => {
+    const z = calculateInputImpedance(100, 0, 50, 0);
+    expect(z.real).toBeCloseTo(100);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('CC-2 oracle: complex load 80 − j20 Ω through λ/2 → identical 80 − j20 Ω', () => {
+    const z = calculateInputImpedance(80, -20, 50, Math.PI);
+    expect(z.real).toBeCloseTo(80);
+    expect(z.imag).toBeCloseTo(-20);
+  });
+
+  it('matched load: length irrelevant (Γ_L = 0 has no phase to rotate)', () => {
+    const z = calculateInputImpedance(50, 0, 50, 1.234);
+    expect(z.real).toBeCloseTo(50);
+    expect(z.imag).toBeCloseTo(0);
+  });
+
+  it('short seen through λ/4 → open (Infinity)', () => {
+    const z = calculateInputImpedance(0, 0, 50, Math.PI / 2);
+    expect(z.real).toBe(Infinity);
+  });
+
+  it('open load (ZLr = Infinity) seen through λ/4 → short (≈0)', () => {
+    const z = calculateInputImpedance(Infinity, 0, 50, Math.PI / 2);
+    expect(z.real).toBeCloseTo(0);
+    expect(z.imag).toBeCloseTo(0);
+  });
+});
+
+/* ─── Stub Reactance ─────────────────────────────────────────────── */
+
+describe('calculateStubReactance', () => {
+  it('shorted λ/8 stub (βl = 45°): +jZ₀·tan 45° = +50 Ω', () => {
+    expect(calculateStubReactance(50, Math.PI / 4, 'short')).toBeCloseTo(50);
+  });
+
+  it('open λ/8 stub (βl = 45°): −jZ₀·cot 45° = −50 Ω', () => {
+    expect(calculateStubReactance(50, Math.PI / 4, 'open')).toBeCloseTo(-50);
+  });
+
+  it('shorted λ/16 stub (βl = 22.5°): 50·tan 22.5° = 20.71 Ω', () => {
+    expect(calculateStubReactance(50, Math.PI / 8, 'short')).toBeCloseTo(20.71, 2);
+  });
+
+  it('shorted 3λ/8 stub (βl = 135°): 50·tan 135° = −50 Ω (capacitive)', () => {
+    expect(calculateStubReactance(50, (3 * Math.PI) / 4, 'short')).toBeCloseTo(-50);
+  });
+
+  it('shorted λ/4 stub: pole guard → Infinity (short looks open)', () => {
+    expect(calculateStubReactance(50, Math.PI / 2, 'short')).toBe(Infinity);
+  });
+
+  it('open λ/4 stub: cot 90° = 0 → ≈0 (open looks short)', () => {
+    expect(calculateStubReactance(50, Math.PI / 2, 'open')).toBeCloseTo(0);
+  });
+});
+
+/* ─── Quarter-Wave Transformer ───────────────────────────────────── */
+
+describe('quarterWaveTransformerImpedance', () => {
+  it('√(50·100) = 70.711 Ω', () => {
+    expect(quarterWaveTransformerImpedance(50, 100)).toBeCloseTo(70.711, 3);
+  });
+
+  it('√(50·75) = 61.237 Ω (the dipole YourTurn)', () => {
+    expect(quarterWaveTransformerImpedance(50, 75)).toBeCloseTo(61.237, 3);
+  });
+
+  it('R_L = 0 → NaN', () => {
+    expect(quarterWaveTransformerImpedance(50, 0)).toBeNaN();
+  });
+
+  it('R_L < 0 → NaN', () => {
+    expect(quarterWaveTransformerImpedance(50, -10)).toBeNaN();
   });
 });
