@@ -536,9 +536,9 @@ export function PolarizationSection() {
             (observer faces the incoming wave), so <MathWrapper formula="\delta = +90^\circ" /> is
             labeled right-circular, with Jones vector{' '}
             <MathWrapper formula="\tfrac{1}{\sqrt{2}}\,[1,\,-i]^{T}" /> for RCP. The IEEE/antenna
-            convention used by Ulaby (and in the Module 3 antenna material) labels the opposite
-            sense as right-hand circular, so compare the stated convention, not just the rotation
-            direction.
+            convention used by Ulaby (and in the Antennas section coming up next) labels the
+            opposite sense as right-hand circular, so compare the stated convention, not just the
+            rotation direction.
           </p>
         </TheoryGuide>
 

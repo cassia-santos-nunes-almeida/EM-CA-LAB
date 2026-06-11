@@ -397,7 +397,8 @@ export function MagneticCircuitsSection() {
             </li>
             <li>
               <strong>Field strength H</strong> is the magnetizing force: <MathWrapper formula="H = NI / l" />.
-              It is analogous to voltage (EMF).
+              It is the MMF per unit length of path — the EMF analog is the MMF
+              (<MathWrapper formula="NI" />) itself, not H.
             </li>
             <li>
               <strong>Reluctance <MathWrapper formula="\mathcal{R}" /></strong> opposes flux just as resistance opposes current.
