@@ -88,7 +88,7 @@ export function AmpereSection() {
   const timeRef = useRef(0);
   const animationRef = useRef(0);
 
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
 
   // Draggable radius marker state
   const [markerRadius, setMarkerRadius] = useState(100); // px from center
@@ -112,9 +112,13 @@ export function AmpereSection() {
   useEffect(() => {
     const render = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
       canvas.width = canvas.parentElement!.clientWidth;
       canvas.height = canvas.parentElement!.clientHeight;
       const cx = canvas.width / 2,
@@ -347,7 +351,7 @@ export function AmpereSection() {
             onKeyDown={handleKeyDown}
           >
             <canvas
-              ref={canvasRef}
+              ref={canvasTouchRef}
               className="w-full h-full"
               role="img"
               aria-label="Ampere's law simulation showing magnetic field around current-carrying conductor"

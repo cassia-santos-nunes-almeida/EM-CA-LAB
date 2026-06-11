@@ -98,7 +98,7 @@ export function LorentzSection() {
   const [mass, setMass] = useState(2);
   const [dragMode, setDragMode] = useState<'none' | 'particle' | 'velocity'>('none');
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const physicsRef = useRef<ParticleState | null>(null);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
@@ -214,10 +214,16 @@ export function LorentzSection() {
   useEffect(() => {
     const loop = () => {
       const cvs = canvasRef.current;
-      if (cvs && physicsRef.current) {
-        const ctx = cvs.getContext('2d')!;
+      if (cvs) {
+        // The canvas mounts only after the PredictionGate reveals it, so the
+        // mount-time reset effect may have found no canvas and skipped the
+        // physics init. Size first, then init the first time the canvas exists.
         cvs.width = cvs.parentElement!.clientWidth;
         cvs.height = cvs.parentElement!.clientHeight;
+        if (!physicsRef.current) handleReset();
+      }
+      if (cvs && physicsRef.current) {
+        const ctx = cvs.getContext('2d')!;
         ctx.clearRect(0, 0, cvs.width, cvs.height);
 
         if (isDarkMode) {
@@ -359,7 +365,7 @@ export function LorentzSection() {
     };
     loop();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [velocity, bField, charge, mass, isDarkMode, col, dragMode]);
+  }, [velocity, bField, charge, mass, isDarkMode, col, dragMode, handleReset]);
 
   return (
     <SectionLayout
@@ -396,7 +402,7 @@ export function LorentzSection() {
               onKeyDown={handleKeyDown}
             >
               <canvas
-                ref={canvasRef}
+                ref={canvasTouchRef}
                 className="w-full h-full block"
                 style={{ cursor: dragMode !== 'none' ? 'grabbing' : 'default' }}
                 role="img"
