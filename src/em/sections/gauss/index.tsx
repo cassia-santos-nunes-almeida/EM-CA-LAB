@@ -98,7 +98,7 @@ export function GaussSection() {
   const [radius, setRadius] = useState(100);
   const [dragging, setDragging] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
 
@@ -147,9 +147,13 @@ export function GaussSection() {
   useEffect(() => {
     const render = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
       canvas.width = canvas.parentElement!.clientWidth;
       canvas.height = canvas.parentElement!.clientHeight;
       const cx = canvas.width / 2,
@@ -341,7 +345,7 @@ export function GaussSection() {
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
             <canvas
-              ref={canvasRef}
+              ref={canvasTouchRef}
               className="w-full h-full block"
               style={{ cursor: dragging ? 'grabbing' : 'default' }}
               role="img"

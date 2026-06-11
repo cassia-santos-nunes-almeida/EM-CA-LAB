@@ -108,7 +108,7 @@ export function EMWaveSection() {
   const animationRef = useRef(0);
   const phasorSyncAnimRef = useRef(0);
 
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
 
   // Phasor drag state
   const draggingPhasor = useRef<'v' | 'i' | null>(null);
@@ -1007,7 +1007,7 @@ export function EMWaveSection() {
               </div>
             ) : (
               <canvas
-                ref={canvasRef}
+                ref={canvasTouchRef}
                 className="w-full h-full"
                 role="img"
                 aria-label="Electromagnetic wave simulation showing E and B field oscillations"

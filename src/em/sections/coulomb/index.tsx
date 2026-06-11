@@ -103,7 +103,7 @@ export function CoulombSection() {
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [showGrid, setShowGrid] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
 
@@ -236,9 +236,13 @@ export function CoulombSection() {
   useEffect(() => {
     const render = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
       canvas.width = canvas.parentElement!.clientWidth;
       canvas.height = canvas.parentElement!.clientHeight;
       const { width, height } = canvas;
@@ -481,7 +485,7 @@ export function CoulombSection() {
             onKeyDown={handleKeyDown}
           >
             <canvas
-              ref={canvasRef}
+              ref={canvasTouchRef}
               className="w-full h-full block"
               role="img"
               aria-label="Coulomb's law simulation with draggable charges showing electric field lines and force vectors"

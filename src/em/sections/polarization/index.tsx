@@ -98,7 +98,7 @@ export function PolarizationSection() {
   const animationRef = useRef(0);
   const traceRef = useRef<Array<{ x: number; y: number }>>([]);
 
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
 
   // Drag state for E-field vector tip
   const draggingVector = useRef(false);
@@ -113,9 +113,13 @@ export function PolarizationSection() {
   useEffect(() => {
     const render = () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas ? canvas.getContext('2d') : null;
+      if (!canvas || !ctx) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
       const parent = canvas.parentElement;
       if (parent) {
         canvas.width = parent.clientWidth;
@@ -401,7 +405,7 @@ export function PolarizationSection() {
           <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
             <canvas
-              ref={canvasRef}
+              ref={canvasTouchRef}
               className="w-full h-full block"
               role="img"
               aria-label="Polarization simulation showing Lissajous pattern and 3D wave propagation"

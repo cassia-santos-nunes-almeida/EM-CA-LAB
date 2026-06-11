@@ -107,7 +107,7 @@ export function LenzSection() {
 
   const [draggingMagnet, setDraggingMagnet] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
 
@@ -400,7 +400,7 @@ export function LenzSection() {
               onKeyDown={handleKeyDown}
             >
               <canvas
-                ref={canvasRef}
+                ref={canvasTouchRef}
                 className="w-full h-full block"
                 style={{ cursor: draggingMagnet ? 'grabbing' : autoPlay ? 'default' : 'grab' }}
                 role="img"

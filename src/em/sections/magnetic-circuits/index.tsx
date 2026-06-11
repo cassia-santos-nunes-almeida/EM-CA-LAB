@@ -99,7 +99,7 @@ export function MagneticCircuitsSection() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef(0);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
 
   const material = CORE_MATERIALS[materialIndex];
   const muR = material.muR;
@@ -322,7 +322,7 @@ export function MagneticCircuitsSection() {
           <div className="lg:col-span-2 flex flex-col gap-4">
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
               <canvas
-                ref={canvasRef}
+                ref={canvasTouchRef}
                 className="w-full h-full"
                 role="img"
                 aria-label="Toroid magnetic circuit simulation showing flux lines and air gap"

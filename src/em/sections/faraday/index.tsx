@@ -94,7 +94,7 @@ export function FaradaySection() {
   const [liveEmf, setLiveEmf] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasTouch(canvasRef);
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
   const dragStartX = useRef<number | null>(null);
@@ -281,7 +281,7 @@ export function FaradaySection() {
           <div className="lg:col-span-2 flex flex-col gap-4">
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
               <canvas
-                ref={canvasRef}
+                ref={canvasTouchRef}
                 className="w-full h-full block"
                 role="img"
                 aria-label="Faraday's law simulation showing electromagnetic induction"
