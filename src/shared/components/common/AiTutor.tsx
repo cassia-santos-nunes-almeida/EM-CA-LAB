@@ -121,6 +121,9 @@ Topics you cover:
 - Component physics (resistors, capacitors, inductors)
 - Constitutive laws: V=IR, I=C(dV/dt), V=L(dI/dt)
 - Time-domain differential equations for RC, RL, and RLC circuits
+- Systematic analysis: node-voltage (nodal) and mesh-current methods, supernodes and supermeshes
+- Circuit theorems: superposition, Thevenin/Norton equivalents, source transformation, maximum power transfer
+- Partial-fraction expansion: Heaviside cover-up and identification (coefficient-matching) methods
 - Laplace transforms and their application to circuit analysis
 - s-domain transfer functions, poles, and zeros
 - Damping ratios, natural frequency, and transient response

@@ -15,8 +15,8 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(PARTS.map((p) => p.number)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('covers all 20 sections', () => {
-    expect(ALL_SECTIONS).toHaveLength(20);
+  it('covers all 23 sections', () => {
+    expect(ALL_SECTIONS).toHaveLength(23);
   });
 
   it('leads with circuits — Part 1 is entirely circuits-domain', () => {
@@ -46,7 +46,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
   });
 
   it('SECTION metadata and the Part spine cover the identical id set (no orphan/extra entries)', () => {
-    expect(Object.keys(SECTIONS)).toHaveLength(20);
+    expect(Object.keys(SECTIONS)).toHaveLength(23);
     expect(new Set(ALL_SECTIONS.map((s) => s.id))).toEqual(new Set(Object.keys(SECTIONS)));
   });
 

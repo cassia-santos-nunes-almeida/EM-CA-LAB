@@ -53,7 +53,10 @@ const SECTION_LIST: CourseSection[] = [
   // ── Part 1 · Circuit Analysis, Laplace & Transients (circuits) ──────────
   { id: 'component-physics', title: 'Component Physics', route: '/component-physics', domain: 'circuits', expectedChecks: 0 },
   { id: 'circuit-analysis', title: 'Circuit Analysis', route: '/circuit-analysis', domain: 'circuits', expectedChecks: 0 },
+  { id: 'nodal-mesh-analysis', title: 'Nodal & Mesh Analysis', route: '/nodal-mesh-analysis', domain: 'circuits', expectedChecks: 0 },
+  { id: 'circuit-theorems', title: 'Circuit Theorems', route: '/circuit-theorems', domain: 'circuits', expectedChecks: 0 },
   { id: 'laplace-theory', title: 'Laplace Theory', route: '/laplace-theory', domain: 'circuits', expectedChecks: 0 },
+  { id: 'partial-fractions', title: 'Partial Fractions & Heaviside', route: '/partial-fractions', domain: 'circuits', expectedChecks: 0 },
   { id: 's-domain', title: 's-Domain Analysis', route: '/s-domain', domain: 'circuits', expectedChecks: 0 },
   { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0 },
 
@@ -88,7 +91,7 @@ export const PARTS: CoursePart[] = [
     id: 'circuits-laplace-transients',
     number: 1,
     title: 'Circuit Analysis, Laplace & Transients',
-    sectionIds: ['component-physics', 'circuit-analysis', 'laplace-theory', 's-domain', 'interactive-lab'],
+    sectionIds: ['component-physics', 'circuit-analysis', 'nodal-mesh-analysis', 'circuit-theorems', 'laplace-theory', 'partial-fractions', 's-domain', 'interactive-lab'],
   },
   {
     id: 'electric-magnetic-fields',
