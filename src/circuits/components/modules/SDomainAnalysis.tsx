@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
-import { Tabs } from '@circuits/components/common/Tabs';
+import { Tabs } from '@shared/components/common/Tabs';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';

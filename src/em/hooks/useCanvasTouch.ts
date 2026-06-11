@@ -7,7 +7,7 @@ import { useCallback, useRef, type RefObject } from 'react';
  *
  * Returns a callback ref — pass it as the canvas's `ref` instead of the raw
  * ref object. A mount-time effect cannot do this job: every em canvas mounts
- * late (revealed by a PredictionGate, or remounted by a TabSet/resetKey), long
+ * late (revealed by a PredictionGate, or remounted by a Tabs panel/resetKey), long
  * after an effect's only run would have found a null ref and silently attached
  * nothing. The callback ref (re)attaches the listeners whenever the canvas
  * element (re)mounts, and keeps `canvasRef.current` in sync for the draw loops

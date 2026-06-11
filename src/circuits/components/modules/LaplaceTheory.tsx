@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
-import { Tabs } from '@circuits/components/common/Tabs';
+import { Tabs } from '@shared/components/common/Tabs';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { CollapsibleSection } from '@shared/components/common/CollapsibleSection';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';

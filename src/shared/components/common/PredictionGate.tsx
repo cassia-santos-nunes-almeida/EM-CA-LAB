@@ -44,7 +44,7 @@ interface PredictionGateProps {
   onPredict?: (correct: boolean) => void;
   /**
    * Seeds the gate as already-passed on (re)mount. Used to restore the unlocked
-   * state after a remount (e.g. a TabSet panel that remounts on tab switch),
+   * state after a remount (e.g. a Tabs panel that remounts on tab switch),
    * so a committed gate does not re-lock and force a second prediction.
    */
   initialPassed?: boolean;

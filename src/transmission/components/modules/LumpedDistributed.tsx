@@ -9,7 +9,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { FigureImage } from '@shared/components/common/FigureImage';
-import { TabSet } from '@transmission/components/common/TabSet';
+import { Tabs } from '@shared/components/common/Tabs';
 import { useProgressStore } from '@shared/store/progressStore';
 import { LadderAnimation } from '@transmission/components/simulations/LadderAnimation';
 
@@ -41,7 +41,7 @@ export function LumpedDistributed() {
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('lumped-distributed'); }, [markVisited]);
 
-  // Lifted above the TabSet: switching tabs remounts the panel, so the gate's
+  // Lifted above the Tabs: switching tabs remounts the panel, so the gate's
   // unlocked state must live here for a within-visit unlock to survive.
   const [simUnlocked, setSimUnlocked] = useState(false);
 
@@ -62,7 +62,7 @@ export function LumpedDistributed() {
         </p>
       </div>
 
-      <TabSet tabs={[
+      <Tabs tabs={[
         {
           label: 'Theory',
           icon: <BookOpen className="w-4 h-4" />,

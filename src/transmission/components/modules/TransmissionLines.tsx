@@ -12,7 +12,7 @@ import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { LabStation } from '@shared/components/common/LabStation';
 import { LabLayout } from '@shared/components/common/LabLayout';
-import { TabSet } from '@transmission/components/common/TabSet';
+import { Tabs } from '@shared/components/common/Tabs';
 import { useProgressStore } from '@shared/store/progressStore';
 import { TransmissionLineSim } from '@transmission/components/simulations/TransmissionLineSim';
 import { StandingWaveQuiz } from '@transmission/components/simulations/StandingWaveQuiz';
@@ -21,7 +21,7 @@ import { SmithChartSim } from '@transmission/components/simulations/SmithChartSi
 /**
  * Section 5.2 page: Transmission Lines.
  *
- * Virtual-lab layout: the section is chaptered into TabSet panels (one
+ * Virtual-lab layout: the section is chaptered into Tabs panels (one
  * digestible chunk each). Theory-only chapters render full width; lab chapters
  * use the split-pane LabLayout — theory on the left, a sticky "lab bench" on the
  * right whose simulation is revealed only after the student commits a prediction
@@ -52,8 +52,8 @@ export function TransmissionLines() {
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('transmission-lines'); }, [markVisited]);
 
-  // Unlocked lab benches, lifted above the TabSet so a remounted panel
-  // (TabSet remounts on tab switch) restores its revealed simulation.
+  // Unlocked lab benches, lifted above the Tabs so a remounted panel
+  // (Tabs remounts on tab switch) restores its revealed simulation.
   const [unlocked, setUnlocked] = useState<Record<string, boolean>>({});
   const unlock = (key: string) => setUnlocked((u) => ({ ...u, [key]: true }));
 
@@ -462,7 +462,7 @@ export function TransmissionLines() {
 
       <SectionHook text="Every high-speed digital bus, every RF cable, and every PCB trace longer than a few centimetres behaves as a transmission line. Understanding impedance matching and reflections is the difference between a clean signal and a corrupted one." />
 
-      <TabSet
+      <Tabs
         tabs={[
           {
             label: 'Impedance',

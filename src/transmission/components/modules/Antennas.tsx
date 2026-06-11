@@ -10,7 +10,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { FigureImage } from '@shared/components/common/FigureImage';
-import { TabSet } from '@transmission/components/common/TabSet';
+import { Tabs } from '@shared/components/common/Tabs';
 import { TableOfContents } from '@shared/components/common/TableOfContents';
 import { useProgressStore } from '@shared/store/progressStore';
 import { useActiveSection } from '@transmission/hooks/useActiveSection';
@@ -92,7 +92,7 @@ export function Antennas() {
   const activeTheoryId = useActiveSection(THEORY_IDS);
   useEffect(() => { markVisited('antennas'); }, [markVisited]);
 
-  // Lifted above the TabSet: switching tabs remounts the panel, so the gate's
+  // Lifted above the Tabs: switching tabs remounts the panel, so the gate's
   // unlocked state must live here for a within-visit unlock to survive.
   const [simUnlocked, setSimUnlocked] = useState(false);
 
@@ -117,7 +117,7 @@ export function Antennas() {
 
       <SectionHook text="Every wireless device you use — phone, WiFi router, satellite dish — relies on antennas. An antenna is simply a transmission line that has been opened up to let energy escape into free space." />
 
-      <TabSet tabs={[
+      <Tabs tabs={[
         {
           label: 'Theory',
           icon: <BookOpen className="w-4 h-4" />,
