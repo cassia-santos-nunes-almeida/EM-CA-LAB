@@ -26,7 +26,10 @@ interface PredictionGateProps {
   children?: ReactNode;
   /** Key that triggers a gate reset when it changes (e.g., derived from parameter values) */
   resetKey?: string;
-  /** Whether to show a "Skip" link (defaults to true) */
+  /**
+   * Whether to show a "Skip" link (defaults to false). Set it on gates that
+   * re-lock via resetKey so re-triggers stay one-click dismissible.
+   */
   allowSkip?: boolean;
   /**
    * Non-blocking mode: the prompt invites a prediction but never hides what
@@ -56,7 +59,7 @@ export function PredictionGate({
   explanation,
   children,
   resetKey,
-  allowSkip = true,
+  allowSkip = false,
   className,
   onPredict,
   nonBlocking = false,
@@ -88,7 +91,7 @@ function PredictionGateInner({
   getCorrectAnswer,
   explanation,
   children,
-  allowSkip = true,
+  allowSkip = false,
   className,
   onPredict,
   nonBlocking = false,

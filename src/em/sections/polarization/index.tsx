@@ -385,7 +385,6 @@ export function PolarizationSection() {
     >
       {/* ── Interactive simulation ── */}
       <PredictionGate
-        allowSkip={false}
         question="Two orthogonal E-field components of EQUAL amplitude are combined with a 90° phase difference. What polarization state results?"
         options={[
           { id: 'linear', label: 'Linear' },

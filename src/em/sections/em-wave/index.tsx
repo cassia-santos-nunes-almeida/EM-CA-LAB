@@ -960,7 +960,6 @@ export function EMWaveSection() {
     >
       {/* ── Interactive simulation with internal view selector (genuine sim state) ── */}
       <PredictionGate
-        allowSkip={false}
         question="A plane EM wave travels in +z with its E field along x. Along which axis does the B field oscillate?"
         options={[
           { id: 'x', label: 'Along x (parallel to E)' },

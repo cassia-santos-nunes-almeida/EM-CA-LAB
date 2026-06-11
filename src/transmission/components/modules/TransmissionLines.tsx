@@ -232,7 +232,6 @@ export function TransmissionLines() {
         it sharpens what you notice once it appears.
       </p>
       <PredictionGate
-        allowSkip={false}
         initialPassed={!!unlocked.refl}
         onPassed={() => unlock('refl')}
         onPredict={onPredict}
@@ -347,7 +346,6 @@ export function TransmissionLines() {
         Predict where the extreme case lands, then commit to reveal the interactive chart.
       </p>
       <PredictionGate
-        allowSkip={false}
         initialPassed={!!unlocked.smith}
         onPassed={() => unlock('smith')}
         onPredict={onPredict}
@@ -427,7 +425,6 @@ export function TransmissionLines() {
         Predict what a deeply-nulled envelope means, then commit to open the identification quiz.
       </p>
       <PredictionGate
-        allowSkip={false}
         initialPassed={!!unlocked.inverse}
         onPassed={() => unlock('inverse')}
         onPredict={onPredict}

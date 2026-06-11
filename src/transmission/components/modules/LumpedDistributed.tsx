@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, Activity, GraduationCap } from 'lucide-react';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
@@ -40,6 +40,10 @@ export function LumpedDistributed() {
   const incrementHints = useProgressStore((s) => s.incrementHints);
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('lumped-distributed'); }, [markVisited]);
+
+  // Lifted above the TabSet: switching tabs remounts the panel, so the gate's
+  // unlocked state must live here for a within-visit unlock to survive.
+  const [simUnlocked, setSimUnlocked] = useState(false);
 
   return (
     <div className="space-y-10">
@@ -276,6 +280,8 @@ export function LumpedDistributed() {
             { id: 'same', label: 'Stays the same' },
           ]}
           getCorrectAnswer={() => 'same'}
+          initialPassed={simUnlocked}
+          onPassed={() => setSimUnlocked(true)}
           onPredict={(correct) => markPredictionGate('lumped-distributed', correct)}
           explanation={
             <p>

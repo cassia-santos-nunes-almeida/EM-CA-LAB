@@ -98,7 +98,6 @@ export function ComponentPhysics() {
       </div>
 
       <PredictionGate
-        allowSkip={false}
         question="A solenoid's inductance is L = μN²A/l. If you double the number of turns N (keeping geometry fixed), how does L change?"
         options={[
           { id: '2x', label: 'Doubles (×2)' },

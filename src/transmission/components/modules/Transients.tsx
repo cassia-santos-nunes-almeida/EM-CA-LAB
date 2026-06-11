@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, Activity, GraduationCap } from 'lucide-react';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
@@ -41,6 +41,10 @@ export function Transients() {
   const incrementHints = useProgressStore((s) => s.incrementHints);
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   useEffect(() => { markVisited('transients'); }, [markVisited]);
+
+  // Lifted above the TabSet: switching tabs remounts the panel, so the gate's
+  // unlocked state must live here for a within-visit unlock to survive.
+  const [simUnlocked, setSimUnlocked] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -246,6 +250,8 @@ export function Transients() {
               { id: 'vshalf', label: 'V\u209B / 2' },
             ]}
             getCorrectAnswer={() => 'vs'}
+            initialPassed={simUnlocked}
+            onPassed={() => setSimUnlocked(true)}
             onPredict={(correct) => markPredictionGate('transients', correct)}
             explanation={
               <p>

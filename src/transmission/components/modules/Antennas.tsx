@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Radio, Wifi, Satellite, Smartphone, Tv, BookOpen, Activity, GraduationCap } from 'lucide-react';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
@@ -91,6 +91,10 @@ export function Antennas() {
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   const activeTheoryId = useActiveSection(THEORY_IDS);
   useEffect(() => { markVisited('antennas'); }, [markVisited]);
+
+  // Lifted above the TabSet: switching tabs remounts the panel, so the gate's
+  // unlocked state must live here for a within-visit unlock to survive.
+  const [simUnlocked, setSimUnlocked] = useState(false);
 
   return (
     <div className="space-y-10">
@@ -401,6 +405,8 @@ export function Antennas() {
             { id: 'same', label: 'Stays the same' },
           ]}
           getCorrectAnswer={() => 'increases'}
+          initialPassed={simUnlocked}
+          onPassed={() => setSimUnlocked(true)}
           onPredict={(correct) => markPredictionGate('antennas', correct)}
           explanation={
             <p>

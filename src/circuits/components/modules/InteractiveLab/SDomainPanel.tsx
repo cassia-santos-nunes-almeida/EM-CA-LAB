@@ -111,6 +111,8 @@ export function SDomainPanel({
 
       {/* Right: Pole-Zero Map — gated by prediction */}
       <PredictionGate
+        // resetKey re-locks this gate on parameter changes; Skip is the designed one-click escape for a student who already predicted
+        allowSkip
         question="Given this transfer function, where do you expect the poles to be?"
         options={[
           { id: 'real-axis', label: 'Real axis only' },
