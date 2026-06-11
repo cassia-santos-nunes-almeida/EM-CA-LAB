@@ -1,5 +1,9 @@
 # EM-CA-LAB — Phase 0 Complete
 
+*Historical snapshot — written when the course spine had 20 sections; the spine
+has since grown (the ILO9 Systematic Circuit Analysis unit added three Part-1
+sections).*
+
 Phase 0 consolidated the three separate EM&AC Lab apps (**M1** EM fundamentals,
 **M2** circuit analysis, **M3** transmission lines & antennas) into this single
 Vite + React + TypeScript application, re-presented as **one course** following a

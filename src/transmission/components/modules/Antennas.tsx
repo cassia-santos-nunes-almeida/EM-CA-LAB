@@ -177,8 +177,8 @@ export function Antennas() {
               block
             />
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              <strong>Impedance matching for antennas</strong> follows the same reflection
-              coefficient logic from Section 3: matching the antenna's radiation resistance to{' '}
+              <strong>Impedance matching for antennas</strong> follows reflection
+              coefficient logic you'll formalize in the Transmission Lines section: matching the antenna's radiation resistance to{' '}
               <MathWrapper formula="Z_0" /> of the feed line maximizes power transfer. When{' '}
               <MathWrapper formula="R_{\text{rad}} = Z_0" />, then{' '}
               <MathWrapper formula="\Gamma = 0" /> and all power is radiated — none is
@@ -320,7 +320,7 @@ export function Antennas() {
           <FigureImage
             src={`${import.meta.env.BASE_URL}figures/gsm-base-station.jpg`}
             alt="Cellular base station tower with multiple panel antenna arrays"
-            caption="Cellular base station with panel antenna arrays: each panel contains multiple patch antennas arranged to cover a specific sector, using the same impedance matching principles from Section 3."
+            caption="Cellular base station with panel antenna arrays: each panel contains multiple patch antennas arranged to cover a specific sector, using impedance matching principles you'll formalize in the Transmission Lines section."
             attribution="Korax1214, CC BY-SA 4.0 — Wikimedia Commons"
             sourceUrl="https://commons.wikimedia.org/wiki/File:GSM_base_station_4.JPG"
           />
@@ -412,7 +412,7 @@ export function Antennas() {
             <p>
               A longer dipole has more current elements, each radiating individually. Their
               fields add constructively in the broadside direction but destructively at other
-              angles — the same wave interference principle from Module 1. The {'\u03BB'}/2
+              angles — the same wave interference principle from the EM Waves section. The {'\u03BB'}/2
               dipole therefore has a narrower beam and higher directivity (D {'\u2248'} 1.64
               = 2.15 dBi) compared to a short dipole (D = 1.5 = 1.76 dBi).
             </p>
@@ -515,29 +515,30 @@ export function Antennas() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          Module Close: "The loop closes"
+          Part 4 close: from Maxwell to working antennas
           ═══════════════════════════════════════════════════════════════ */}
       <section className="space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            Module Close: The Loop Closes
+            Part 4 Complete: From Maxwell to Working Antennas
           </h2>
         </div>
 
         <div className="bg-gradient-to-br from-engineering-blue-600 to-engineering-blue-800 rounded-2xl p-8 text-white space-y-4">
           <p className="text-engineering-blue-100 leading-relaxed">
-            In Module 1 you learned that changing magnetic fields induce electric fields
-            (Faraday's Law), and that electric and magnetic fields propagate together as waves.
-            In Module 2 you learned to analyze lumped circuits using Kirchhoff's laws and Laplace
-            transforms. In this module, you applied Kirchhoff's laws to an infinitesimal
-            segment — and the wave equation appeared. The transmission line is not a new theory.
-            It is Modules 1 and 2, applied to the same conductor at the same time.
+            You started this course with the circuit analysis toolkit — Kirchhoff's laws,
+            Laplace transforms, poles and zeros. Electric &amp; Magnetic Fields grounded that
+            toolkit in the fields that actually carry the energy, and Induction, Magnetics &amp;
+            Inductance showed how changing flux couples one circuit to another. In this Part,
+            Maxwell's equations fused electricity and magnetism into waves that propagate,
+            polarize, and — through an antenna — escape the circuit into free space.
           </p>
           <p className="text-engineering-blue-100 leading-relaxed">
-            The antenna is where the circuit ends and free space begins. The impedance matching
-            problem — <span className="font-mono font-semibold text-white">Z{'\u2080'} = R<sub>rad</sub></span> — is
-            the same reflection coefficient calculation you did on transmission lines. Everything
-            is connected.
+            The antenna is where the circuit ends and free space begins. The matching
+            condition — <span className="font-mono font-semibold text-white">Z{'\u2080'} = R<sub>rad</sub></span> — raises
+            one last question: what happens when the feed line itself spans a wavelength? That
+            is where Transmission Lines &amp; Distributed Systems picks up next — the circuit
+            toolkit and the field picture, applied to the same conductor at the same time.
           </p>
         </div>
 
@@ -550,7 +551,7 @@ export function Antennas() {
             <span aria-hidden="true">{'\u2190'}</span> Revisit Circuit Analysis
           </Link>
           <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm font-semibold">
-            Course complete {'\u2713'}
+            Part 4 complete {'\u2713'}
           </div>
         </div>
       </section>
