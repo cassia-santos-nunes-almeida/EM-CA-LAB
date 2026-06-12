@@ -98,9 +98,10 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(getPartForSection('antennas')?.id).toBe('maxwell-waves-antennas');
   });
 
-  it('expectedChecks: EM fundamentals target 3, everything else 0', () => {
+  it('expectedChecks: EM fundamentals carry per-section targets, everything else 0', () => {
     expect(getExpectedChecks('gauss')).toBe(3);
-    expect(getExpectedChecks('maxwell')).toBe(3);
+    expect(getExpectedChecks('maxwell')).toBe(4);
+    expect(getExpectedChecks('em-wave')).toBe(5);
     expect(getExpectedChecks('component-physics')).toBe(0);
     expect(getExpectedChecks('transformers')).toBe(0);
     expect(getExpectedChecks('unknown-section')).toBe(0);
