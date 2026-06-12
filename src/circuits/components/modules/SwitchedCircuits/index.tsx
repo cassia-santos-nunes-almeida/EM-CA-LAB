@@ -203,9 +203,9 @@ export function SwitchedCircuits() {
             In the inductor example, check the bypassed resistor:{' '}
             <MathWrapper formula="v_{node} = 0" /> ⇒{' '}
             <MathWrapper formula="i_{10\Omega} = 0/10 = 0" /> — all 4 A really does flow
-            through the wire-like inductor. If you had treated L as an <em>open</em> you
-            would get <MathWrapper formula="24/(6+10) = 1.5" /> A — keep that wrong number
-            in mind; it reappears below as a trap.
+            through the wire-like inductor. If you had treated L as an <em>open</em>{' '}
+            you&apos;d get <MathWrapper formula="24/(6+10) = 1.5" /> A — keep that wrong
+            number in mind; it reappears below as a trap.
           </p>
         </div>
       </div>
@@ -755,9 +755,8 @@ export function SwitchedCircuits() {
           limits. The Laplace transform does ALL of it automatically — initial conditions
           enter the algebra as built-in source terms, and the constants fall out of a
           partial-fraction expansion. That machine is Section{' '}
-          {getSectionNumber('laplace-theory')}: Laplace Theory, and the IC-source trick
-          itself returns in Section {getSectionNumber('s-domain')}&rsquo;s toolkit later
-          in the course.
+          {getSectionNumber('laplace-theory')}, and the IC-source trick itself returns in
+          Section {getSectionNumber('s-domain')}&rsquo;s toolkit later in the course.
         </p>
       </div>
     </section>
