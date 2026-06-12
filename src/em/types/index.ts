@@ -53,6 +53,8 @@ export interface EMWaveState {
   iPhase: number;
   isPlaying: boolean;
   refractiveIndex: number;
+  /** Lossy-medium attenuation α (slider units, arb.); 0 = lossless, today's default render. */
+  attenuation: number;
 }
 
 /** Chat message for Think it Through tutor */

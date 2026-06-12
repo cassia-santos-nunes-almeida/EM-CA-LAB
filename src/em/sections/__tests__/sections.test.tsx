@@ -130,8 +130,47 @@ describe('Section smoke tests', () => {
   it('EMWaveSection gates the sim behind a Predict First prediction', async () => {
     const { EMWaveSection } = await import('@em/sections/em-wave/index');
     renderSection(EMWaveSection);
-    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    // Two locked gates on first render: the wave sim + the media interface panel.
+    expect(screen.getAllByText('Predict First')).toHaveLength(2);
     expect(screen.getByText(/Along which axis does the B field oscillate/i)).toBeInTheDocument();
+  });
+
+  it('EMWaveSection teaches waves in real media behind a second blocking gate', async () => {
+    const { EMWaveSection } = await import('@em/sections/em-wave/index');
+    renderSection(EMWaveSection);
+    // Theory block, interface gate question and both new concept checks render immediately.
+    expect(screen.getByText('Waves in Real Media')).toBeInTheDocument();
+    expect(screen.getAllByText(/intrinsic impedance/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/fraction of the incident POWER reflects back/i)).toBeInTheDocument();
+    expect(screen.getByText(/impedance of free space.*physically represent/i)).toBeInTheDocument();
+    expect(screen.getByText(/which single dimensionless ratio decides/i)).toBeInTheDocument();
+    // Blocking gate with the no-Skip default: the interface panel stays hidden.
+    expect(screen.queryByLabelText('ε_r of medium 2')).toBeNull();
+    expect(screen.queryByText('Skip')).toBeNull();
+    // Answer the prediction and continue → slider + mediaMath readouts appear.
+    fireEvent.click(screen.getByRole('button', { name: '4%' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByLabelText('ε_r of medium 2')).toBeInTheDocument();
+    // Default εr = 2.25 (glass): η₂ = 376.73/1.5 = 251.2 Ω, Γ = −0.200, 4% / 96% power split.
+    expect(screen.getByText('251.2 Ω')).toBeInTheDocument();
+    expect(screen.getByText('-0.200')).toBeInTheDocument();
+    expect(screen.getByText('4.0%')).toBeInTheDocument();
+    expect(screen.getByText('96.0%')).toBeInTheDocument();
+    // Slide to seawater (εr = 81): Γ = (41.86−376.73)/(41.86+376.73) = −0.800 → 64% reflected.
+    fireEvent.change(screen.getByLabelText('ε_r of medium 2'), { target: { value: '81' } });
+    expect(screen.getByText('-0.800')).toBeInTheDocument();
+    expect(screen.getByText('64.0%')).toBeInTheDocument();
+    expect(screen.getByText('36.0%')).toBeInTheDocument();
+  });
+
+  it('EMWaveSection adds an attenuation slider to the unlocked wave sim', async () => {
+    const { EMWaveSection } = await import('@em/sections/em-wave/index');
+    renderSection(EMWaveSection);
+    // Hidden while the wave-sim gate is locked (separately unlocked from the interface gate).
+    expect(screen.queryByLabelText('Attenuation α (arb.)')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Along y' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByLabelText('Attenuation α (arb.)')).toBeInTheDocument();
   });
 
   it('PolarizationSection gates the sim behind a Predict First prediction', async () => {
