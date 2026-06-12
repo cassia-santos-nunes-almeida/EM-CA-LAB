@@ -339,7 +339,7 @@ export function Transients() {
 
           <YourTurnPanel
             scenario={'Change \u0393_L to \u22120.5 (keeping \u0393_s = 0). Use the bounce diagram above to verify.'}
-            question="How does the steady-state voltage change compared to \u0393_L = +0.5?"
+            question="How does the steady-state voltage change compared to Γ_L = +0.5?"
             options={[
               {
                 text: "It's lower",
