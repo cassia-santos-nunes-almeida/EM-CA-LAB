@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -105,8 +105,26 @@ describe('Section smoke tests', () => {
   it('MaxwellSection gates the cards behind a Predict First prediction', async () => {
     const { MaxwellSection } = await import('@em/sections/maxwell/index');
     renderSection(MaxwellSection);
-    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    // Two locked gates on first render: the 4-card overview + the radiation sim.
+    expect(screen.getAllByText('Predict First')).toHaveLength(2);
     expect(screen.getByText(/let Maxwell predict self-propagating/i)).toBeInTheDocument();
+  });
+
+  it('MaxwellSection teaches the radiation mechanism behind a second blocking gate', async () => {
+    const { MaxwellSection } = await import('@em/sections/maxwell/index');
+    renderSection(MaxwellSection);
+    // Theory block, new gate question, CC-K and the Larmor cap render immediately.
+    expect(screen.getByText('Why accelerating charges radiate')).toBeInTheDocument();
+    expect(screen.getByText(/which of them radiates electromagnetic energy/i)).toBeInTheDocument();
+    expect(screen.getByText(/why does only the radiation field carry energy/i)).toBeInTheDocument();
+    expect(screen.getByText(/Larmor's scaling/)).toBeInTheDocument();
+    // Blocking gate with the no-Skip default: the sim canvas stays hidden.
+    expect(screen.queryByRole('img', { name: /radiating charge/i })).toBeNull();
+    expect(screen.queryByText('Skip')).toBeNull();
+    // Answer the prediction and continue → the kink sim canvas is revealed.
+    fireEvent.click(screen.getByRole('button', { name: /only the oscillating one/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByRole('img', { name: /radiating charge/i })).toBeInTheDocument();
   });
 
   it('EMWaveSection gates the sim behind a Predict First prediction', async () => {
