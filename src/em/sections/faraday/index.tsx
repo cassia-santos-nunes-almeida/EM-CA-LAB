@@ -14,10 +14,12 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { RodOnRailsFigure } from './RodOnRailsFigure';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { rateToHz, emfArbToMillivolts } from './unitMapping';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
 const Q_NO_EMF: QuizQuestion = {
@@ -52,6 +54,25 @@ const Q_EMF_MAGNITUDE: QuizQuestion = {
   ],
 };
 
+const Q_MISSING_AREA: QuizQuestion = {
+  question:
+    'A classmate models this sim\'s coil at N = 10, f = 10 Hz (B₀ = 50 mT, loop radius 5 cm) and reports a peak EMF of 31.4 V. The equation-box readout peaks near 247 mV. What did the classmate miss?',
+  options: [
+    'The loop area A — they computed N·B₀·ω, whose units (T/s) are not even volts',
+    'The number of turns N',
+    'A factor of 2π — they used f where ω belongs',
+    'Nothing — the sim readout must be wrong',
+  ],
+  correctIndex: 0,
+  explanation:
+    'ℰ_peak = N·B₀·A·ω. Dropping A = πr² = 7.85×10⁻³ m² leaves N·B₀·ω = 10 × 0.05 × 62.8 = 31.4 — with units T/s, not volts: a weber needs the m² (Wb = T·m²). Restore the area: 31.4 × 7.85×10⁻³ = 0.247 V, matching the readout. The units test catches the slip without redoing any arithmetic.',
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: 'Check the units of their formula before checking any numbers.' },
+    { tier: 2, label: 'Procedural hint', content: 'ℰ = −N dΦ/dt and Φ = B·A. Which ingredient of Φ never appears in 31.4 = 10 × 0.05 × 62.8?' },
+    { tier: 3, label: 'Show worked step', content: 'ℰ_peak = N·B₀·A·ω = 10 × 0.05 × (π × 0.05²) × (2π × 10) ≈ 0.247 V — option A.' },
+  ],
+};
+
 const Q_LENZ_SIGN: QuizQuestion = {
   question: "In Faraday's law, EMF = −NdΦ/dt, the negative sign is a mathematical expression of:",
   options: ["Coulomb's law", "Lenz's law", "Ampère's law", "Ohm's law"],
@@ -81,16 +102,16 @@ const Q_MOTIONAL: QuizQuestion = {
 
 const CHALLENGE: Challenge = {
   title: `Induce an EMF`,
-  description: `Use the induction simulation to investigate how the rate of magnetic-flux change and the number of loops together determine the induced EMF, and how the EMF direction tracks the changing flux (Lenz's law). The simulation drives a sinusoidal field B = sin(ωt) through the loops; you control its rate of change and the number of turns, and read the results in arbitrary units.`,
+  description: `Use the induction simulation to investigate how the rate of magnetic-flux change and the number of loops together determine the induced EMF, and how the EMF direction tracks the changing flux (Lenz's law). The simulation drives a sinusoidal field B = sin(ωt) through the loops; you control its rate of change and the number of turns, and read the results on a real model coil: radius 5 cm, peak field 50 mT, frequency set by you from 1 to 30 Hz.`,
   instructions: [
-    `Set the Loops (N) slider to 1 and the Rate (ω) slider to a low value (e.g. 0.5). Press Play in the PlayControls, then watch the EMF(t) readout in the Faraday's Law equation box and the on-canvas 'Induced EMF' label as the field cycles. Note the largest |EMF(t)| value you see.`,
-    `Drag the Rate (ω) slider (or the 'Drag to set ω' bar at the bottom of the canvas) up to about 2.0 and watch again: the induced-current arrows in the loop spin faster and the peak EMF(t) grows. Confirm that a faster dΦ/dt produces a larger induced EMF.`,
-    `Keep ω fixed and raise the Loops (N) slider from 1 toward 10. Watch the peak EMF(t) value in the equation box scale up roughly in proportion to N — verify that doubling the turns doubles the EMF, matching ℰ = −N dΦ/dt.`,
+    `Set the Loops (N) slider to 1 and the Frequency f slider to a low value (e.g. f = 5 Hz). Press Play in the PlayControls, then watch the EMF(t) readout in the Faraday's Law equation box and the on-canvas 'Induced EMF' label as the field cycles. Note the largest |EMF(t)| value you see.`,
+    `Drag the Frequency f slider (or the 'Drag to set f' bar at the bottom of the canvas) up to about 20 Hz and watch again: the induced-current arrows in the loop spin faster and the peak EMF(t) grows. Confirm that a faster dΦ/dt produces a larger induced EMF.`,
+    `Keep f fixed and raise the Loops (N) slider from 1 toward 10. Watch the peak EMF(t) value in the equation box scale up roughly in proportion to N — verify that doubling the turns doubles the EMF, matching ℰ = −N dΦ/dt.`,
     `Let it run and watch the 'B Field' label cycle between 'Out ⊙' and 'In ⊗' while the 'Induced EMF' label flips between 'CW ↻' and 'CCW ↺'. Note that the EMF reverses sign each time the flux switches from rising to falling — this sign flip is Lenz's law in action.`,
     `Use the Slider readouts and the live B(t) and EMF(t) values in the equation box to confirm the timing: EMF(t) peaks when B(t) crosses zero (fastest change) and falls to None when B(t) is at its maximum or minimum (momentarily unchanging).`,
     `Write a one-line conclusion tying your observations to ℰ = −N dΦ/dt: larger ω and larger N both increase the induced EMF, and the minus sign (the CW/CCW reversal) shows the EMF always opposes the change in flux.`,
   ],
-  hint: `There is no bar magnet to move here — the Rate (ω) slider IS your "magnet speed": it sets how fast the flux changes (dΦ/dt). Watch the EMF(t) readout peak exactly when the B Field label is switching between Out ⊙ and In ⊗.`,
+  hint: `There is no bar magnet to move here — the Frequency slider IS your "magnet speed": it sets how fast the flux changes (dΦ/dt). Watch the EMF(t) readout peak exactly when the B Field label is switching between Out ⊙ and In ⊗.`,
 };
 
 export function FaradaySection() {
@@ -222,7 +243,7 @@ export function FaradaySection() {
         ctx.fillStyle = isDarkMode ? '#94a3b8' : '#64748b';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`Drag to set ω = ${rate.toFixed(1)}`, cx, barY + 20);
+        ctx.fillText(`Drag to set f = ${rateToHz(rate).toFixed(0)} Hz`, cx, barY + 20);
       }
 
       animationRef.current = requestAnimationFrame(render);
@@ -310,7 +331,7 @@ export function FaradaySection() {
             </div>
           </div>
           <ControlPanel title="Experiment Controls">
-            <Slider label="Rate (ω)" value={rate} min={0.1} max={3.0} step={0.1} onChange={setRate} />
+            <Slider label={`Frequency f = ${rateToHz(rate).toFixed(0)} Hz`} value={rate} min={0.1} max={3.0} step={0.1} onChange={setRate} />
             <Slider label="Loops (N)" value={loops} min={1} max={10} onChange={setLoops} color="bg-indigo-600" />
             <PlayControls
               isPlaying={isPlaying}
@@ -359,14 +380,30 @@ export function FaradaySection() {
           title="Faraday's Law"
           equations={[
             { label: 'General', math: '\\mathcal{E} = -N \\frac{d\\Phi_B}{dt}', color: 'text-indigo-600' },
-            { label: 'Parameters', math: `N = ${loops},\\quad \\omega = ${rate.toFixed(1)}` },
-            { label: 'B(t)', math: `B = \\sin(\\omega t) \\approx ${liveB.toFixed(2)}` },
-            { label: 'EMF(t)', math: `\\mathcal{E} \\approx ${liveEmf.toFixed(2)}\\text{ (arb.)}`, color: Math.abs(liveEmf) > 0.5 ? 'text-amber-600 dark:text-amber-400 font-bold' : '' },
+            { label: 'Model coil', math: 'a = 5\\ \\text{cm},\\ A = \\pi a^2 = 7.85\\times 10^{-3}\\ \\text{m}^2,\\ B_0 = 50\\ \\text{mT}' },
+            { label: 'Parameters', math: `N = ${loops},\\quad f = ${rateToHz(rate).toFixed(0)}\\ \\text{Hz}` },
+            { label: 'B(t)', math: `B = B_0\\sin(2\\pi f t) \\approx ${(liveB * 50).toFixed(1)}\\ \\text{mT}` },
+            { label: 'EMF(t)', math: `\\mathcal{E} \\approx ${emfArbToMillivolts(liveEmf).toFixed(1)}\\ \\text{mV}`, color: Math.abs(liveEmf) > 0.5 ? 'text-amber-600 dark:text-amber-400 font-bold' : '' },
           ]}
         />
 
+        {/* ── Plausibility callout (unit 2G): the magnitude judgment the SI units enable ── */}
+        <PlausibilityCallout>
+          Max out the sim — N = 10 turns, f = 30 Hz, 50 mT through a 5 cm loop — and the
+          peak EMF is still only ≈ 0.74 V. Volts are <em>hard</em> to make with palm-sized
+          hardware. A grid generator gets to kilovolts by scaling every factor of{' '}
+          <MathWrapper formula="\mathcal{E} = N B A \omega" /> at once: hundreds of turns,
+          B near 1 T, square metres of coil, a 3000 rpm rotor.{' '}
+          <em>(Check: N = 100, B = 1 T, A = 1 m², ω = 314 rad/s → 31 kV — stator scale.)</em>{' '}
+          When homework hands you hundreds of volts from a desk-toy coil, run the magnitude
+          ladder before believing it.
+        </PlausibilityCallout>
+
         {/* Check: EMF magnitude calculation (after the Faraday's-law equation) */}
         <ConceptCheck data={toConceptCheck(Q_EMF_MAGNITUDE)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
+        {/* Check: critique exercise — the classmate's missing area (unit 2G) */}
+        <ConceptCheck data={toConceptCheck(Q_MISSING_AREA)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
         {/* Check: meaning of the negative sign (Lenz's law) */}
         <ConceptCheck data={toConceptCheck(Q_LENZ_SIGN)} onComplete={onCheckComplete} onHint={onCheckHint} />
