@@ -575,10 +575,11 @@ export function EMWaveSection() {
         }
       }
 
-      // Energy density bar: u ∝ E² + B² ∝ sin²(kx - ωt) at midpoint
+      // Energy density bar: u ∝ E² + B² ∝ e^(−2αx)·sin²(kx − ωt) at midpoint —
+      // the same e^(−αx) envelope the field curves above carry, squared.
       const midPh = k * (drawWidth / 2) - omega * t * 0.02 * state.speed;
-      const sinVal = Math.sin(midPh);
-      const uNorm = sinVal * sinVal; // u ∝ sin²
+      const sinVal = Math.exp(-alphaPx * (drawWidth / 2)) * Math.sin(midPh);
+      const uNorm = sinVal * sinVal; // u ∝ e^(−2αx)·sin²
       const barY = height / 2 - 8;
       const barW = 120;
       ctx.fillStyle = isDarkMode ? '#1e293b' : '#f1f5f9';

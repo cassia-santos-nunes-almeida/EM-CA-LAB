@@ -18,6 +18,14 @@ import {
   reflectedPowerFraction,
 } from './mediaMath';
 
+/**
+ * toFixed that renders negatives with the typographic minus (U+2212) used by
+ * every hand-set value on this page — Number.toFixed emits ASCII '-'.
+ */
+function fixedMinus(v: number, digits: number): string {
+  return v.toFixed(digits).replace('-', '−');
+}
+
 // ── Display constants — every number flows through mediaMath (no inline physics) ──
 
 /** Seawater conductivity σ = 4 S/m. */
@@ -121,7 +129,7 @@ function MediaInterfacePanel() {
         viewBox="0 0 400 140"
         className="w-full h-auto"
         role="img"
-        aria-label={`Interface: Γ = ${gamma.toFixed(3)}, ${reflectedPct}% reflected, ${transmittedPct}% transmitted`}
+        aria-label={`Interface: Γ = ${fixedMinus(gamma, 3)}, ${reflectedPct}% reflected, ${transmittedPct}% transmitted`}
       >
         {/* Medium 2 tint + boundary */}
         <rect x="200" y="0" width="200" height="140" className="fill-slate-200/60 dark:fill-slate-600/40" />
@@ -159,7 +167,7 @@ function MediaInterfacePanel() {
         Arrow lengths show field amplitude; the percentages below are power.
       </p>
 
-      <Slider label="ε_r of medium 2" value={epsR} min={1} max={81} step={0.05} onChange={setEpsR} />
+      <Slider label="ε_r of medium 2" value={epsR} min={1} max={81} step={0.05} displayDecimals={2} onChange={setEpsR} />
 
       <div className="flex flex-wrap gap-2">
         {EPSR_PRESETS.map((p) => (
@@ -181,7 +189,7 @@ function MediaInterfacePanel() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
         {[
           { label: 'η₂', value: `${eta2.toFixed(1)} Ω` },
-          { label: 'Γ', value: gamma.toFixed(3) },
+          { label: 'Γ', value: fixedMinus(gamma, 3) },
           { label: 'Reflected power', value: `${reflectedPct}%` },
           { label: 'Transmitted power', value: `${transmittedPct}%` },
         ].map((stat) => (
@@ -296,9 +304,11 @@ export function RealMedia({ onCheckComplete, onCheckHint, onGatePredict }: RealM
           </ol>
         </div>
 
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 text-emerald-900 dark:text-emerald-200">
-          <p className="font-bold mb-1">Does this make sense?</p>
-          <p>
+        <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+          <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+            Does this make sense?
+          </p>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
             Copper (σ = 5.8×10⁷ S/m) at 1 GHz: <MathWrapper formula="\delta_s = 1/\sqrt{\pi f \mu_0 \sigma}" /> ={' '}
             {COPPER_SKIN_UM_1GHZ.toFixed(1)} μm. RF current lives in the outer couple of microns of a
             conductor — which is why good coax only needs a whisper of plating, and why the braid can be
@@ -362,7 +372,7 @@ export function RealMedia({ onCheckComplete, onCheckHint, onGatePredict }: RealM
         </p>
         <div className="font-mono text-xs bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 text-slate-700 dark:text-slate-300 space-y-1">
           <p>η₁ = {ETA0.toFixed(2)} Ω (air)&nbsp;&nbsp;&nbsp;η₂ = 376.73/1.5 = {ETA_GLASS.toFixed(2)} Ω (glass, n = 1.5)</p>
-          <p>Γ&nbsp; = (251.15 − 376.73)/(251.15 + 376.73) = −125.58/627.88 = {GAMMA_GLASS.toFixed(3)}</p>
+          <p>Γ&nbsp; = (251.15 − 376.73)/(251.15 + 376.73) = −125.58/627.88 = {fixedMinus(GAMMA_GLASS, 3)}</p>
           <p>τ&nbsp; = 1 + Γ = {TAU_GLASS.toFixed(3)}</p>
           <p>reflected power&nbsp; = Γ² = {REFL_GLASS.toFixed(3)}&nbsp; (4%)</p>
           <p>transmitted power = 1 − Γ² = {(1 - REFL_GLASS).toFixed(3)}&nbsp; (96%)</p>

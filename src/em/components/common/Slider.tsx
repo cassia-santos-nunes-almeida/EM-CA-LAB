@@ -8,6 +8,9 @@ interface SliderProps {
   step?: number;
   unit?: string;
   color?: string;
+  /** Decimal places for the value readout, trailing zeros trimmed (2.25 → "2.25",
+   *  81 → "81") so it matches raw-value labels. Default: 0 for integer steps, else 1. */
+  displayDecimals?: number;
   onChange: (value: number) => void;
 }
 
@@ -19,6 +22,7 @@ export function Slider({
   step = 1,
   unit = '',
   color = 'bg-indigo-600',
+  displayDecimals,
   onChange,
 }: SliderProps) {
   const percentage = ((value - min) / (max - min)) * 100;
@@ -30,7 +34,13 @@ export function Slider({
           {label}
         </label>
         <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-200">
-          {typeof value === 'number' ? (Number.isInteger(step) ? value : value.toFixed(1)) : value}
+          {typeof value === 'number'
+            ? displayDecimals !== undefined
+              ? String(Number(value.toFixed(displayDecimals)))
+              : Number.isInteger(step)
+                ? value
+                : value.toFixed(1)
+            : value}
           {unit}
         </span>
       </div>

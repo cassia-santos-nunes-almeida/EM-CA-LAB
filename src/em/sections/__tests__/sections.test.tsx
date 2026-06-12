@@ -123,6 +123,8 @@ describe('Section smoke tests', () => {
     expect(screen.queryByText('Skip')).toBeNull();
     // Answer the prediction and continue → the kink sim canvas is revealed.
     fireEvent.click(screen.getByRole('button', { name: /only the oscillating one/i }));
+    // Pin the answer key: the gate must judge this option correct, not merely answered.
+    expect(screen.getByText('Correct!')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByRole('img', { name: /radiating charge/i })).toBeInTheDocument();
   });
@@ -149,16 +151,20 @@ describe('Section smoke tests', () => {
     expect(screen.queryByText('Skip')).toBeNull();
     // Answer the prediction and continue → slider + mediaMath readouts appear.
     fireEvent.click(screen.getByRole('button', { name: '4%' }));
+    // Pin the answer key: the gate must judge this option correct, not merely answered.
+    expect(screen.getByText('Correct!')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByLabelText('ε_r of medium 2')).toBeInTheDocument();
+    // The slider's own readout shows the full 2-decimal default, not a 1-dp rounding.
+    expect(screen.getByText('2.25')).toBeInTheDocument();
     // Default εr = 2.25 (glass): η₂ = 376.73/1.5 = 251.2 Ω, Γ = −0.200, 4% / 96% power split.
     expect(screen.getByText('251.2 Ω')).toBeInTheDocument();
-    expect(screen.getByText('-0.200')).toBeInTheDocument();
+    expect(screen.getByText('−0.200')).toBeInTheDocument();
     expect(screen.getByText('4.0%')).toBeInTheDocument();
     expect(screen.getByText('96.0%')).toBeInTheDocument();
     // Slide to seawater (εr = 81): Γ = (41.86−376.73)/(41.86+376.73) = −0.800 → 64% reflected.
     fireEvent.change(screen.getByLabelText('ε_r of medium 2'), { target: { value: '81' } });
-    expect(screen.getByText('-0.800')).toBeInTheDocument();
+    expect(screen.getByText('−0.800')).toBeInTheDocument();
     expect(screen.getByText('64.0%')).toBeInTheDocument();
     expect(screen.getByText('36.0%')).toBeInTheDocument();
   });

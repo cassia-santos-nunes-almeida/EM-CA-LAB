@@ -21,6 +21,16 @@ describe('Slider', () => {
     expect(screen.getByText('3.5')).toBeInTheDocument();
   });
 
+  it('honors displayDecimals for 2-decimal steps (2.25 stays 2.25, not 2.3)', () => {
+    render(<Slider {...defaults} value={2.25} min={1} max={81} step={0.05} displayDecimals={2} />);
+    expect(screen.getByText('2.25')).toBeInTheDocument();
+  });
+
+  it('displayDecimals trims trailing zeros to match raw-value labels', () => {
+    render(<Slider {...defaults} value={81} min={1} max={81} step={0.05} displayDecimals={2} />);
+    expect(screen.getByText('81')).toBeInTheDocument();
+  });
+
   it('calls onChange with parsed number', () => {
     const onChange = vi.fn();
     render(<Slider {...defaults} onChange={onChange} />);
