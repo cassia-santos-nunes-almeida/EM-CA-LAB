@@ -39,6 +39,11 @@ describe('AmpereSection — forces between parallel wires (unit 2D)', () => {
     // …but the gated reveal card is not, and there is no Skip escape hatch.
     expect(screen.queryByText(/LIKE CURRENTS ATTRACT/i)).toBeNull();
     expect(screen.queryByRole('button', { name: /skip/i })).toBeNull();
+    // The gated CC (whose options spell out attract/repel) and the busbar worked
+    // example must ALSO be absent — a stray </PredictionGate> that leaves only the
+    // kicker card inside the gate would otherwise pass unnoticed.
+    expect(screen.queryByText(/100 A in the same direction/i)).toBeNull();
+    expect(screen.queryByText(/busbar/i)).toBeNull();
   });
 
   it('keeps the original sim gate alongside the new parallel-wires gate', () => {
@@ -81,6 +86,12 @@ describe('LorentzSection — complete force & force on conductors (unit 2D)', ()
         content.includes(String.raw`q(\vec{E} + \vec{v} \times \vec{B})`)
       ).length
     ).toBeGreaterThan(0);
+    // …and the new 'On a wire' row (the §4A deliverable F = IL×B).
+    expect(
+      screen.getAllByText((content) =>
+        content.includes(String.raw`\vec{F} = I\,\vec{L} \times \vec{B}`)
+      ).length
+    ).toBeGreaterThan(0);
   });
 
   it('CC-L: the velocity-selector ConceptCheck reveals its explanation on the correct answer', async () => {
@@ -114,13 +125,21 @@ describe('FaradaySection — motional EMF, the rod on rails (unit 2D)', () => {
     ).toBeInTheDocument();
     // …with the static SVG figure (gate-exempt, self-describing via aria-label)…
     expect(screen.getByRole('img', { name: /rod sliding/i })).toBeInTheDocument();
-    // …and the new EquationBox carrying the Blv chain.
-    expect(screen.getByText('Motional EMF (rod on rails)')).toBeInTheDocument();
     // The new gate's question is visible…
     expect(screen.getByText(/mechanical power/i)).toBeInTheDocument();
     // …but the gated reveal card is not, and there is no Skip escape hatch.
     expect(screen.queryByText(/ENERGY LOOP CLOSES/i)).toBeNull();
     expect(screen.queryByRole('button', { name: /skip/i })).toBeNull();
+    // The EquationBox sits INSIDE the gate: its 'Energy audit' row is the gate's
+    // answer verbatim, so neither the box title nor the row may render pre-pass.
+    expect(screen.queryByText('Motional EMF (rod on rails)')).toBeNull();
+    expect(
+      screen.queryByText((content) =>
+        content.includes(String.raw`P_{mech} = Fv = \mathcal{E}I = P_{elec}`)
+      )
+    ).toBeNull();
+    // The worked-numbers card (whose 1.6 W = 1.6 W identity IS the answer) is gated too.
+    expect(screen.queryByText(/Run the whole loop/i)).toBeNull();
   });
 
   it('reveals the worked numbers and energy-loop card after passing the gate, and CC-F explains the wingtip EMF', async () => {
@@ -128,6 +147,17 @@ describe('FaradaySection — motional EMF, the rod on rails (unit 2D)', () => {
     renderSection(FaradaySection);
     await passPredictionGate(user, 'Exactly equal');
     expect(screen.getByText(/ENERGY LOOP CLOSES/i)).toBeInTheDocument();
+    // The EquationBox surfaces with the reveal — title plus all four rows
+    // (raw-LaTeX substrings are stable under the katex mock).
+    expect(screen.getByText('Motional EMF (rod on rails)')).toBeInTheDocument();
+    for (const row of [
+      String.raw`\mathcal{E} = Blv`,
+      String.raw`I = Blv/R`,
+      String.raw`B^2l^2v/R`,
+      String.raw`P_{mech} = Fv = \mathcal{E}I = P_{elec}`,
+    ]) {
+      expect(screen.getAllByText((content) => content.includes(row)).length).toBeGreaterThan(0);
+    }
     // Pin the hand-derived chain: ε = 0.40 V → I = 4.0 A → F = 0.80 N → P = 1.6 W.
     expect(screen.getAllByText(/0\.40/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/4\.0/).length).toBeGreaterThan(0);

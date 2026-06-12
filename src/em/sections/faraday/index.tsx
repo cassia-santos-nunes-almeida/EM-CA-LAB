@@ -374,8 +374,10 @@ export function FaradaySection() {
         {/* ── Motional EMF: the rod on rails (unit 2D) ──
             The derivations and the static figure are ungated (the figure is
             purely presentational → gate-exempt, same class as FigureImage);
-            only the worked-numbers card and the energy-loop payoff sit behind
-            the PredictionGate, so the power-balance answer cannot leak. */}
+            the EquationBox, the worked-numbers card and the energy-loop payoff
+            all sit behind the PredictionGate — the box's 'Energy audit' row IS
+            the gate's answer and its 'Drag force' row defuses the 'zero — constant
+            speed' trap, so neither may render before the prediction. */}
         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
           <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
             Motional EMF: the rod on rails
@@ -417,16 +419,6 @@ export function FaradaySection() {
           </p>
         </div>
 
-        <EquationBox
-          title="Motional EMF (rod on rails)"
-          equations={[
-            { label: 'EMF', math: '\\mathcal{E} = Blv' },
-            { label: 'Current', math: 'I = Blv/R' },
-            { label: 'Drag force', math: 'F = BIl = B^2l^2v/R' },
-            { label: 'Energy audit', math: 'P_{mech} = Fv = \\mathcal{E}I = P_{elec}' },
-          ]}
-        />
-
         <PredictionGate
           question="You pull the rod at a steady 2.0 m/s against the magnetic drag. How does the mechanical power your hand delivers compare with the electrical power dissipated in the resistor?"
           options={[
@@ -448,6 +440,18 @@ export function FaradaySection() {
           }
           onPredict={(correct) => markPredictionGate('faraday', correct)}
         >
+          {/* Summary equations (gated: 'Energy audit' is the gate's answer verbatim,
+              'Drag force' would defuse the constant-speed trap) */}
+          <EquationBox
+            title="Motional EMF (rod on rails)"
+            equations={[
+              { label: 'EMF', math: '\\mathcal{E} = Blv' },
+              { label: 'Current', math: 'I = Blv/R' },
+              { label: 'Drag force', math: 'F = BIl = B^2l^2v/R' },
+              { label: 'Energy audit', math: 'P_{mech} = Fv = \\mathcal{E}I = P_{elec}' },
+            ]}
+          />
+
           {/* Worked example: run the whole loop, by hand */}
           <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
             <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
