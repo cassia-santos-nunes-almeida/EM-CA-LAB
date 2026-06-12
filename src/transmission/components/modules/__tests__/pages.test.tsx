@@ -88,6 +88,12 @@ describe('Transmission page smoke tests', () => {
     expect(screen.getByRole('heading', { level: 1, name: /Transmission Lines/i })).toBeInTheDocument();
   });
 
+  it('LineImpedance renders without crashing', async () => {
+    const { LineImpedance } = await import('@transmission/components/modules/LineImpedance');
+    renderInRouter(<LineImpedance />);
+    expect(screen.getByRole('heading', { level: 1, name: /Line Impedance & Matching/i })).toBeInTheDocument();
+  });
+
   it('Transients renders without crashing', async () => {
     const { Transients } = await import('@transmission/components/modules/Transients');
     renderInRouter(<Transients />);

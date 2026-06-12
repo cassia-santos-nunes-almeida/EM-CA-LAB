@@ -12,7 +12,7 @@ import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { LabStation } from '@shared/components/common/LabStation';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
-import { WorkedSteps } from '@circuits/components/common/WorkedSteps';
+import { WorkedSteps } from '@shared/components/common/WorkedSteps';
 import { CoverUpStepper } from '@circuits/components/modules/PartialFractions/CoverUpStepper';
 import { IDENTIFICATION_COST } from '@circuits/components/modules/PartialFractions/coverUpData';
 

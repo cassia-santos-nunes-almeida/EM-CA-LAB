@@ -82,6 +82,7 @@ const SECTION_LIST: CourseSection[] = [
   // ── Part 5 · Transmission Lines & Distributed Systems (transmission) ─────
   { id: 'lumped-distributed', title: 'Lumped to Distributed', route: '/lumped-distributed', domain: 'transmission', expectedChecks: 0 },
   { id: 'transmission-lines', title: 'Transmission Lines', route: '/transmission-lines', domain: 'transmission', expectedChecks: 0 },
+  { id: 'line-impedance', title: 'Line Impedance & Matching', route: '/line-impedance', domain: 'transmission', expectedChecks: 0 },
   { id: 'transients', title: 'Transients', route: '/transients', domain: 'transmission', expectedChecks: 0 },
 ];
 
@@ -116,7 +117,7 @@ export const PARTS: CoursePart[] = [
     id: 'transmission-lines',
     number: 5,
     title: 'Transmission Lines & Distributed Systems',
-    sectionIds: ['lumped-distributed', 'transmission-lines', 'transients'],
+    sectionIds: ['lumped-distributed', 'transmission-lines', 'line-impedance', 'transients'],
   },
 ];
 

@@ -50,6 +50,7 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
   transformers: lazyRetry(() => import('@transmission/components/modules/Transformers').then((m) => ({ default: m.Transformers }))),
   'lumped-distributed': lazyRetry(() => import('@transmission/components/modules/LumpedDistributed').then((m) => ({ default: m.LumpedDistributed }))),
   'transmission-lines': lazyRetry(() => import('@transmission/components/modules/TransmissionLines').then((m) => ({ default: m.TransmissionLines }))),
+  'line-impedance': lazyRetry(() => import('@transmission/components/modules/LineImpedance').then((m) => ({ default: m.LineImpedance }))),
   transients: lazyRetry(() => import('@transmission/components/modules/Transients').then((m) => ({ default: m.Transients }))),
   antennas: lazyRetry(() => import('@transmission/components/modules/Antennas').then((m) => ({ default: m.Antennas }))),
 };
