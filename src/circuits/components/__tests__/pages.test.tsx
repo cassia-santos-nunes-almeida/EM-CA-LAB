@@ -101,6 +101,14 @@ describe('TimeDomain page', () => {
   });
 });
 
+describe('SwitchedCircuits page (smoke)', () => {
+  it('SwitchedCircuits renders without crashing', async () => {
+    const { SwitchedCircuits } = await import('@circuits/components/modules/SwitchedCircuits');
+    renderWithRouter(<SwitchedCircuits />, '/switched-circuits');
+    expect(screen.getByRole('heading', { level: 1, name: /Switched Circuits & Initial Conditions/i })).toBeInTheDocument();
+  });
+});
+
 describe('SDomainAnalysis page', () => {
   it('gates the Tabs behind a Predict First prediction', () => {
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
