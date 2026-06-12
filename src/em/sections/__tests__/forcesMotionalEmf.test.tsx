@@ -4,6 +4,7 @@ import type { UserEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { AmpereSection } from '@em/sections/ampere/index';
+import { LorentzSection } from '@em/sections/lorentz/index';
 
 // Mock katex for all sections that use MathWrapper (same shim as sections.test.tsx):
 // formulas render as their raw LaTeX source inside a .katex span.
@@ -64,5 +65,41 @@ describe('AmpereSection — forces between parallel wires (unit 2D)', () => {
     // The shared explanation surfaces (and pins the dropped-2π distractor teaching).
     expect(screen.getByText(/drop the 2π/i)).toBeInTheDocument();
     expect(screen.getAllByText(/2×10⁻⁷/).length).toBeGreaterThan(0);
+  });
+});
+
+describe('LorentzSection — complete force & force on conductors (unit 2D)', () => {
+  it('states the complete Lorentz force with the velocity-selector story (ungated theory)', () => {
+    renderSection(LorentzSection);
+    expect(screen.getByRole('heading', { name: /The complete Lorentz force/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/velocity selector/i).length).toBeGreaterThan(0);
+    // EquationBox carries the new full-force row — under the katex mock formulas
+    // render as their raw LaTeX source, so the substring is stable.
+    expect(
+      screen.getAllByText((content) =>
+        content.includes(String.raw`q(\vec{E} + \vec{v} \times \vec{B})`)
+      ).length
+    ).toBeGreaterThan(0);
+  });
+
+  it('CC-L: the velocity-selector ConceptCheck reveals its explanation on the correct answer', async () => {
+    const user = userEvent.setup();
+    renderSection(LorentzSection);
+    expect(screen.getByText(/crossed fields/i)).toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Those with v = 2.0×10⁵ m/s — regardless of charge or mass' })
+    );
+    // The shared explanation surfaces (q- and m-blindness is the teaching point).
+    expect(screen.getByText(/flipping its sign flips BOTH forces/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/E\/B/).length).toBeGreaterThan(0);
+  });
+
+  it('derives F = BIl from drifting charges and pins the loudspeaker numbers', () => {
+    renderSection(LorentzSection);
+    expect(screen.getByRole('heading', { name: /From particles to wires/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Why a loudspeaker works/i })).toBeInTheDocument();
+    // Pin the hand-derived chain (l ≈ 7.85 m → F = 3.93 N) against silent edits.
+    expect(screen.getAllByText(/7\.85/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/3\.93/).length).toBeGreaterThan(0);
   });
 });
