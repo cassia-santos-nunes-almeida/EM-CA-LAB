@@ -82,9 +82,17 @@ describe('MagneticCircuits page — solve it by hand (unit 2F)', () => {
     expect(screen.getByText(/run the magnetic circuit backwards/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'N = 50 turns' }));
     expect(screen.getByText(/L = 50\.00 mH/)).toBeInTheDocument();
+    // Grading oracle: 'Updated Values' is the correct-branch-ONLY header
+    // (the reveal itself renders after ANY selection, so it cannot catch a
+    // correct flag accidentally moved to another option).
+    expect(screen.getByText('Updated Values')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Try Again' }));
     await user.click(screen.getByRole('button', { name: 'N = 250,000 turns' }));
     expect(screen.getByText(/air-core answer/i)).toBeInTheDocument();
+    // The distractor must be graded WRONG: correct-only header absent,
+    // wrong-branch header present.
+    expect(screen.queryByText('Updated Values')).toBeNull();
+    expect(screen.getByText('Correct Answer')).toBeInTheDocument();
   });
 
   it('adds the series-MMF concept check and keeps the original three', async () => {
