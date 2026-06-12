@@ -12,6 +12,7 @@ import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -568,6 +569,19 @@ export function CoulombSection() {
         </ControlPanel>
       </div>
       </PredictionGate>
+
+      {/* ── Plausibility callout (unit 2G): judge the inputs, not just the formula ── */}
+      <PlausibilityCallout>
+        Set both charges to <strong>+4 μC</strong> one grid square (0.1 m) apart and read
+        the arrow label:{' '}
+        <MathWrapper formula="F = k\frac{q_1 q_2}{r^2} \approx 14.4\ \text{N}" /> — the
+        weight of a 1.5-litre water bottle, between two specks. Plausible? It is the{' '}
+        <em>charge</em> that is generous: holding 4 μC on a centimetre sphere needs a
+        surface field near <MathWrapper formula="4\times10^{8}\ \text{V/m}" /> — a hundred
+        times air&apos;s 3×10⁶ V/m breakdown. Real rubbed objects carry nanocoulombs. The
+        formula is right; always ask whether the <em>inputs</em> are achievable before
+        trusting the output.
+      </PlausibilityCallout>
 
       {/* Check: field-line direction (right after the field-line visualization) */}
       <ConceptCheck data={toConceptCheck(Q_FIELD_LINES)} onComplete={onCheckComplete} onHint={onCheckHint} />

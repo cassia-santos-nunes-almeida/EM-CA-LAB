@@ -12,6 +12,7 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -435,6 +436,17 @@ export function AmpereSection() {
             { label: 'Field at r', math: 'B = \\frac{\\mu_0 I}{2\\pi r}' },
           ]}
         />
+
+        {/* ── Plausibility callout (unit 2G): anchor field magnitudes to real hardware ── */}
+        <PlausibilityCallout>
+          Anchor the marker-tooltip numbers: 100 A — a welding current — at 1 cm gives{' '}
+          <MathWrapper formula="B = \frac{\mu_0 I}{2\pi r} = 2\ \text{mT}" />: forty times
+          Earth&apos;s ~50 μT, yet ~750× weaker than a 1.5 T MRI bore. A 10 A appliance
+          cord at 5 cm makes ~40 μT — it <em>rivals Earth&apos;s field</em>, which is why a
+          compass misbehaves near wiring. If a hand calculation around household wiring
+          returns whole teslas, go hunting for the missing{' '}
+          <MathWrapper formula="2\pi r" />.
+        </PlausibilityCallout>
 
         {/* Check: field of a straight wire (enclosed current → B = μ₀I/2πr) */}
         <ConceptCheck data={toConceptCheck(Q_FIELD)} onComplete={onCheckComplete} onHint={onCheckHint} />

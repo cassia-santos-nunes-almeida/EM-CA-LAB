@@ -31,18 +31,24 @@ describe('Section smoke tests', () => {
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
     // The guided-challenge capstone is wired in at the end of the section.
     expect(screen.getByText('Flux Through Any Surface')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('CoulombSection renders', async () => {
     const { CoulombSection } = await import('@em/sections/coulomb/index');
     renderSection(CoulombSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('AmpereSection renders', async () => {
     const { AmpereSection } = await import('@em/sections/ampere/index');
     renderSection(AmpereSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gates (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('LorentzSection renders', async () => {
