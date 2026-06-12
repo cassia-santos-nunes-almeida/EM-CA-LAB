@@ -41,7 +41,7 @@ const renderTransients = () => render(<MemoryRouter><Transients /></MemoryRouter
 const simLabel = /bounce diagram showing voltage reflections/i;
 const predictQ = /after the first reflection/i;
 
-describe('Transients — TabSet gate unlock survives tab round-trips', () => {
+describe('Transients — tab strip gate unlock survives tab round-trips', () => {
   it('keeps the bounce diagram revealed after switching tabs away and back', async () => {
     const user = userEvent.setup();
     renderTransients();
@@ -59,7 +59,7 @@ describe('Transients — TabSet gate unlock survives tab round-trips', () => {
     expect(screen.getByLabelText(simLabel)).toBeInTheDocument();
     expect(screen.queryByText(predictQ)).not.toBeInTheDocument();
 
-    // Switch away and back — TabSet remounts the panel, but the lifted
+    // Switch away and back — tab strip remounts the panel, but the lifted
     // unlocked state must keep the sim revealed (no re-prediction).
     await user.click(screen.getByRole('tab', { name: /Theory/i }));
     await user.click(screen.getByRole('tab', { name: /Simulations/i }));

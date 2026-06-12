@@ -32,6 +32,11 @@ export default defineConfig({
     // under parallel load these exceed the 5s default, so give them headroom.
     testTimeout: 20000,
     hookTimeout: 20000,
+    // css:true was evaluated and rejected: it routes index.css through the
+    // whole Tailwind v4 pipeline in EVERY fork (~2x environment cost, worker
+    // spawn timeouts under memory pressure) while jsdom never applies
+    // stylesheet rules to getComputedStyle, so utility-class fidelity in unit
+    // tests gains nothing. Re-evaluate only if CSS modules are introduced.
   },
   plugins: [
     react(),

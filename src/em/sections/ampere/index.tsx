@@ -180,9 +180,12 @@ export function AmpereSection() {
           const Btesla = (MU_0 * Math.abs(current)) / (2 * Math.PI * rMetres);
           ctx.fillStyle = isDarkMode ? '#94a3b8' : '#64748b';
           ctx.font = '10px monospace';
-          ctx.textAlign = 'left';
+          // Top-of-ring, centered: one label per ring height, so consecutive
+          // rings can't overprint each other (they all shared y = cy+4 before,
+          // which smudged every label into one line right of the wire).
+          ctx.textAlign = 'center';
           const BLabel = Btesla >= 1e-3 ? `${(Btesla * 1e3).toFixed(1)} mT` : `${(Btesla * 1e6).toFixed(0)} μT`;
-          ctx.fillText(`r=${(rMetres * 100).toFixed(1)}cm  B=${BLabel}`, cx + r + 5, cy + 4);
+          ctx.fillText(`r=${(rMetres * 100).toFixed(1)}cm  B=${BLabel}`, cx, cy - r - 5);
 
           // More arrows on inner rings (stronger field)
           const arrowCount = Math.max(3, Math.round(8 * relStrength));
