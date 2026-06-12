@@ -49,6 +49,13 @@ describe('Section smoke tests', () => {
     const { LorentzSection } = await import('@em/sections/lorentz/index');
     renderSection(LorentzSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
+    // Unit 2G: the 'Computed r' EquationBox row reads in real SI — under the katex
+    // mock formulas render as raw LaTeX, so the mm unit substring is stable.
+    expect(
+      screen.getAllByText((content) => content.includes(String.raw`\text{mm}`)).length
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('FaradaySection renders', async () => {
