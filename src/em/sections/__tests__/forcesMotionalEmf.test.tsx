@@ -5,6 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { AmpereSection } from '@em/sections/ampere/index';
 import { LorentzSection } from '@em/sections/lorentz/index';
+import { FaradaySection } from '@em/sections/faraday/index';
 
 // Mock katex for all sections that use MathWrapper (same shim as sections.test.tsx):
 // formulas render as their raw LaTeX source inside a .katex span.
@@ -101,5 +102,41 @@ describe('LorentzSection — complete force & force on conductors (unit 2D)', ()
     // Pin the hand-derived chain (l ≈ 7.85 m → F = 3.93 N) against silent edits.
     expect(screen.getAllByText(/7\.85/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/3\.93/).length).toBeGreaterThan(0);
+  });
+});
+
+describe('FaradaySection — motional EMF, the rod on rails (unit 2D)', () => {
+  it('renders the motional-EMF theory with the gate-exempt figure, and gates the worked numbers', () => {
+    renderSection(FaradaySection);
+    // Ungated theory: both derivations live under one heading…
+    expect(
+      screen.getByRole('heading', { name: /Motional EMF: the rod on rails/i })
+    ).toBeInTheDocument();
+    // …with the static SVG figure (gate-exempt, self-describing via aria-label)…
+    expect(screen.getByRole('img', { name: /rod sliding/i })).toBeInTheDocument();
+    // …and the new EquationBox carrying the Blv chain.
+    expect(screen.getByText('Motional EMF (rod on rails)')).toBeInTheDocument();
+    // The new gate's question is visible…
+    expect(screen.getByText(/mechanical power/i)).toBeInTheDocument();
+    // …but the gated reveal card is not, and there is no Skip escape hatch.
+    expect(screen.queryByText(/ENERGY LOOP CLOSES/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /skip/i })).toBeNull();
+  });
+
+  it('reveals the worked numbers and energy-loop card after passing the gate, and CC-F explains the wingtip EMF', async () => {
+    const user = userEvent.setup();
+    renderSection(FaradaySection);
+    await passPredictionGate(user, 'Exactly equal');
+    expect(screen.getByText(/ENERGY LOOP CLOSES/i)).toBeInTheDocument();
+    // Pin the hand-derived chain: ε = 0.40 V → I = 4.0 A → F = 0.80 N → P = 1.6 W.
+    expect(screen.getAllByText(/0\.40/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/4\.0/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/0\.80/).length).toBeGreaterThan(0);
+    // 1.6 W arrives by three independent routes (P_mech, P_elec, P_heat).
+    expect(screen.getAllByText(/1\.6/).length).toBeGreaterThanOrEqual(3);
+    // CC-F: the aircraft-wingspan motional EMF, after the gate.
+    expect(screen.getByText(/wingspan/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '0.75 V' }));
+    expect(screen.getByText(/An EMF needs no closed circuit/i)).toBeInTheDocument();
   });
 });
