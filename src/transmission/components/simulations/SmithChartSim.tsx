@@ -468,11 +468,11 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
           {/* Computed values */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <ReadoutCard
-              label="|\u0393| (magnitude)"
+              label="|Γ| (magnitude)"
               value={gamma.magnitude.toFixed(4)}
             />
             <ReadoutCard
-              label="\u2220\u0393 (phase)"
+              label="∠Γ (phase)"
               value={`${gamma.phaseDeg.toFixed(1)}\u00B0`}
             />
             <ReadoutCard
@@ -480,7 +480,7 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
               value={isFinite(vswr) ? vswr.toFixed(3) : '\u221E'}
             />
             <ReadoutCard
-              label="Normalized z = Z\u2097/Z\u2080"
+              label="Normalized z = Zₗ/Z₀"
               value={`${zr.toFixed(3)} ${zi >= 0 ? '+' : '\u2212'} j${Math.abs(zi).toFixed(3)}`}
             />
             <ReadoutCard
@@ -488,7 +488,7 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
               value={Number.isFinite(zin.real) ? formatComplexOhms(zin.real, zin.imag) : '\u2192 \u221E'}
             />
             <ReadoutCard
-              label="Rotation 2\u03B2l"
+              label="Rotation 2βl"
               value={`${(720 * lOverLambda).toFixed(0)}\u00B0`}
             />
           </div>

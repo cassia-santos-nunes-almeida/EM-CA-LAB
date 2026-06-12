@@ -288,9 +288,9 @@ export function LineImpedance() {
             this page survives unchanged. One practical consequence: on a lossy line{' '}
             <MathWrapper formula="|\Gamma(l)| = |\Gamma_L|\,e^{-2\alpha l}" /> <em>does</em>{' '}
             shrink toward the generator &mdash; a long lossy cable looks better-matched than its
-            load. Real coax at 1 GHz loses a few dB per 100 m &mdash; utterly negligible across
-            a 5 cm matching section, which is why the lossless formulas are the everyday working
-            tool. The companion result &mdash; lossy <MathWrapper formula="Z_0" /> &mdash; is
+            load. Real coax at 1 GHz loses a few dB per 100 m for low-loss hardline (closer to
+            20 dB for thin RG-58) &mdash; either way utterly negligible across a 5 cm matching
+            section, which is why the lossless formulas are the everyday working tool. The companion result &mdash; lossy <MathWrapper formula="Z_0" /> &mdash; is
             the collapsible you met in Section {getSectionNumber('transmission-lines')}.
           </p>
         </div>

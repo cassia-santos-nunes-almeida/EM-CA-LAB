@@ -40,9 +40,14 @@ function formatComplexOhms(re: number, im: number): string {
   return `${reSafe.toFixed(1)} ${imSafe >= 0 ? '+' : '−'} j${Math.abs(imSafe).toFixed(1)} Ω`;
 }
 
-/** Snap a tiny phase (numerical dust from full-lap rotations) to exactly 0°. */
+/**
+ * Snap a tiny phase (numerical dust from full-lap rotations) to exactly 0°,
+ * and fold the −180°/+180° seam to +180° so the readout matches the guided
+ * challenge's "∠180°" at l = λ/4 (atan2 dust makes it ≈ −180° otherwise).
+ */
 function snapPhase(phaseDeg: number): number {
-  return Math.abs(phaseDeg) < 0.05 ? 0 : phaseDeg;
+  if (Math.abs(phaseDeg) < 0.05) return 0;
+  return phaseDeg <= -179.95 ? phaseDeg + 360 : phaseDeg;
 }
 
 /** SVG arrowhead polygon points for the tip at (toX, toY) coming from (fromX, fromY). */
