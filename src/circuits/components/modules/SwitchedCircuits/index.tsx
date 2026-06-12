@@ -30,7 +30,7 @@ const CHALLENGE = {
     "A guided run of the Throw the Switch bench (First-Order Recipe tab): start on the worked example's two-position circuit, verify the bench against your pencil digit for digit, then bend each of the three recipe numbers in turn.",
   instructions: [
     'Open the First-Order Recipe tab and commit the Predict-First prediction to reveal the bench. Confirm the four readouts against the worked example: v_C(0⁻) = v_C(0⁺) = 8.00 V, v_C(∞) = 20.0 V, τ = 50.0 ms, i_C jump 0 → 6.00 mA.',
-    'Look at the chart around t = 0: the voltage trace crosses the SWITCH line without a kink, while the dashed current trace breaks vertically from 0 to 6 mA. State the two continuity rules this picture is drawing.',
+    'Look at the chart around t = 0: the voltage trace crosses the SWITCH line without a jump — it bends but does not break — while the dashed current trace breaks vertically from 0 to 6 mA. State the two continuity rules this picture is drawing.',
     'Find the dot at t = τ = 50 ms and read v ≈ 15.6 V. Check the 63.2% rule by hand: 8 + 0.632 × (20 − 8) ≈ 15.6 V.',
     "Press 'Discharge (V₂ = 0)'. The final value drops to 0, the current jump flips to 0 → −4.00 mA, and the curve becomes a pure decay v = 8e^(−t/τ). The recipe handles charging and discharging with the same line.",
     "Press 'No precharge (V₁ = 0)'. Now v_C(0⁺) = 0 and the curve is exactly the zero-state response from the Circuit Analysis section — that whole page was this bench with one slider parked at zero.",
@@ -516,7 +516,7 @@ export function SwitchedCircuits() {
       id="switched-rc"
       number={getSectionNumber(SECTION_ID)}
       title="Throw the Switch"
-      objective="Drive the two-position RC switch circuit from the worked example: watch v_C cross t = 0 without a kink while i_C jumps, and read x(0⁺), x(∞) and τ straight off the instrument."
+      objective="Drive the two-position RC switch circuit from the worked example: watch v_C cross t = 0 without a jump while i_C breaks, and read x(0⁺), x(∞) and τ straight off the instrument."
     >
       <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
         Predict first, then run the lab. Commit your prediction to reveal the bench.

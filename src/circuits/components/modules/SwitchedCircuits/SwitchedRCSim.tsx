@@ -86,8 +86,9 @@ function ReadoutCard({ label, value }: ReadoutCardProps) {
  *
  * For t < 0 the capacitor sits in the V₁ – R₁ – (R₂ ∥ C) divider at DC steady
  * state; at t = 0 the switch moves to the V₂ – R₃ series branch. The strip
- * chart shows v_C(t) crossing the boundary without a kink while i_C(t) breaks
- * vertically — the two continuity facts of the section. All transient physics
+ * chart shows v_C(t) crossing the boundary without a jump (it bends but does
+ * not break) while i_C(t) breaks vertically — the two continuity facts of the
+ * section. All transient physics
  * goes through the tested circuitSolver exports (calculateDCDivider,
  * switchedRCTau, switchedRCCurrentJump, switchedFirstOrder); the component
  * adds only unit conversions.
@@ -103,6 +104,10 @@ export function SwitchedRCSim({ className }: SwitchedRCSimProps) {
     grid: isDark ? '#334155' : '#e2e8f0',
     text: isDark ? '#cbd5e1' : '#475569',
     legend: isDark ? '#e2e8f0' : '#334155',
+    // SWITCH boundary annotation — dark-aware slate (WalkTheLineSim precedent).
+    annotation: isDark ? '#94a3b8' : '#64748b',
+    // τ-dot halo knocks the trace out around the marker: match the card bg.
+    dotHalo: isDark ? '#1e293b' : '#ffffff',
   };
 
   /* ── Derived quantities + strip-chart samples ─────────────────── */
@@ -236,9 +241,9 @@ export function SwitchedRCSim({ className }: SwitchedRCSimProps) {
                 <ReferenceLine
                   yAxisId="left"
                   x={0}
-                  stroke="#64748b"
+                  stroke={chartColors.annotation}
                   strokeWidth={1.5}
-                  label={{ value: 'SWITCH', position: 'top', fontSize: 10, fill: '#64748b', fontWeight: 600 }}
+                  label={{ value: 'SWITCH', position: 'top', fontSize: 10, fill: chartColors.text, fontWeight: 600 }}
                 />
                 <ReferenceLine yAxisId="left" y={vInf} stroke="#3b82f6" strokeDasharray="4 4" strokeOpacity={0.5} />
                 <ReferenceDot
@@ -247,7 +252,7 @@ export function SwitchedRCSim({ className }: SwitchedRCSimProps) {
                   y={vAtTau}
                   r={4}
                   fill="#16a34a"
-                  stroke="#ffffff"
+                  stroke={chartColors.dotHalo}
                   label={{
                     value: '1 τ — 63.2 % of the gap',
                     position: vInf >= v0 ? 'bottom' : 'top',

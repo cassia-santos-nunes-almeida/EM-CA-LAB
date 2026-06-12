@@ -67,6 +67,38 @@ describe('SwitchedCircuits page', () => {
     expect(screen.getByText('0 → 3.00 mA')).toBeInTheDocument();
   });
 
+  it('applies the Discharge preset: aria-pressed moves, final value 0.0 V, jump 0 → −4.00 mA', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<SwitchedCircuits />, '/switched-circuits');
+    await user.click(screen.getByRole('tab', { name: RECIPE_TAB }));
+    await passPredictionGate(user, GATE_CORRECT);
+    const worked = screen.getByRole('button', { name: 'Worked example' });
+    const discharge = screen.getByRole('button', { name: 'Discharge (V₂ = 0)' });
+    expect(worked).toHaveAttribute('aria-pressed', 'true');
+    expect(discharge).toHaveAttribute('aria-pressed', 'false');
+    await user.click(discharge);
+    expect(discharge).toHaveAttribute('aria-pressed', 'true');
+    expect(worked).toHaveAttribute('aria-pressed', 'false');
+    // v_C(∞) readout drops to 0 and the current jump flips sign (U+2212 minus).
+    expect(screen.getByText('0.0 V')).toBeInTheDocument();
+    expect(screen.getByText('0 → −4.00 mA')).toBeInTheDocument();
+    // v_C(0⁺) is untouched by the preset — still the divider's 8 V.
+    expect(screen.getByText('8.00 V')).toBeInTheDocument();
+  });
+
+  it("surfaces the inductive-kick exercise's progressive hints", async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<SwitchedCircuits />, '/switched-circuits');
+    await user.click(screen.getByRole('tab', { name: RECIPE_TAB }));
+    // The recipe tab has two hint sources (CC-2 and the YourTurnPanel); click both.
+    for (const btn of screen.getAllByRole('button', { name: 'Need a hint?' })) {
+      await user.click(btn);
+    }
+    expect(
+      screen.getByText('At DC an inductor is a short — which resistor does it bypass before the switch opens?'),
+    ).toBeInTheDocument();
+  });
+
   it('keeps the bench unlocked after tabbing away and back (lifted gate state)', async () => {
     const user = userEvent.setup();
     renderWithRouter(<SwitchedCircuits />, '/switched-circuits');
