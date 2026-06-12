@@ -328,7 +328,7 @@ export function LumpedDistributed() {
 
       {/* ── Your Turn: compute v and Z₀ ──────────────────────────── */}
       <YourTurnPanel
-        scenario="A coaxial cable has per-unit-length inductance L′ = 0.25 µH/m and per-unit-length capacitance C′ = 100 pF/m."
+        scenario="A coaxial cable has per-unit-length inductance L′ = 0.25 μH/m and per-unit-length capacitance C′ = 100 pF/m."
         question="What is the wave speed v and characteristic impedance Z₀?"
         options={[
           {

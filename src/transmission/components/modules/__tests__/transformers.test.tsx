@@ -47,6 +47,12 @@ const flybackQ = /snap a mechanical switch open/i;
 /** Answer the flyback gate correctly and continue past it (Theory tab). */
 async function passFlybackGate(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByText('≈10 000 V — a high-voltage spike'));
+  // Correctness oracle: PredictionGate passes on ANY committed answer, so the
+  // blocking/reveal assertions alone cannot catch a stale getCorrectAnswer().
+  // Pin that 'spark' is actually graded correct before continuing — otherwise
+  // a drifted option id would mark every right prediction "Not quite" and
+  // corrupt predictionGatesCorrect stats with the suite still green.
+  expect(await screen.findByText('Correct!')).toBeInTheDocument();
   await user.click(screen.getByText('Continue'));
 }
 

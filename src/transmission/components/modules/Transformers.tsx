@@ -107,8 +107,12 @@ export function Transformers() {
         </p>
 
         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          Recall from the Faraday's Law section ({getSectionNumber('faraday')}) that a coil's
-          self-inductance is flux linkage per ampere, <MathWrapper formula="L = N\Phi/i" />.
+          Start from the most fundamental statement of self-inductance: a coil's L is its flux
+          linkage per ampere, <MathWrapper formula="L = N\Phi/i" />. The geometric formulas
+          you have already met — <MathWrapper formula="L = \mu N^2 A/l" /> in section{' '}
+          {getSectionNumber('component-physics')} and <MathWrapper formula="L = N^2/\mathcal{R}" />{' '}
+          in section {getSectionNumber('magnetic-circuits')} — are exactly this quantity
+          evaluated for specific geometries.
           Now send current <MathWrapper formula="i_1" /> through coil 1. Some of its flux,{' '}
           <MathWrapper formula="\Phi_{21}" />, threads each of coil 2's{' '}
           <MathWrapper formula="N_2" /> turns. The <strong>mutual inductance</strong> is coil
@@ -226,15 +230,16 @@ export function Transformers() {
         </div>
 
         {/* Plausibility callout */}
-        <div className="rounded-lg p-4 border-l-4 border-sky-500 bg-sky-50 dark:bg-sky-900/20">
-          <p className="text-xs font-semibold text-sky-700 dark:text-sky-400 uppercase tracking-wide mb-1">
+        <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+          <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
             Does this make sense?
           </p>
           <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
             Order of magnitude: air-core, centimetre-scale, hundreds of turns → tens-to-hundreds
             of μH is the right ballpark for M (the sim's iron-core-flavoured mH values are
-            10–100× larger because μᵣ ≫ 1). A henry of mutual inductance in air would need a
-            coil the size of a room.
+            10–100× larger because μᵣ ≫ 1). A full henry of mutual inductance in air takes
+            thousands of turns on a multilayer former — a coil you would need both hands to
+            lift. Iron cores buy the mH–H range cheaply because μᵣ does the winding's work.
           </p>
         </div>
       </section>
@@ -498,7 +503,7 @@ export function Transformers() {
         />
 
         <PredictionGate
-          question="The same pair (M = 50 mH) carries a steady primary current of 2 A. You snap a mechanical switch open, collapsing i₁ from 2 A to zero in about 10 µs. What appears across the open secondary at that instant?"
+          question="The same pair (M = 50 mH) carries a steady primary current of 2 A. You snap a mechanical switch open, collapsing i₁ from 2 A to zero in about 10 μs. What appears across the open secondary at that instant?"
           options={[
             { id: 'zero', label: '≈0 V — the current is gone, so the voltage is gone' },
             { id: 'ramp', label: '25 V — same as the slow ramp' },
@@ -748,6 +753,7 @@ export function Transformers() {
       <YourTurnPanel
         scenario="You have two coils in a sealed module — no geometry visible, no datasheet. You drive the primary with a current ramp of 200 A/s and measure a steady 30 mV on the open-circuited secondary."
         question="What is the mutual inductance M of the pair?"
+        hints={['Rearrange v₂ = M di₁/dt for M.']}
         options={[
           {
             text: '0.15 mH (150 μH)',
