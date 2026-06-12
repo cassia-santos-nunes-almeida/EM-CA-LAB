@@ -114,4 +114,25 @@ describe('CircuitTheorems page', () => {
     await passPredictionGate(user, 'R_L = R_th = 2 Ω');
     expect(screen.getByText('18 W — the winner')).toBeInTheDocument();
   });
+
+  it('renders the ungated Sanity-Check Triad anchor with its TOC entry', () => {
+    renderWithRouter(<CircuitTheorems />, '/circuit-theorems');
+    expect(screen.getByRole('heading', { level: 2, name: /The Sanity-Check Triad/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'The Sanity-Check Triad' })).toHaveAttribute('href', '#sanity');
+    // All three test cards are visible without passing any gate
+    expect(screen.getByText('Units')).toBeInTheDocument();
+    expect(screen.getByText('Limiting cases')).toBeInTheDocument();
+    expect(screen.getByText('Magnitude & bounds')).toBeInTheDocument();
+  });
+
+  it('rejects the 6 A report via the bounds test in the critique concept check', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<CircuitTheorems />, '/circuit-theorems');
+    // Critique question is ungated
+    expect(screen.getByText(/reports i_L = 6 A/)).toBeInTheDocument();
+    // Pick the bounds option (names the short-circuit current as the ceiling)
+    await user.click(screen.getByText(/the ceiling for ANY load/));
+    // Its explanation reveals the bounds reasoning
+    expect(screen.getByText(/dead short across the port/)).toBeInTheDocument();
+  });
 });
