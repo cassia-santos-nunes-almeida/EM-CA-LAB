@@ -150,6 +150,19 @@ export function TimeDomain() {
         <ResponseComparisons />
       </CollapsibleSection>
 
+      <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+        <p className="text-xs font-semibold font-mono text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+          Up Next
+        </p>
+        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          Every solution on this page assumed <MathWrapper formula="v_C(0) = 0" /> or{' '}
+          <MathWrapper formula="i(0) = 0" />. That is an assumption, not a law: real circuits
+          get switched with charge and current already stored. Finding the true starting values
+          from the pre-switch DC state — and solving from there with a three-number recipe — is
+          Section {getSectionNumber('switched-circuits')}: Switched Circuits &amp; Initial Conditions.
+        </p>
+      </div>
+
       <section id="systematic-analysis" className="scroll-mt-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
           Equation-Writing Practice (KVL &amp; KCL)
