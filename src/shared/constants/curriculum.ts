@@ -32,7 +32,7 @@ export interface CourseSection {
   domain: Domain;
   /**
    * Concept-check target used to derive the sidebar "complete" badge. Only the
-   * EM-fundamentals sections were authored with a fixed target (3–5); everything
+   * EM-fundamentals sections were authored with a fixed target (3); everything
    * else completes on first visit (0). See `isModuleComplete` in the store.
    */
   expectedChecks: number;
@@ -75,8 +75,8 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'transformers', title: 'Transformers', route: '/transformers', domain: 'transmission', expectedChecks: 0 },
 
   // ── Part 4 · Maxwell, Waves, Radiation & Antennas (em + antennas code) ───
-  { id: 'maxwell', title: "Maxwell's Equations", route: '/maxwell', domain: 'em', expectedChecks: 4 },
-  { id: 'em-wave', title: 'EM Waves', route: '/em-wave', domain: 'em', expectedChecks: 5 },
+  { id: 'maxwell', title: "Maxwell's Equations", route: '/maxwell', domain: 'em', expectedChecks: 3 },
+  { id: 'em-wave', title: 'EM Waves', route: '/em-wave', domain: 'em', expectedChecks: 3 },
   { id: 'polarization', title: 'Polarization', route: '/polarization', domain: 'em', expectedChecks: 3 },
   { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0 },
 
