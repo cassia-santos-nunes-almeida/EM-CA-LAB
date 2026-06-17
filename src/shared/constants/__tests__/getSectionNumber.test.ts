@@ -13,7 +13,8 @@ describe('getSectionNumber', () => {
     expect(getSectionNumber('transformers')).toBe('3.4');
     expect(getSectionNumber('antennas')).toBe('4.4');
     expect(getSectionNumber('transmission-lines')).toBe('5.2');
-    expect(getSectionNumber('transients')).toBe('5.3');
+    expect(getSectionNumber('line-impedance')).toBe('5.3');
+    expect(getSectionNumber('transients')).toBe('5.4');
   });
 
   it('returns empty string for an unknown id', () => {

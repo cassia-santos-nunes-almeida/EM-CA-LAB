@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -65,6 +65,27 @@ describe('TransmissionLines — chaptered split-pane labs', () => {
 
     expect(screen.getByLabelText(simLabel)).toBeInTheDocument();
     expect(screen.queryByText(predictQ)).not.toBeInTheDocument();
+  });
+
+  it('Smith tab: UP NEXT hook renders and the walk slider drives the Z_in-at-l readout', async () => {
+    const user = userEvent.setup();
+    renderTL();
+
+    await user.click(screen.getByRole('tab', { name: /Smith Chart/i }));
+
+    // The forward hook to the line-impedance section replaced the old collapsible.
+    expect(screen.getByText(/up next/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Matching Network Design/i)).not.toBeInTheDocument();
+
+    // Pass the smith gate (existing flow).
+    await user.click(screen.getByText('Far-left point (Γ = −1)'));
+    await user.click(screen.getByText('Continue'));
+
+    // The observation-distance slider defaults to l = 0; drive it to λ/4 and
+    // read Z_in = Z₀²/Z_L = 2500/100 = 25 Ω (sim defaults ZLr = 100, Z0 = 50).
+    const slider = screen.getByRole('slider', { name: /observation distance/i });
+    fireEvent.change(slider, { target: { value: '0.25' } });
+    expect(screen.getByText('25.0 + j0.0 Ω')).toBeInTheDocument();
   });
 
   it('renders the section heading and three flask-marked lab tabs', () => {

@@ -248,6 +248,85 @@ export function calculateHPBW(dipoleLengthFraction: number): number {
   return (theta2 - theta1) * (180 / Math.PI);
 }
 
+/** Phase constant β = 2π/λ in rad/m. Returns NaN for wavelength ≤ 0. */
+export function calculatePhaseConstant(wavelength: number): number {
+  if (wavelength <= 0) return NaN;
+  return (2 * Math.PI) / wavelength;
+}
+
+/** Electrical length in degrees from l/λ: 360·lOverLambda. */
+export function electricalLengthDegrees(lOverLambda: number): number {
+  return 360 * lOverLambda;
+}
+
+/** Rotate Γ toward the generator: Γ(l) = Γ_L·e^(−j·2·betaL). betaL in RADIANS
+ *  (= 2π·l/λ); the round-trip factor 2 is applied INSIDE. Returns the same
+ *  shape as calculateComplexReflectionCoefficient. */
+export function rotateGamma(
+  gammaReal: number, gammaImag: number, betaL: number,
+): { real: number; imag: number; magnitude: number; phaseDeg: number } {
+  const angle = -2 * betaL;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const real = gammaReal * cos - gammaImag * sin;
+  const imag = gammaReal * sin + gammaImag * cos;
+  const magnitude = Math.sqrt(real * real + imag * imag);
+  const phaseDeg = Math.atan2(imag, real) * (180 / Math.PI);
+  return { real, imag, magnitude, phaseDeg };
+}
+
+/** Invert Γ → impedance: Z = Z0·(1+Γ)/(1−Γ). Returns { real: Infinity, imag: 0 }
+ *  when |1−Γ|² < 1e-12 (e.g. a short seen through λ/4). NOTE: deliberately NOT
+ *  wired into SmithChartSim's private _gammaToZL, whose 500-clamp is load-bearing
+ *  for click-to-place. */
+export function gammaToImpedance(
+  gammaReal: number, gammaImag: number, Z0: number,
+): { real: number; imag: number } {
+  const numR = 1 + gammaReal;
+  const numI = gammaImag;
+  const denR = 1 - gammaReal;
+  const denI = -gammaImag;
+  const denMagSq = denR * denR + denI * denI;
+  if (denMagSq < 1e-12) return { real: Infinity, imag: 0 };
+  const real = Z0 * (numR * denR + numI * denI) / denMagSq;
+  const imag = Z0 * (numI * denR - numR * denI) / denMagSq;
+  return { real, imag };
+}
+
+/** Z_in of a lossless line: Γ_L → rotate by −2·betaL → invert. betaL in RADIANS.
+ *  ZLr = Infinity (open load) handled explicitly (Γ_L = 1+j0), since
+ *  calculateComplexReflectionCoefficient NaNs on Infinity. Named to avoid the
+ *  transformer's calculateReflectedImpedance. */
+export function calculateInputImpedance(
+  ZLr: number, ZLi: number, Z0: number, betaL: number,
+): { real: number; imag: number } {
+  const gammaL = !isFinite(ZLr)
+    ? { real: 1, imag: 0 }
+    : calculateComplexReflectionCoefficient(ZLr, ZLi, Z0);
+  const gammaIn = rotateGamma(gammaL.real, gammaL.imag, betaL);
+  return gammaToImpedance(gammaIn.real, gammaIn.imag, Z0);
+}
+
+/** Stub input reactance in ohms: 'short' → Z0·tan(betaL), 'open' → −Z0·cot(betaL).
+ *  Pole guards: short with |cos βl| < 1e-9 → Infinity; open with |sin βl| < 1e-9 →
+ *  (cos βl > 0 ? -Infinity : Infinity). */
+export function calculateStubReactance(Z0: number, betaL: number, kind: 'short' | 'open'): number {
+  const cos = Math.cos(betaL);
+  const sin = Math.sin(betaL);
+  if (kind === 'short') {
+    if (Math.abs(cos) < 1e-9) return Infinity;
+    return Z0 * (sin / cos);
+  }
+  if (Math.abs(sin) < 1e-9) return cos > 0 ? -Infinity : Infinity;
+  return -Z0 * (cos / sin);
+}
+
+/** Quarter-wave transformer impedance √(Z0·RL); NaN for RL ≤ 0 or Z0 ≤ 0. */
+export function quarterWaveTransformerImpedance(Z0: number, RL: number): number {
+  if (Z0 <= 0 || RL <= 0) return NaN;
+  return Math.sqrt(Z0 * RL);
+}
+
 /** Calculate complex reflection coefficient for complex load impedance. */
 export function calculateComplexReflectionCoefficient(
   ZLr: number, ZLi: number, Z0: number

@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import {
   calculateComplexReflectionCoefficient,
   calculateVSWR,
+  gammaToImpedance,
+  rotateGamma,
 } from '@transmission/utils/transmissionMath';
 import { useCanvasSetup } from '@transmission/hooks/useCanvasSetup';
 import { useAnimationFrame } from '@transmission/hooks/useAnimationFrame';
+import { getSectionNumber } from '@shared/constants/curriculum';
 
 /** Props for the SmithChartSim component. */
 interface SmithChartSimProps {
@@ -47,6 +50,13 @@ function _gammaToZL(gr: number, gi: number, z0: number) {
   return { real: zlr, imag: zli };
 }
 
+/** Format a complex impedance as "26.9 + j11.9 Ω" (numerical dust snapped to 0). */
+function formatComplexOhms(re: number, im: number): string {
+  const reSafe = Math.abs(re) < 0.05 ? 0 : re;
+  const imSafe = Math.abs(im) < 0.05 ? 0 : im;
+  return `${reSafe.toFixed(1)} ${imSafe >= 0 ? '+' : '−'} j${Math.abs(imSafe).toFixed(1)} Ω`;
+}
+
 /** Draw an arrowhead at the end of a line. */
 function _drawArrowhead(
   ctx: CanvasRenderingContext2D,
@@ -79,6 +89,9 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
   const [ZLi, setZLi] = useState(0);
   /** Characteristic impedance (25 to 100 ohms). */
   const [Z0, setZ0] = useState(50);
+  /** Observation distance from the load in wavelengths (0 … 0.5λ). At the
+   *  default 0 the chart renders exactly as before this control existed. */
+  const [lOverLambda, setLOverLambda] = useState(0);
   /** Whether the matching stub section is expanded. */
   const [showMatching, setShowMatching] = useState(false);
   /** Whether the user is dragging on the VSWR circle. */
@@ -90,6 +103,10 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
 
   const gamma = calculateComplexReflectionCoefficient(ZLr, ZLi, Z0);
   const vswr = calculateVSWR(gamma.magnitude);
+
+  // Γ and Z_in seen at the observation distance (Γ rotated by −2βl, βl = 2π·l/λ).
+  const gammaIn = rotateGamma(gamma.real, gamma.imag, 2 * Math.PI * lOverLambda);
+  const zin = gammaToImpedance(gammaIn.real, gammaIn.imag, Z0);
 
   // Normalized impedance
   const zr = ZLr / Z0;
@@ -104,15 +121,15 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   /** Ref holding derived values for the canvas render function. */
-  const stateRef = useRef({ gamma, zr, zi });
-  useEffect(() => { stateRef.current = { gamma, zr, zi }; }, [gamma, zr, zi]);
+  const stateRef = useRef({ gamma, zr, zi, gammaIn, lOverLambda });
+  useEffect(() => { stateRef.current = { gamma, zr, zi, gammaIn, lOverLambda }; }, [gamma, zr, zi, gammaIn, lOverLambda]);
 
   /** Repaint each frame so live params and dark-mode toggles are reflected. */
   useAnimationFrame(() => {
       const frame = prepareFrame();
       if (!frame) return;
       const { ctx, width: w, height: h } = frame;
-      const { gamma: g, zr: znr, zi: zni } = stateRef.current;
+      const { gamma: g, zr: znr, zi: zni, gammaIn: gIn, lOverLambda: walkL } = stateRef.current;
       const dark = isDark();
 
       ctx.clearRect(0, 0, w, h);
@@ -260,6 +277,40 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
         pt.y + labelOffY,
       );
 
+      // ── Observation-distance walk: Γ(l) marker + clockwise arc ──
+      // Drawn only when l > 0 so the default render is pixel-identical to the
+      // pre-upgrade chart. The arc rides the existing dashed VSWR circle: from
+      // ∠Γ_L it sweeps 2βl clockwise ON THE CHART. Canvas y points down, so a
+      // chart angle φ maps to canvas angle −φ and the clockwise sweep is the
+      // canvas-positive direction.
+      if (walkL > 0 && g.magnitude > 0.01) {
+        const sweep = 4 * Math.PI * walkL; // 2βl, βl = 2π·l/λ (≤ 2π at l = 0.5)
+        const startCanvasAngle = -Math.atan2(g.imag, g.real);
+        const endCanvasAngle = startCanvasAngle + sweep;
+        const arcRadius = g.magnitude * chartRadius;
+
+        ctx.strokeStyle = dark ? '#fbbf24' : '#d97706';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, arcRadius, startCanvasAngle, endCanvasAngle, false);
+        ctx.stroke();
+
+        // Arrowhead at the arc end, oriented along the sweep direction.
+        const delta = Math.min(0.12, sweep / 2);
+        const prevX = cx + arcRadius * Math.cos(endCanvasAngle - delta);
+        const prevY = cy + arcRadius * Math.sin(endCanvasAngle - delta);
+        const endPt = _gammaToPixel(gIn.real, gIn.imag, cx, cy, chartRadius);
+        ctx.fillStyle = dark ? '#fbbf24' : '#d97706';
+        _drawArrowhead(ctx, prevX, prevY, endPt.x, endPt.y, 9);
+
+        // Hollow circle marker at Γ(l).
+        ctx.strokeStyle = dark ? '#fbbf24' : '#d97706';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(endPt.x, endPt.y, 6, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+
   });
 
   /* ── Click-to-place and drag interaction ──────────────────────── */
@@ -339,7 +390,7 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
         {/* Controls + Readouts */}
         <div className="p-5 border-t border-slate-200 dark:border-slate-700 space-y-5">
           {/* Sliders */}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* ZLr slider */}
             <div className="block space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300" id="zlr-label">
@@ -390,16 +441,38 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
                 aria-labelledby="z0-label"
               />
             </div>
+
+            {/* Observation-distance slider */}
+            <div className="block space-y-1">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300" id="smith-walk-label">
+                Observation distance l = {lOverLambda.toFixed(3)} &lambda; (toward the generator)
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={0.5}
+                step={0.005}
+                value={lOverLambda}
+                onChange={(e) => setLOverLambda(parseFloat(e.target.value))}
+                className="w-full accent-engineering-blue-600"
+                aria-labelledby="smith-walk-label"
+              />
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                Walking toward the generator rotates &Gamma; clockwise at constant |&Gamma;|
+                &mdash; Section {getSectionNumber('line-impedance')} turns this rotation into
+                Z_in(l).
+              </p>
+            </div>
           </div>
 
           {/* Computed values */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <ReadoutCard
-              label="|\u0393| (magnitude)"
+              label="|Γ| (magnitude)"
               value={gamma.magnitude.toFixed(4)}
             />
             <ReadoutCard
-              label="\u2220\u0393 (phase)"
+              label="∠Γ (phase)"
               value={`${gamma.phaseDeg.toFixed(1)}\u00B0`}
             />
             <ReadoutCard
@@ -407,8 +480,16 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
               value={isFinite(vswr) ? vswr.toFixed(3) : '\u221E'}
             />
             <ReadoutCard
-              label="Normalized z = Z\u2097/Z\u2080"
+              label="Normalized z = Zₗ/Z₀"
               value={`${zr.toFixed(3)} ${zi >= 0 ? '+' : '\u2212'} j${Math.abs(zi).toFixed(3)}`}
+            />
+            <ReadoutCard
+              label="Z_in at l"
+              value={Number.isFinite(zin.real) ? formatComplexOhms(zin.real, zin.imag) : '\u2192 \u221E'}
+            />
+            <ReadoutCard
+              label="Rotation 2βl"
+              value={`${(720 * lOverLambda).toFixed(0)}\u00B0`}
             />
           </div>
 

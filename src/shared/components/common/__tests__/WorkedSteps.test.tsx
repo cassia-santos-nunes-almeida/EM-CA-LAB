@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
-import { WorkedSteps } from '@circuits/components/common/WorkedSteps';
+import { WorkedSteps } from '@shared/components/common/WorkedSteps';
 
 const steps = [
   { title: 'Step 1 — Set up', body: <p>First body</p> },

@@ -11,7 +11,7 @@ import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { LabStation } from '@shared/components/common/LabStation';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
-import { WorkedSteps } from '@circuits/components/common/WorkedSteps';
+import { WorkedSteps } from '@shared/components/common/WorkedSteps';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { BridgeDiagram } from './BridgeDiagram';

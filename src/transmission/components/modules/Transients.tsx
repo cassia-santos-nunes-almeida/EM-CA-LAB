@@ -15,7 +15,7 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { BounceDiagram } from '@transmission/components/simulations/BounceDiagram';
 
 /**
- * Section 5.3: Transients on Transmission Lines.
+ * Transients on Transmission Lines page.
  *
  * Covers step response, bounce diagrams, and the bridge to antennas.
  * Includes an interactive bounce diagram simulation, prediction gates,
