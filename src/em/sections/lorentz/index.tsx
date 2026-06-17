@@ -14,9 +14,11 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { sliderToSpeedKms, pxPerSecToKms, cyclotronRadiusMm, forceAttoN } from './unitMapping';
 
 interface ParticleState {
   x: number;
@@ -90,11 +92,11 @@ const Q_SELECTOR: QuizQuestion = {
 
 const CHALLENGE: Challenge = {
   title: `Cyclotron Radius Investigation`,
-  description: `Send a charged particle circling in a uniform magnetic field and discover how the cyclotron radius depends on speed, field strength, mass, and charge — verifying r = mv / (|q|B) using the simulation's live readouts and on-screen vectors.`,
+  description: `Send a charged particle circling in a uniform magnetic field and discover how the cyclotron radius depends on speed, field strength, mass, and charge — verifying r = mv / (|q|B) using the simulation's live readouts and on-screen vectors — now in real ion units (u, e, mT, km/s, mm).`,
   instructions: [
-    `Set the 'Velocity v' slider to a clear positive value (e.g. 50) and the 'B-field' slider positive (the canvas label should read 'External B: Into Page'), then click 'Respawn' so the particle launches into a steady circular orbit. Hover the mouse over the canvas (without dragging) to reveal the readout box and note the |v| and r_c (cyclotron radius) values.`,
-    `Without changing anything else, drag the 'Velocity v' slider to roughly double its value and click 'Respawn'. Hover again and confirm r_c grows in proportion to |v| — doubling the speed roughly doubles the radius.`,
-    `Return 'Velocity v' to its original value and Respawn. Now increase the magnitude of the 'B-field' slider (push it further from 0). Hover and confirm r_c shrinks: a stronger field tightens the orbit (r_c is inversely proportional to B).`,
+    `Set the 'Launch speed' slider to a clear positive value (the default ≈ +12 km/s) and the 'B-field' slider positive (the canvas label should read 'External B: Into Page'), then click 'Respawn' so the particle launches into a steady circular orbit. Hover the mouse over the canvas (without dragging) to reveal the readout box and note the |v| and r_c (cyclotron radius) values.`,
+    `Without changing anything else, drag the 'Launch speed' slider to roughly double its value and click 'Respawn'. Hover again and confirm r_c grows in proportion to |v| — doubling the speed roughly doubles the radius.`,
+    `Return 'Launch speed' to its original value and Respawn. Now increase the magnitude of the 'B-field' slider (push it further from 0). Hover and confirm r_c shrinks: a stronger field tightens the orbit (r_c is inversely proportional to B).`,
     `Raise the 'Mass m' slider toward 5 and Respawn. Hover to see r_c expand — heavier particles are harder to deflect — matching the m in r = mv / (|q|B). Cross-check your numbers against the live 'Computed r' line in the Lorentz Force equation box.`,
     `Watch the green 'v' arrow and the 'F' force arrow on the particle: confirm F is always perpendicular to v (it points toward the orbit centre), so the magnetic force does no work and the speed stays constant — only the direction turns.`,
     `Flip the 'Charge q' slider to a negative value and Respawn; observe that the orbit circulates the opposite way (the canvas readout still shows the same r_c, since r depends on |q|). Conclude how velocity, field, mass, and charge each shape the cyclotron orbit.`,
@@ -341,31 +343,33 @@ export function LorentzSection() {
           ctx.fill();
         }
 
-        // Drag hints
+        // Drag hints + SI scale legend (unit 2G: the mapping is a pure relabel)
         ctx.fillStyle = col.TEXT_MUTED;
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, cvs.height - 10);
+        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, cvs.height - 24);
+        ctx.fillText('Scale: 1 px = 1 mm · ion (q in e, m in u) · ~100,000× slow motion', 10, cvs.height - 10);
 
-        // Hover readout: show speed, |F|, cyclotron radius
+        // Hover readout: speed, |F|, cyclotron radius — in real SI (unit 2G).
+        // r in px IS r in mm by construction (1 px = 1 mm), so the px arithmetic
+        // is kept verbatim and only the unit suffix is added.
         if (hoverPos.current && dragMode === 'none') {
           const speed = Math.hypot(p.vx, p.vy);
           const Beff = Math.abs(bField / 20);
-          const Fmag = Math.abs(charge) * speed * Beff;
           const rCyc = Beff > 0.01 && charge !== 0
-            ? (mass * speed / (Math.abs(charge) * Beff)).toFixed(1)
+            ? `${(mass * speed / (Math.abs(charge) * Beff)).toFixed(1)} mm`
             : '∞';
 
           const lines = [
-            `|v| = ${speed.toFixed(1)}`,
-            `|F| = ${Fmag.toFixed(1)}`,
+            `|v| = ${pxPerSecToKms(speed).toFixed(1)} km/s`,
+            `|F| = ${forceAttoN(Math.abs(charge), pxPerSecToKms(speed), Beff).toFixed(1)} aN`,
             `r_c = ${rCyc}`,
           ];
 
           ctx.font = '10px monospace';
-          const tw = 110;
+          const tw = 130;
           const th = 46;
-          const tx = 10, ty = cvs.height - 65;
+          const tx = 10, ty = cvs.height - 80;
           ctx.fillStyle = isDarkMode ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)';
           ctx.beginPath();
           ctx.roundRect(tx, ty, tw, th, 4);
@@ -435,10 +439,10 @@ export function LorentzSection() {
             </div>
           </div>
           <ControlPanel title="Particle Controls">
-            <Slider label={`Charge q = ${charge} (arb. units)`} value={charge} min={-5} max={5} onChange={setCharge} color="bg-red-600" />
-            <Slider label={`Mass m = ${mass} (arb. units)`} value={mass} min={0.5} max={5} step={0.5} onChange={setMass} color="bg-slate-500" />
-            <Slider label={`Velocity v = ${velocity} (arb.)`} value={velocity} min={-100} max={100} onChange={setVelocity} color="bg-emerald-600" />
-            <Slider label={`B-field = ${(bField / 20).toFixed(1)} (arb.)`} value={bField} min={-100} max={100} onChange={setBField} color="bg-blue-600" />
+            <Slider label={`Charge q = ${charge} e`} value={charge} min={-5} max={5} onChange={setCharge} color="bg-red-600" />
+            <Slider label={`Mass m = ${mass} u`} value={mass} min={0.5} max={5} step={0.5} onChange={setMass} color="bg-slate-500" />
+            <Slider label={`Launch speed = ${velocity >= 0 ? '+' : '−'}${sliderToSpeedKms(velocity).toFixed(1)} km/s`} value={velocity} min={-100} max={100} onChange={setVelocity} color="bg-emerald-600" />
+            <Slider label={`B-field = ${(bField / 20).toFixed(1)} mT`} value={bField} min={-100} max={100} onChange={setBField} color="bg-blue-600" />
             <button
               onClick={handleReset}
               className="w-full mt-4 py-3 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg font-bold text-slate-700 dark:text-slate-200 flex justify-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
@@ -452,6 +456,17 @@ export function LorentzSection() {
           </ControlPanel>
         </div>
       </PredictionGate>
+
+      {/* ── Plausibility callout (unit 2G): the magnitude judgment the SI units enable ── */}
+      <PlausibilityCallout>
+        Hover the orbit at the default settings:{' '}
+        <MathWrapper formula="|F| \approx 4.8\ \text{aN}" /> — five billionths of a billionth
+        of a newton. How can a force that feeble bend the beam into a tight 100 mm circle?
+        Judge a force against the inertia it acts on:{' '}
+        <MathWrapper formula="a = F/m \approx \frac{4.8\times10^{-18}}{3.3\times10^{-27}} \approx 1.5\times10^{9}\ \text{m/s}^2" />{' '}
+        — about 150 million g. (And gravity on this ion is ~3×10⁻²⁶ N, eight orders below
+        the magnetic force — which is why the sim honestly ignores it.)
+      </PlausibilityCallout>
 
       {/* Check: circular motion (after observing the v × B trajectory) */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
@@ -482,7 +497,7 @@ export function LorentzSection() {
             { label: 'Radius', math: 'r = \\frac{mv}{|q|B}', color: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'On a wire', math: '\\vec{F} = I\\,\\vec{L} \\times \\vec{B}', color: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'Computed r', math: charge !== 0 && bField !== 0
-              ? `r = \\frac{${mass} \\times ${Math.abs(velocity)}}{${Math.abs(charge)} \\times ${Math.abs(bField / 20).toFixed(1)}} = ${(mass * Math.abs(velocity) / (Math.abs(charge) * Math.abs(bField / 20 || 1))).toFixed(1)} \\text{ (arb.)}`
+              ? `r = \\frac{${mass}\\,\\text{u} \\times ${sliderToSpeedKms(velocity).toFixed(1)}\\,\\text{km/s}}{${Math.abs(charge)}\\,e \\times ${Math.abs(bField / 20).toFixed(1)}\\,\\text{mT}} = ${cyclotronRadiusMm(mass, Math.abs(charge), Math.abs(bField / 20), sliderToSpeedKms(velocity)).toFixed(0)}\\ \\text{mm}`
               : '\\text{—}' },
           ]}
         />

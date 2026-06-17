@@ -12,6 +12,7 @@ import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -412,6 +413,20 @@ export function GaussSection() {
           sourceUrl="https://commons.wikimedia.org/wiki/File:Faraday_Cage.JPG"
         />
         <EquationBox title={`Gauss's Law for ${mode === 'ELECTRIC' ? 'Electric Fields' : 'Magnetism'}`} equations={equations} />
+
+        {/* ── Plausibility callout (unit 2G): the three-pass audit on the Result line ── */}
+        <PlausibilityCallout>
+          The Result line reports ≈ <strong>5.6×10⁵ N·m²/C</strong> of flux from just 5 μC.
+          Three quick passes: <strong>units</strong> — N·m²/C = V·m, so flux is
+          “volts times metres”, not a field strength; <strong>magnitude</strong> — at
+          r = 1 m this charge&apos;s own field is{' '}
+          <MathWrapper formula="E = kQ/r^2 \approx 45\ \text{kV/m}" />, just 1.5 % of
+          air&apos;s 3 MV/m breakdown, so the setup is buildable;{' '}
+          <strong>limiting case</strong> — double r and E falls 4× exactly as the area
+          grows 4×. That last one is the gate question you already answered:
+          r-independence is the sanity test <em>built into</em> Gauss&apos;s law.
+        </PlausibilityCallout>
+
         {(() => {
           const Q = charge * 1e-6;
           const flux = mode === 'ELECTRIC' ? Q / EPSILON_0 : 0;

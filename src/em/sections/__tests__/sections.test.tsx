@@ -31,30 +31,55 @@ describe('Section smoke tests', () => {
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
     // The guided-challenge capstone is wired in at the end of the section.
     expect(screen.getByText('Flux Through Any Surface')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('CoulombSection renders', async () => {
     const { CoulombSection } = await import('@em/sections/coulomb/index');
     renderSection(CoulombSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('AmpereSection renders', async () => {
     const { AmpereSection } = await import('@em/sections/ampere/index');
     renderSection(AmpereSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gates (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('LorentzSection renders', async () => {
     const { LorentzSection } = await import('@em/sections/lorentz/index');
     renderSection(LorentzSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gate (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
+    // Unit 2G: the 'Computed r' EquationBox row reads in real SI — under the katex
+    // mock formulas render as raw LaTeX, so the mm unit substring is stable.
+    expect(
+      screen.getAllByText((content) => content.includes(String.raw`\text{mm}`)).length
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('FaradaySection renders', async () => {
     const { FaradaySection } = await import('@em/sections/faraday/index');
     renderSection(FaradaySection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // Unit 2G: the plausibility callout sits OUTSIDE the gates (ungated by design).
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
+    // Unit 2G: the critique exercise (Q_MISSING_AREA) is ungated too.
+    expect(screen.getByText(/reports a peak EMF of 31\.4 V/)).toBeInTheDocument();
+    // Unit 2G: the equation box reads in real SI — under the katex mock formulas
+    // render as raw LaTeX, so the Hz and mV unit substrings are stable.
+    expect(
+      screen.getAllByText((content) => content.includes(String.raw`\text{Hz}`)).length
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText((content) => content.includes(String.raw`\text{mV}`)).length
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('LenzSection renders', async () => {
