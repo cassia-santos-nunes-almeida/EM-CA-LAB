@@ -477,11 +477,11 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
           {/* Numerical readouts */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <ReadoutCard
-              label="Reflection coeff. \u0393"
+              label="Reflection coeff. Γ"
               value={gamma.toFixed(4)}
             />
             <ReadoutCard
-              label="|\u0393| magnitude"
+              label="|Γ| magnitude"
               value={gammaMag.toFixed(4)}
             />
             <ReadoutCard
@@ -489,7 +489,7 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
               value={isFinite(vswr) ? vswr.toFixed(2) : '\u221E'}
             />
             <ReadoutCard
-              label="Wavelength \u03BB"
+              label="Wavelength λ"
               value={formatWavelength(wavelength)}
             />
           </div>

@@ -129,6 +129,11 @@ export function TransmissionLines() {
             <MathWrapper formula="\omega C' \gg G'" />, the lossy formula reduces to the
             lossless case above.
           </p>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            How a lossy line <em>propagates</em> &mdash; the complex constant{' '}
+            <MathWrapper formula="\gamma = \alpha + j\beta" /> &mdash; appears in Section{' '}
+            {getSectionNumber('line-impedance')}.
+          </p>
         </div>
       </CollapsibleSection>
     </section>
@@ -281,22 +286,20 @@ export function TransmissionLines() {
         arcs form the grid. Click anywhere on the chart to place an impedance point.
       </p>
 
-      <CollapsibleSection title="Matching Network Design" variant="inline">
-        <div className="space-y-3 py-2">
-          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-            When <MathWrapper formula="Z_L \neq Z_0" />, a matching network can be inserted to
-            eliminate reflections. On the Smith chart, matching means transforming the load
-            impedance to the center of the chart (<MathWrapper formula="\Gamma = 0" />).
-          </p>
-          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-            Common techniques include <strong>quarter-wave transformers</strong> (a{' '}
-            <MathWrapper formula="\lambda/4" /> section with{' '}
-            <MathWrapper formula="Z_T = \sqrt{Z_0 Z_L}" />) and <strong>stub matching</strong>{' '}
-            (adding a short- or open-circuited transmission line stub at the right point to cancel
-            the reactive part of the impedance).
-          </p>
-        </div>
-      </CollapsibleSection>
+      <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+        <p className="text-xs font-semibold font-mono text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+          Up Next
+        </p>
+        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          When <MathWrapper formula="Z_L \neq Z_0" />, a matching network can transform the load
+          to the centre of this chart (<MathWrapper formula="\Gamma = 0" />). The two classic
+          builds &mdash; the quarter-wave transformer and the stub &mdash; are made of{' '}
+          <em>nothing but line segments</em>. Designing them takes exactly one more idea: how
+          impedance transforms as you move along a line, which on this chart is a clockwise
+          rotation at constant |&Gamma;|. That idea is Section{' '}
+          {getSectionNumber('line-impedance')}: Line Impedance &amp; Matching.
+        </p>
+      </div>
 
       <ConceptCheck
         onComplete={onConcept}
