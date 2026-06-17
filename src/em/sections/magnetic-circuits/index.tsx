@@ -16,9 +16,9 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
+import { solveToroid } from '@em/utils/magneticCircuits';
 import type { Challenge, QuizQuestion } from '@em/types/index';
-
-const MU_0 = 4 * Math.PI * 1e-7;
 
 /** Core material presets with relative permeability. */
 const CORE_MATERIALS = [
@@ -67,11 +67,31 @@ const Q_TRANSFORMER: QuizQuestion = {
   ],
 };
 
+const Q_SERIES_MMF: QuizQuestion = {
+  question:
+    'A toroid is half iron (μᵣ = 5000) and half ferrite (μᵣ = 1000) — equal lengths, equal cross-section, in series. How does the coil’s MMF divide between the two halves?',
+  options: [
+    'Equally — same length, same area',
+    'Iron takes 5× more — higher μᵣ attracts more MMF',
+    'Ferrite takes 5× more — MMF divides in proportion to reluctance',
+    'Ferrite takes 25× more — it goes as the square of the μᵣ ratio',
+  ],
+  correctIndex: 2,
+  explanation:
+    'MMF divides like voltage across series resistors: in proportion to reluctance. With equal l and A, ℛ ∝ 1/μᵣ, so the ferrite half (μᵣ 5× lower) has 5× the reluctance and takes 5× the MMF — 166.7 A·t versus 33.3 A·t of a 200 A·t drive.',
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: 'The same flux Φ threads both halves (series). Each half drops MMF_seg = Φ·ℛ_seg — which half has the larger ℛ?' },
+    { tier: 2, label: 'Procedural hint', content: 'ℛ = l/(μ₀μᵣA) with identical l and A → ℛ_ferrite/ℛ_iron = μᵣ,iron/μᵣ,ferrite = 5000/1000 = 5.' },
+    { tier: 3, label: 'Show worked step', content: 'ℛ_iron = 2.5×10⁴, ℛ_ferrite = 1.25×10⁵ A·t/Wb → drops = 200×(25/150) = 33.3 A·t and 200×(125/150) = 166.7 A·t — option C.' },
+  ],
+};
+
 const CHALLENGE: Challenge = {
   title: `Air-Gap Inductance Explorer`,
   description: `Use the toroid simulation to discover how a small air gap reluctance dominates the magnetic circuit, slashing inductance L and flux density B even though the gap is a tiny fraction of the flux path.`,
   instructions: [
     `Click the 'Iron' core button (the readout should show μᵣ = 5,000), set 'Turns N' to 200 and 'Current I (A)' to 1, and drag the 'Air Gap' slider to 0%. Read the on-canvas L = ... value and write it down as your baseline inductance.`,
+    `Hand-check that baseline before touching anything else: ℛ = l/(μ₀μᵣA) = 0.314/(4π×10⁻⁷ × 5,000 × 0.001) = 5.0×10⁴ A·t/Wb, so L = N²/ℛ = 200²/(5.0×10⁴) = 0.800 H (the canvas prints it as 800.00 mH) and B = NI/(ℛ·A) = 200/(5.0×10⁴ × 0.001) = 4.000 T. The canvas readouts must match your pencil digit for digit — that is this section's whole point.`,
     `Slowly drag the 'Air Gap' slider up to about 5% and watch the L readout. Notice how steeply L falls for such a small gap, and that a second readout 'H_gap' now appears alongside 'H_core' once the gap opens.`,
     `With the gap held near 5%, compare the 'H_core' and 'H_gap' readouts: H_gap should be far larger than H_core. Conclude that almost all the magnetomotive force (MMF = NI) is being 'dropped' across the thin gap, because ℛ_gap = l_gap/(μ₀A) dwarfs ℛ_core.`,
     `Now click the 'Ferrite' core button (μᵣ = 1,000) and repeat the gap sweep from 0% to 5%. Compare how much L drops for ferrite versus iron and conclude which core's inductance is more sensitive to the same gap percentage.`,
@@ -104,26 +124,11 @@ export function MagneticCircuitsSection() {
   const material = CORE_MATERIALS[materialIndex];
   const muR = material.muR;
 
-  // Toroid geometry (physical)
-  const meanRadius = 0.05; // 5 cm
-  const coreArea = 0.001;  // 10 cm² = 0.001 m²
-  const pathLength = 2 * Math.PI * meanRadius;
-  const gapLength = (gapPercent / 100) * pathLength;
-  const coreLength = pathLength - gapLength;
-
-  // Reluctances
-  const reluctanceCore = coreLength / (MU_0 * muR * coreArea);
-  const reluctanceGap = gapLength > 0 ? gapLength / (MU_0 * coreArea) : 0;
-  const reluctanceTotal = reluctanceCore + reluctanceGap;
-
-  // Computed outputs
-  const mmf = turns * current;
-  const flux = mmf / reluctanceTotal;
-  const B = flux / coreArea;
-  // H differs by section: B = μ₀μᵣH_core = μ₀H_gap
-  const hCore = B / (MU_0 * muR);
-  const hGap = gapLength > 0 ? B / MU_0 : 0;
-  const inductance = (turns * turns) / reluctanceTotal;
+  // Sim physics — solved by the tested utility. The identity with the former
+  // inline block is pinned digit-for-digit in
+  // src/em/utils/__tests__/magneticCircuits.test.ts, so the worked examples
+  // below can promise the canvas readouts match the pencil exactly.
+  const { gapLength, flux, B, hCore, hGap, inductance } = solveToroid(muR, turns, current, gapPercent);
 
   const formatSI = (val: number, unit: string): string => {
     if (Math.abs(val) >= 1) return `${val.toFixed(3)} ${unit}`;
@@ -410,6 +415,295 @@ export function MagneticCircuitsSection() {
             </li>
           </ul>
         </TheoryGuide>
+
+        {/* Subsection 2: Solve it by hand — the hand-method payoff of Hopkinson's law (unit 2F) */}
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Solve it by hand</h2>
+
+        {/* Worked Example 1 — the sim's own toroid, on paper (ungated; the sim gate above already ran) */}
+        <div className="space-y-4">
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+            Worked Example 1 — the sim’s own toroid, on paper
+          </h3>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            Every number in the canvas above is four lines of arithmetic. Prove it. The sim’s toroid is:
+            mean radius <MathWrapper formula="r = 5\,\text{cm}" />, cross-section{' '}
+            <MathWrapper formula="A = 10\,\text{cm}^2 = 10^{-3}\,\text{m}^2" />, iron core{' '}
+            <MathWrapper formula="\mu_r = 5000" />, <MathWrapper formula="N = 200" /> turns,{' '}
+            <MathWrapper formula="I = 1\,\text{A}" />, no gap — exactly the Iron-preset defaults.
+          </p>
+          <p className="text-sm italic text-slate-600 dark:text-slate-400">
+            Grab a pencil: compute the path length and the reluctance yourself before reading Step 1.
+          </p>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 1 — Path and reluctance</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              The flux path is the mean circumference:
+            </p>
+            <MathWrapper block formula="l = 2\pi r = 2\pi(0.05) = 0.3142\,\text{m}" />
+            <MathWrapper block formula="\mathcal{R} = \frac{l}{\mu_0 \mu_r A} = \frac{0.3142}{(4\pi\times10^{-7})(5000)(10^{-3})} = 5.00\times10^{4}\ \text{A·t/Wb}" />
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 2 — Drive and flux (Hopkinson)</p>
+            <MathWrapper block formula="\text{MMF} = NI = 200 \times 1 = 200\ \text{A·t}" />
+            <MathWrapper block formula="\Phi = \frac{\text{MMF}}{\mathcal{R}} = \frac{200}{5.00\times10^{4}} = 4.00\,\text{mWb}" />
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 3 — Flux density and field strength</p>
+            <MathWrapper block formula="B = \frac{\Phi}{A} = \frac{4.00\times10^{-3}}{10^{-3}} = 4.00\,\text{T} \qquad H = \frac{NI}{l} = \frac{200}{0.31416} = 636.6\,\text{A/m}" />
+            <p className="text-sm italic text-slate-600 dark:text-slate-400">
+              Cross-check — the two H routes must agree: B = μ₀μᵣH = 6.283185×10⁻³ × 636.62 = 4.000 T ✓
+            </p>
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 4 — Inductance</p>
+            <MathWrapper block formula="L = \frac{N^2}{\mathcal{R}} = \frac{200^2}{5.00\times10^{4}} = 0.800\,\text{H}" />
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 5 — Verify against the instrument</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Set Iron, N = 200, I = 1.0 A, gap 0% above and read the canvas:{' '}
+              <code className="text-xs">H_core = 636.620 A/m</code>, <code className="text-xs">B = 4.000 T</code>,{' '}
+              <code className="text-xs">Φ = 4.00 mWb</code>, <code className="text-xs">L = 800.00 mH</code> — your
+              0.800 H, milli-prefixed; same digits, SI prefix shifted. <strong>Digit for digit.</strong>
+            </p>
+          </div>
+
+          {/* 2E plausibility callout: the sim's own un-physical 4 T default */}
+          <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+            <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+              Does this make sense?
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>B = 4 T should bother you.</strong> Real iron saturates at 1.5–2 T — beyond that, μᵣ collapses
+              and the linear model above (and this sim, as its own footnote admits) is fiction. Your arithmetic is
+              right; the <em>model</em> has left its validity range. An engineer’s reflex: compute, then ask the
+              material if it agrees. The design exercise below stays at a B real iron can actually carry.
+            </p>
+          </div>
+        </div>
+
+        {/* The quantitative sequel to the sim gate: magnitude, not direction */}
+        <PredictionGate
+          question="You cut a gap spanning just 1% of the flux path into the iron toroid (μᵣ = 5,000). Roughly what happens to the inductance L?"
+          options={[
+            { id: 'one', label: 'Drops about 1% — proportional to the iron removed' },
+            { id: 'half', label: 'Drops roughly in half' },
+            { id: 'fifty', label: 'Collapses about 50× — the 1% gap out-resists the 99% core' },
+          ]}
+          getCorrectAnswer={() => 'fifty'}
+          explanation={
+            <span>
+              Per metre, air is <MathWrapper formula="\mu_r = 5000" /> times more reluctant than this iron. A gap of 1% of the
+              path therefore contributes <MathWrapper formula="0.01 \times 5000 = 50" /> times the reluctance of the entire
+              core, and <MathWrapper formula="L = N^2/\mathcal{R}_{total}" /> collapses with it. The worked example below
+              puts exact numbers on it.
+            </span>
+          }
+          onPredict={(correct) => markPredictionGate('magnetic-circuits', correct)}
+        >
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+              Worked Example 2 — now cut the gap
+            </h3>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              A datasheet would quote the gap in millimetres, but the slider above moves in whole percent — so we cut
+              a gap of 1% of the path, one you can actually set and check against the readouts. The literal 1 mm gap
+              gets its own line at the end.
+            </p>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 1 — Split the path</p>
+              <MathWrapper block formula="l_{gap} = 0.01 \times 0.3142 = 3.14\,\text{mm}, \qquad l_{core} = 0.99 \times 0.3142 = 0.3110\,\text{m}" />
+            </div>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 2 — Reluctance of the iron (barely changes)</p>
+              <MathWrapper block formula="\mathcal{R}_{core} = \frac{0.3110}{(4\pi\times10^{-7})(5000)(10^{-3})} = 4.95\times10^{4}\ \text{A·t/Wb}" />
+            </div>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 3 — Reluctance of the gap (μᵣ = 1)</p>
+              <MathWrapper block formula="\mathcal{R}_{gap} = \frac{l_{gap}}{\mu_0 A} = \frac{3.142\times10^{-3}}{(4\pi\times10^{-7})(10^{-3})} = 2.50\times10^{6}\ \text{A·t/Wb}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                Three millimetres of air out-resist thirty-one centimetres of iron 50-to-1 (2.5×10⁶/4.95×10⁴ = 50.5).
+              </p>
+            </div>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 4 — Series total and everything downstream</p>
+              <MathWrapper block formula="\mathcal{R}_{total} = 4.95\times10^{4} + 2.50\times10^{6} = 2.5495\times10^{6}\ \text{A·t/Wb}" />
+              <MathWrapper block formula="\Phi = \frac{200}{2.5495\times10^{6}} = 78.45\,\mu\text{Wb} \quad\Rightarrow\quad B = \frac{\Phi}{A} = 78.45\,\text{mT}" />
+              <MathWrapper block formula="L = \frac{200^2}{2.5495\times10^{6}} = 15.69\,\text{mH}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                Drop factor: ℛ_total/ℛ_no-gap = 2 549 500/50 000 = 51.0 — the gate’s “about 50×”, now exact:
+                0.800 H → 15.69 mH.
+              </p>
+            </div>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 5 — Where did the MMF go? (the H audit)</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                B is continuous through the series path, but H is not:
+              </p>
+              <MathWrapper block formula="H_{core} = \frac{B}{\mu_0\mu_r} = \frac{0.078447}{6.2832\times10^{-3}} = 12.49\,\text{A/m}, \qquad H_{gap} = \frac{B}{\mu_0} = \frac{0.078447}{1.25664\times10^{-6}} = 62\,426\,\text{A/m}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                Ampère’s-law audit — the drops must rebuild the drive:
+              </p>
+              <MathWrapper block formula="H_{core}l_{core} + H_{gap}l_{gap} = (12.49)(0.3110) + (62\,426)(0.0031416) = 3.9 + 196.1 = 200\ \text{A·t} \checkmark" />
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                The 3 mm gap takes 98.1% of the MMF (and H_gap/H_core = 5000 = μᵣ exactly, because B is shared).
+                That is why the gapped readouts show H_gap dwarfing H_core.
+              </p>
+            </div>
+
+            <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 6 — Verify against the instrument</p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-2">
+                Set Iron, N = 200, I = 1.0 A, gap 1% above:
+              </p>
+              <div className="overflow-x-auto">
+                <table className="text-sm text-slate-700 dark:text-slate-300 border-collapse">
+                  <thead>
+                    <tr className="text-left">
+                      <th scope="col" className="pr-6 pb-1 font-semibold">Quantity</th>
+                      <th scope="col" className="pr-6 pb-1 font-semibold">Your pencil</th>
+                      <th scope="col" className="pb-1 font-semibold">Sim readout</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-mono text-xs">
+                    <tr>
+                      <th scope="row" className="pr-6 py-0.5 text-left font-semibold">H_core</th>
+                      <td className="pr-6">12.49 A/m</td>
+                      <td>H_core = 12.485 A/m</td>
+                    </tr>
+                    <tr>
+                      <th scope="row" className="pr-6 py-0.5 text-left font-semibold">H_gap</th>
+                      <td className="pr-6">62 426 A/m</td>
+                      <td>H_gap = 62425.9… A/m</td>
+                    </tr>
+                    <tr>
+                      <th scope="row" className="pr-6 py-0.5 text-left font-semibold">B</th>
+                      <td className="pr-6">78.45 mT</td>
+                      <td>B = 78.45 mT</td>
+                    </tr>
+                    <tr>
+                      <th scope="row" className="pr-6 py-0.5 text-left font-semibold">Φ</th>
+                      <td className="pr-6">78.45 μWb</td>
+                      <td>Φ = 78.45 μWb</td>
+                    </tr>
+                    <tr>
+                      <th scope="row" className="pr-6 py-0.5 text-left font-semibold">L</th>
+                      <td className="pr-6">15.69 mH</td>
+                      <td>L = 15.69 mH</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p className="text-sm italic text-slate-600 dark:text-slate-400">
+              Even a true 1 mm gap — just 0.32% of the path, finer than this slider steps — gives{' '}
+              <MathWrapper formula="\mathcal{R}_{gap} = \frac{10^{-3}}{(4\pi\times10^{-7})(10^{-3})} = 7.96\times10^{5}" /> and
+              cuts L seventeen-fold (0.800 H → 47.3 mH).
+            </p>
+          </div>
+        </PredictionGate>
+
+        {/* Inverse design: run the circuit backwards (the N form is settable on the sim's slider) */}
+        <YourTurnPanel
+          scenario="Design time — run the magnetic circuit backwards. Same ungapped iron toroid as Worked Example 1 (μᵣ = 5,000, A = 10 cm², path 0.314 m, ℛ = 5.0×10⁴ A·t/Wb), drive fixed at I = 1.0 A. The 4 T fantasy above saturates real iron, so your spec is a realistic working point: B = 1.0 T in the core."
+          question="How many turns N do you need?"
+          options={[
+            { text: 'N = 50 turns', correct: true, explanation: 'Correct. Run the chain backwards: Φ = BA = 1.0 × 10⁻³ Wb, MMF = Φℛ = 10⁻³ × 5.0×10⁴ = 50 A·t, N = MMF/I = 50 turns. Sanity route: B is proportional to NI, and 200 turns gave 4.0 T — so a quarter of the turns gives a quarter of the B.' },
+            { text: 'N = 100 turns', correct: false, explanation: 'That halves N to quarter B — treating B ∝ N². Inductance L goes as N², but B rides the MMF: first power of N. Halving N only halves B (2.0 T).' },
+            { text: 'N = 50,000 turns', correct: false, explanation: 'You solved MMF = ℛ·B, treating B as the flux. B is flux PER AREA: Φ = BA = 10⁻³ Wb is what Hopkinson’s law moves. Carry the 10 cm² through.' },
+            { text: 'N = 250,000 turns', correct: false, explanation: 'That’s the air-core answer (μᵣ = 1 → ℛ = 2.5×10⁸ A·t/Wb). The iron’s μᵣ = 5,000 is doing 99.98% of the work here — forget it and your design needs 5,000× the turns.' },
+          ]}
+          correctReveal={
+            <div className="space-y-2">
+              <MathWrapper block formula="\Phi = BA = (1.0)(10^{-3}) = 10^{-3}\,\text{Wb}" />
+              <MathWrapper block formula="\text{MMF} = \Phi\mathcal{R} = (10^{-3})(5.0\times10^{4}) = 50\ \text{A·t}" />
+              <MathWrapper block formula="N = \frac{\text{MMF}}{I} = \frac{50}{1.0} = 50\ \text{turns}" />
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                Now prove it with the instrument: Iron, <strong>N = 50</strong>, I = 1.0 A, gap 0% — the canvas must
+                read <code>B = 1.000 T</code>, <code>Φ = 1.00 mWb</code>, <code>L = 50.00 mH</code>.
+              </p>
+            </div>
+          }
+        />
+
+        {/* Two materials in series — Ida's standard next step, pencil-only by design */}
+        <div className="space-y-4">
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
+            Worked Example 3 — two materials in series
+          </h3>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            The sim can show iron + air; real machines chain <em>materials</em>. Same toroid geometry
+            (r = 5 cm, A = 10 cm², N = 200, I = 1.0 A), but half the ring is iron (μᵣ = 5000) and half is
+            ferrite (μᵣ = 1000) — each half <MathWrapper formula="l = \pi r = 0.157\,\text{m}" />. The sim
+            above cannot draw this one — that’s the point: from here the method is yours, not the instrument’s.
+          </p>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 1 — One reluctance per segment, then add (series — same Φ threads both)</p>
+            <MathWrapper block formula="\mathcal{R}_{iron} = \frac{\pi(0.05)}{(4\pi\times10^{-7})(5000)(10^{-3})} = 2.5\times10^{4}, \qquad \mathcal{R}_{ferrite} = \frac{\pi(0.05)}{(4\pi\times10^{-7})(1000)(10^{-3})} = 1.25\times10^{5}" />
+            <MathWrapper block formula="\mathcal{R}_{total} = 2.5\times10^{4} + 1.25\times10^{5} = 1.5\times10^{5}\ \text{A·t/Wb}" />
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 2 — Flux and B (one flux, one B — series, same area)</p>
+            <MathWrapper block formula="\Phi = \frac{200}{1.5\times10^{5}} = 1.333\,\text{mWb} \quad\Rightarrow\quad B = 1.333\,\text{T}" />
+          </div>
+
+          {/* 2E plausibility callout: this one passes the magnitude check */}
+          <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+            <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+              Does this make sense?
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>This one passes.</strong> 1.33 T is below iron saturation. It would push the ferrite, though —
+              real ferrites saturate around 0.3–0.5 T, so the linearized μᵣ = 1000 is the same polite fiction the
+              sim’s footnote admits to. Compute, then ask the material if it agrees.
+            </p>
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 3 — H differs per material; the MMF books must balance</p>
+            <MathWrapper block formula="H_{iron} = \frac{B}{\mu_0(5000)} = 212.2\,\text{A/m}, \qquad H_{ferrite} = \frac{B}{\mu_0(1000)} = 1061\,\text{A/m}" />
+            <MathWrapper block formula="\text{MMF drops:}\quad (212.2)(0.157) + (1061)(0.157) = 33.3 + 166.7 = 200\ \text{A·t} \checkmark" />
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              The split ratio 166.7/33.3 = 5 is exactly ℛ_ferrite/ℛ_iron — the weaker material takes the larger share.
+            </p>
+          </div>
+
+          <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 4 — Inductance, for completeness</p>
+            <MathWrapper block formula="L = \frac{200^2}{1.5\times10^{5}} = 266.7\,\text{mH}" />
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Between the all-iron 0.800 H and the 0.160 H an all-ferrite ring would give — as it must be.
+            </p>
+          </div>
+
+          {/* Key-Insight closing card */}
+          <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
+            <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
+              Key Insight
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Series reluctances add and MMF divides in proportion to reluctance — Kirchhoff’s voltage law wearing
+              magnetic clothes. The weakest material in the path takes the most MMF; the air gap of Worked Example 2
+              is just this rule pushed to the extreme (μᵣ = 1).
+            </p>
+          </div>
+        </div>
+
+        {/* Check: series MMF division (additive depth — deliberately NOT counted in expectedChecks) */}
+        <ConceptCheck data={toConceptCheck(Q_SERIES_MMF)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
         {/* Subsection 3: Mutual Inductance */}
         <EquationBox

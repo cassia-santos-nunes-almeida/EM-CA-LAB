@@ -232,14 +232,14 @@ Therefore: **no `curriculum.ts` edit, no `curriculum.test.ts` edit, no owner fla
 |---|---|
 | `src/em/utils/magneticCircuits.ts` | **NEW**: `reluctance` + `solveToroid` pure exports (§4) — commit 1 (TDD: tests first) |
 | `src/em/utils/__tests__/magneticCircuits.test.ts` | **NEW**: hand-derived vectors (§7) — commit 1 |
-| `src/em/sections/magnetic-circuits/index.tsx` | EDIT: swap inline physics → `solveToroid` (commit 1); insert §3A–§3D blocks + `Q_SERIES_MMF` + §3E CHALLENGE step (commit 2) |
+| `src/em/sections/magnetic-circuits/index.tsx` | EDIT: swap inline physics → `solveToroid` + insert §3A–§3D blocks + `Q_SERIES_MMF` + §3E CHALLENGE step (commit 2 — *as-built correction:* the swap ships WITH the content in commit 2; commit 1 is utility + tests only, so the TDD vectors pin the inline physics before the page swaps) |
 | `src/em/sections/__tests__/magneticCircuits.test.tsx` | **NEW** page test (§7) — commit 2 |
 | `src/shared/constants/curriculum.ts` + its test | **ZERO changes** (§5 keep-3 ruling) |
 | `src/em/sections/__tests__/sections.test.tsx`, e2e specs, registry, `getSectionNumber.test.ts` | **ZERO changes** |
 
 **Components reused:** `PredictionGate` (blocking default, no `allowSkip` prop), `ConceptCheck` + the file's own `toConceptCheck` adapter, `YourTurnPanel`, `MathWrapper`, `GuidedChallenge` (string delta only), inline step-card pattern (NOT `WorkedSteps` — §3 ruling). Unified `Tabs`: not used (page is linear).
 
-**Estimated test additions:** 2 new files, ~12 `it()` blocks (~35 assertions): utils ~6 its, page ~6 its, +1 assertion in curriculum.test. Suite grows by ~12 tests, 0 skips.
+**Estimated test additions:** 2 new files, ~12 `it()` blocks (~35 assertions): utils ~6 its, page ~6 its. NO curriculum.test assertion (§5 keep-3 ruling — an earlier 3→4 draft line here was stale). Suite grows by ~12 tests, 0 skips.
 
 ---
 
@@ -265,7 +265,7 @@ Therefore: **no `curriculum.ts` edit, no `curriculum.test.ts` edit, no owner fla
 5. **CC-4:** question `/half iron/i` renders; clicking option index 2 shows explanation `/166.7 A·t/`; regression — the three pre-existing CC questions (`/reluctance analogous/i`-class, `/air gap is introduced/i`, `/N₁ = 100 and N₂ = 500/`) all still render.
 6. **Challenge delta:** GuidedChallenge instruction `/digit for digit/i` present.
 
-**Wiring:** curriculum.test gains `getExpectedChecks('magnetic-circuits') === 4` (§5). Existing smoke test (`sections.test.tsx` `MagneticCircuitsSection renders`) passes unchanged.
+**Wiring:** NONE — no `curriculum.ts` or `curriculum.test.ts` edit; `expectedChecks` STAYS 3 per the binding §5 ruling (an earlier 3→4 draft line here was stale; the keep-3 invariant is already pinned by curriculum.test's existing "EM fundamentals target 3" block). Existing smoke test (`sections.test.tsx` `MagneticCircuitsSection renders`) passes unchanged.
 
 ---
 
@@ -286,8 +286,8 @@ Therefore: **no `curriculum.ts` edit, no `curriculum.test.ts` edit, no owner fla
 
 1. `npx tsc -b` clean; `npx vite build` clean.
 2. `npx eslint .` — 0 errors (jsx-a11y hard-enforced; every new interactive element is an existing accessible primitive — no new surface).
-3. **Full suite: `npm test -- --no-file-parallelism`** (binding on the owner's 4-core box — default forks OOM). Expect: all pre-existing tests green **unchanged except** the one renamed/extended curriculum.test block; new utils + page files green; 0 skips.
-4. **Refactor-identity spot check (commit 1):** before/after the `solveToroid` swap, the sim's rendered readout strings at (Iron, 200, 1.0, 0 %) and (Iron, 200, 1.0, 1 %) are identical — the §3A/§3B tables are the oracle.
+3. **Full suite: `npm test -- --no-file-parallelism`** (binding on the owner's 4-core box — default forks OOM). Expect: all pre-existing tests green **unchanged** — no curriculum.test edit (§5 keep-3 ruling; an earlier 3→4 draft clause here was stale); new utils + page files green; 0 skips.
+4. **Refactor-identity spot check (commit 2 — the as-built swap commit, see §6):** before/after the `solveToroid` swap, the sim's rendered readout strings at (Iron, 200, 1.0, 0 %) and (Iron, 200, 1.0, 1 %) are identical — the §3A/§3B tables are the oracle.
 5. **Independent number audit by a second pair of eyes (per-batch entry gate):** re-derive, without reading §3: 5.0×10⁴ · 4.00 mWb · 4.000 T · 636.6 A/m · 0.800 H ‖ 49 500 · 2.50×10⁶ · 2 549 500 · 78.45 μWb · 78.45 mT · 15.69 mH · 12.49 · 62 426 · 3.88 + 196.12 = 200 · 51.0× · 98.1 % ‖ N = 50 · 50 A·t · 50.00 mH · distractors 100/50 000/250 000 ‖ 25 000 · 125 000 · 4/3 T · 212.2 · 1061 · 33.3 + 166.7 = 200 · 266.7 mH ‖ 795 775 · 47.3 mH · 16.9×.
 6. **e2e paint net:** `sim-paint.spec.ts` route `magnetic-circuits` green — the walker must clear BOTH gates and the canvas must still paint (if the walker loops, the new gate's markup diverged from the `div.border-dashed` + "Predict First" contract: fix the page, not the spec).
 7. **Playwright screenshot harness** (PR #9 harness, Phase-2 entry gate): re-shoot `/magnetic-circuits` at both viewports; owner walk checklist — dark mode on the step cards / plausibility callouts / Key-Insight card; keyboard-only pass of the new gate, CC-4, and YourTurn; mobile stacking of the §3B verify table; the §3A "digit for digit" claim performed live against the canvas.
