@@ -362,7 +362,9 @@ export function CoupledCoilsSim({ className }: CoupledCoilsSimProps) {
             V₂ (actual) ≈ k &times; V<sub>s</sub> &times; N₂/N₁. I₂ and Z<sub>ref</sub> use the ideal transformer model (k = 1).
             These quantities are illustrative: M is computed from the fixed reference inductances while the
             voltage ratio follows the turns ratio (which would require L &prop; N<sup>2</sup>), so they are not
-            jointly solved from one consistent coil geometry.
+            jointly solved from one consistent coil geometry. M here is k × √(L₁L₂) — the
+            coupling definition rearranged; the Theory tab's 'What is mutual inductance?' shows
+            where M itself comes from (flux linkage per ampere).
           </p>
         </div>
       </div>

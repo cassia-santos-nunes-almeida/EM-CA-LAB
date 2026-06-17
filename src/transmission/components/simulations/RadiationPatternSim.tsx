@@ -253,7 +253,7 @@ export function RadiationPatternSim({ className = '' }: RadiationPatternSimProps
           <ReadoutCard
             label="Half-Power Beamwidth"
             value={`${hpbw.toFixed(1)}`}
-            unit="\u00B0"
+            unit="°"
           />
         </div>
       </div>

@@ -398,7 +398,7 @@ export function Antennas() {
         />
 
         <PredictionGate
-          question="If you double the dipole length from \u03BB/4 to \u03BB/2, does the directivity increase, decrease, or stay the same?"
+          question="If you double the dipole length from λ/4 to λ/2, does the directivity increase, decrease, or stay the same?"
           options={[
             { id: 'increases', label: 'Increases' },
             { id: 'decreases', label: 'Decreases' },
@@ -467,7 +467,7 @@ export function Antennas() {
 
       {/* ── Your Turn: far-field boundary ──────────────────────────── */}
       <YourTurnPanel
-        scenario="A parabolic dish antenna has a diameter D = 1 m and operates at f = 10 GHz (\u03BB = 3 cm = 0.03 m)."
+        scenario="A parabolic dish antenna has a diameter D = 1 m and operates at f = 10 GHz (λ = 3 cm = 0.03 m)."
         question="How far away is the far-field boundary?"
         options={[
           {
