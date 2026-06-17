@@ -98,7 +98,8 @@ describe('Section smoke tests', () => {
   it('AmpereSection gates the sim behind a Predict First prediction', async () => {
     const { AmpereSection } = await import('@em/sections/ampere/index');
     renderSection(AmpereSection);
-    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    // Two gates since unit 2D: the sim gate plus the parallel-wires gate.
+    expect(screen.getAllByText('Predict First')).toHaveLength(2);
     expect(screen.getByText(/distance r from a long straight wire/i)).toBeInTheDocument();
   });
 

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -42,6 +43,20 @@ const Q_FIELD: QuizQuestion = {
     { tier: 1, label: 'Conceptual hint', content: "Use Ampère's law with a circular loop centred on the wire. The magnetic field is tangential and constant on this loop." },
     { tier: 2, label: 'Procedural hint', content: "Ampère's law: ∮B·dl = μ₀I_enc. For a circular loop of radius r, B is constant and parallel to dl, so the integral becomes B × (circumference). What is the circumference?" },
     { tier: 3, label: 'Show worked step', content: '∮B·dl = B(2πr) = μ₀I. Solving: B = μ₀I/(2πr) — option B.' },
+  ],
+};
+
+const Q_PARALLEL: QuizQuestion = {
+  question:
+    'Two parallel wires 10 cm apart each carry 100 A in the same direction. The magnetic force per metre of wire between them is:',
+  options: ['0.02 N/m, attractive', '0.02 N/m, repulsive', '0.13 N/m, attractive', '2×10⁻⁷ N/m, attractive'],
+  correctIndex: 0,
+  explanation:
+    "F/l = μ₀I₁I₂/(2πd) = 2×10⁻⁷ × (100 × 100)/0.1 = 0.02 N/m, and same-direction currents attract — each wire sits in the other's circular field, and F = IL×B points toward the neighbour. 0.13 N/m is what you get if you drop the 2π; 2×10⁻⁷ N/m is the 1 A / 1 m definition pair, unscaled.",
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: "Each wire sits in the other's field B = μ₀I/(2πr) — the formula from the marker tooltip. A field then exerts F = BIl on a current." },
+    { tier: 2, label: 'Procedural hint', content: "F/l = μ₀I₁I₂/(2πd), and μ₀/(2π) = 2×10⁻⁷ exactly. Direction: apply F = IL×B to wire 2 in wire 1's field." },
+    { tier: 3, label: 'Show worked step', content: 'F/l = 2×10⁻⁷ × 10⁴/0.1 = 2×10⁻⁷ × 10⁵ = 0.02 N/m, pointing toward the other wire (attraction) — option A.' },
   ],
 };
 
@@ -423,6 +438,99 @@ export function AmpereSection() {
 
         {/* Check: field of a straight wire (enclosed current → B = μ₀I/2πr) */}
         <ConceptCheck data={toConceptCheck(Q_FIELD)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
+        {/* ── Forces between parallel wires (unit 2D) ──
+            Lead-in is ungated; the reveal card, busbar worked example and the
+            Q_PARALLEL check all sit INSIDE the blocking gate so the
+            ConceptCheck options cannot leak the attract/repel answer. */}
+        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          The marker you dragged measures what the wire&apos;s current <em>creates</em>. Flip the
+          question: what does a magnetic field <em>do back</em> to a current? A field exerts a
+          sideways force on every current-carrying conductor — <MathWrapper formula="F = BIl" /> for
+          a straight wire of length <MathWrapper formula="l" /> at right angles to the field (each
+          moving charge inside feels the Lorentz force; the per-charge derivation is Section{' '}
+          {getSectionNumber('lorentz')}). Put a <em>second</em> wire next to the first, and each
+          sits in the other&apos;s field…
+        </p>
+
+        <PredictionGate
+          question="Two parallel wires carry current in the SAME direction. What do they do to each other?"
+          options={[
+            { id: 'repel', label: 'Repel — like the two like-signed charge streams they are' },
+            { id: 'attract', label: 'Attract' },
+            { id: 'none', label: 'Nothing — each field circles its own wire and misses the other' },
+            { id: 'twist', label: 'Twist — the force points along the wires' },
+          ]}
+          getCorrectAnswer={() => 'attract'}
+          explanation={
+            <span>
+              Wire 2 sits in wire 1&apos;s circular field <MathWrapper formula="B_1 = \mu_0 I_1 / (2\pi d)" />. Apply{' '}
+              <MathWrapper formula="\vec{F} = I_2\,\vec{L} \times \vec{B}_1" />: the force points straight at wire 1.
+              The like-charges analogy is exactly the trap — parallel like <em>currents</em> attract; flip one
+              current and they repel.
+            </span>
+          }
+          onPredict={(correct) => markPredictionGate('ampere', correct)}
+        >
+          {/* Reveal card: like currents attract + the classical ampere */}
+          <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/15 p-5 space-y-3">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+              Like currents attract
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Wire 2 sits in wire 1&apos;s field <MathWrapper formula="B_1 = \mu_0 I_1 / (2\pi d)" />,
+              so the force on a length <MathWrapper formula="l" /> of it is{' '}
+              <MathWrapper formula="F = B_1 I_2 l" /> — regroup, and the force per metre between the
+              wires is:
+            </p>
+            <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+              <MathWrapper block formula="\frac{F}{l} = \frac{\mu_0 I_1 I_2}{2\pi d}" />
+            </div>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>The classical ampere.</strong> Set <MathWrapper formula="I_1 = I_2 = 1\,\text{A}" /> and{' '}
+              <MathWrapper formula="d = 1\,\text{m}" />:{' '}
+              <MathWrapper formula="\frac{F}{l} = \frac{4\pi\times10^{-7}}{2\pi} = 2\times10^{-7}\ \text{N/m}" />.
+              For 71 years (1948–2019) this <em>was</em> the definition of the ampere: the current
+              producing exactly 2×10⁻⁷ N per metre between ideal parallel wires a metre apart. (Since
+              the 2019 SI revision the ampere is defined by fixing the elementary charge e, and μ₀
+              became a measured quantity — but to nine digits it is still 4π×10⁻⁷.)
+            </p>
+          </div>
+
+          {/* Worked example: short-circuit forces on a busbar pair */}
+          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+              Worked example: Short-circuit forces on a busbar pair
+            </h4>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              Two switchgear busbars run parallel, <MathWrapper formula="d = 10\,\text{cm}" /> apart.
+              A fault drives <MathWrapper formula="I = 10\,\text{kA}" /> through both, in the same
+              direction.
+            </p>
+            <div className="space-y-2 pl-4 border-l-2 border-engineering-blue-300 dark:border-engineering-blue-700">
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                Step 1: Force per metre
+              </p>
+              <MathWrapper
+                block
+                formula="\frac{F}{l} = \frac{\mu_0 I^2}{2\pi d} = 2\times10^{-7}\,\frac{(10^4)^2}{0.1} = 200\ \text{N/m}"
+              />
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                Step 2: Does this make sense?
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                200 N/m is about 20 kgf hanging off every metre of bar (200/9.81 ≈ 20.4), appearing
+                in milliseconds, and attractive — slamming the bars <em>toward each other</em>. This
+                is why switchgear busbars are mechanically braced for fault current, not just sized
+                for heat. An answer of 0.002 N/m (an exponent slip) should fail your sniff test
+                instantly: nobody would brace for that.
+              </p>
+            </div>
+          </div>
+
+          {/* Check: force between parallel wires (CC-A; gated so the options can't leak the gate answer) */}
+          <ConceptCheck data={toConceptCheck(Q_PARALLEL)} onComplete={onCheckComplete} onHint={onCheckHint} />
+        </PredictionGate>
 
         {/* Check: solenoid field */}
         <ConceptCheck data={toConceptCheck(Q_SOLENOID)} onComplete={onCheckComplete} onHint={onCheckHint} />
