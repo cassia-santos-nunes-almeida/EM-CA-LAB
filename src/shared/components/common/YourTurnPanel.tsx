@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Pencil, CheckCircle, XCircle } from 'lucide-react';
+import { Pencil, CheckCircle, XCircle, Lightbulb } from 'lucide-react';
 import { cn } from '@shared/utils/cn';
 
 /** A single answer option for the YourTurnPanel. */
@@ -28,11 +28,15 @@ interface YourTurnPanelProps {
   className?: string;
 }
 
-export function YourTurnPanel({ scenario, question, options, correctReveal, className }: YourTurnPanelProps) {
+export function YourTurnPanel({ scenario, question, options, correctReveal, hints, className }: YourTurnPanelProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [hintLevel, setHintLevel] = useState(0);
 
   const selectedOption = selectedIndex !== null ? options[selectedIndex] : null;
   const isCorrect = selectedOption?.correct ?? false;
+
+  const hasHints = hints && hints.length > 0;
+  const canShowMoreHints = hasHints && hintLevel < hints.length;
 
   return (
     <div className={cn(
@@ -50,6 +54,27 @@ export function YourTurnPanel({ scenario, question, options, correctReveal, clas
         <p className="text-sm text-slate-700 dark:text-slate-300">{scenario}</p>
 
         <p className="text-sm font-semibold text-slate-900 dark:text-white">{question}</p>
+
+        {hintLevel > 0 && hints && (
+          <div className="space-y-1.5">
+            {hints.slice(0, hintLevel).map((hint, idx) => (
+              <div key={idx} className="flex items-start gap-1.5 bg-amber-50 dark:bg-amber-900/20 rounded p-2">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800 dark:text-amber-300">{hint}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {canShowMoreHints && selectedIndex === null && (
+          <button
+            onClick={() => setHintLevel(hintLevel + 1)}
+            className="text-xs text-amber-700 dark:text-amber-400 hover:underline font-medium flex items-center gap-1"
+          >
+            <Lightbulb className="w-3 h-3" />
+            Need a hint?
+          </button>
+        )}
 
         <div className="space-y-2">
           {options.map((option, idx) => {
@@ -103,7 +128,7 @@ export function YourTurnPanel({ scenario, question, options, correctReveal, clas
 
         {selectedIndex !== null && (
           <button
-            onClick={() => setSelectedIndex(null)}
+            onClick={() => { setSelectedIndex(null); setHintLevel(0); }}
             className="text-xs text-engineering-blue-700 dark:text-engineering-blue-400 hover:underline font-medium"
           >
             Try Again

@@ -30,6 +30,7 @@ const tocEntries = [
   { id: 'blackbox', label: 'Lab: Black-Box Port' },
   { id: 'norton', label: 'Norton & Source Transformation' },
   { id: 'max-power', label: 'Lab: Max-Power Bench' },
+  { id: 'sanity', label: 'The Sanity-Check Triad' },
   { id: 'challenge', label: 'Guided Challenge' },
 ];
 
@@ -364,6 +365,111 @@ export function CircuitTheorems() {
           </div>
         }
       />
+
+      {/* ── The Sanity-Check Triad (plausibility anchor, unit 2G) ─────────── */}
+      <section id="sanity" className="scroll-mt-4 space-y-4">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          The Sanity-Check Triad
+        </h2>
+
+        <p className="text-slate-700 dark:text-slate-300">
+          Every answer on this page came with a free, instant audit — you just ran it without
+          naming it. When the partial voltages added to 12 V you checked a <em>bound</em>;
+          when the max-power curve died at both ends you checked <em>limiting cases</em>.
+          Engineers run three tests on every computed number, in about ten seconds, before
+          trusting it. From here to the end of the course, this triad is part of the job.
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-2">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-engineering-blue-600 dark:text-engineering-blue-400">
+              Units
+            </p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white">
+              Does the formula even produce the right kind of quantity?
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Is the RC time constant <MathWrapper formula="\tau = RC" /> or{' '}
+              <MathWrapper formula="R/C" />? Check the units, not your memory:{' '}
+              <MathWrapper formula="\Omega \cdot \text{F} = \frac{\text{V}}{\text{A}} \cdot \frac{\text{A} \cdot \text{s}}{\text{V}} = \text{s}" /> ✓,
+              while <MathWrapper formula="\Omega/\text{F}" /> gives{' '}
+              <MathWrapper formula="\text{V}^2/(\text{A}^2\text{s})" /> — a rate-like mongrel,
+              not a time. One line, no algebra redone.
+            </p>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-2">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-engineering-blue-600 dark:text-engineering-blue-400">
+              Limiting cases
+            </p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white">
+              Push one variable to 0 or ∞ — the answer must do something you can predict for
+              free.
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Voltage divider <MathWrapper formula="V_{out} = V\frac{R_2}{R_1+R_2}" />:{' '}
+              <MathWrapper formula="R_2 \to 0" /> (shorted output) → 0 ✓;{' '}
+              <MathWrapper formula="R_2 \to \infty" /> (open) → V ✓. Page-native: the
+              Max-Power Bench curve hits zero at <em>both</em> ends —{' '}
+              <MathWrapper formula="R_L \to 0" /> kills the voltage,{' '}
+              <MathWrapper formula="R_L \to \infty" /> kills the current — so the peak had to
+              live in between. If a formula survives its limits, it has earned some trust.
+            </p>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-2">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-engineering-blue-600 dark:text-engineering-blue-400">
+              Magnitude &amp; bounds
+            </p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white">
+              Is the number the right <em>size</em> — and inside the hard ceilings?
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              A Thevenin port can never beat its own extremes: into <strong>any</strong> load,{' '}
+              <MathWrapper formula="i_L \le I_{sc} = V_{th}/R_{th}" /> and{' '}
+              <MathWrapper formula="v_L \le V_{oc} = V_{th}" />. These bounds cost nothing and
+              catch dropped resistors, sign slips, and series/parallel mix-ups before any
+              re-derivation.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-2">
+          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+            All three, run on this page's own table
+          </p>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            Run all three on the catalog row <MathWrapper formula="R_L = 4\ \Omega" />:
+            units — <MathWrapper formula="12\,\text{V}/6\,\Omega = 2\,\text{A}" /> ✓;
+            bounds — 2 A ≤ I_sc = 6 A ✓ and v = 8 V ≤ 12 V ✓; limiting cases — the table
+            brackets it monotonically (1 Ω → 4 A down to 10 Ω → 1 A) ✓. Ten seconds, three
+            passes — <em>now</em> it goes in the report.
+          </p>
+        </div>
+
+        <ConceptCheck
+          data={{
+            mode: 'multiple-choice',
+            question: "A classmate connects a 6 Ω load to this page's port (V_th = 12 V, R_th = 2 Ω) and reports i_L = 6 A. Which sanity test rejects the answer fastest?",
+            options: [
+              { text: "Bounds: 6 A is the port's short-circuit current 12/2 — the ceiling for ANY load. They dropped R_L; the real answer is 12/(2+6) = 1.5 A", correct: true, explanation: 'Correct! i_L can only reach I_sc with a dead short across the port. Any nonzero load must draw less — you can smell the error without redoing any arithmetic.' },
+              { text: 'Units: the result should be in volts', correct: false, explanation: 'A current in amps is dimensionally fine — the units test passes; it is the magnitude that is impossible.' },
+              { text: 'Limiting cases: at large R_L the current should approach V_th/R_th', correct: false, explanation: 'Backwards — as R_L → ∞ the current → 0; V_th/R_th is the R_L → 0 limit. (And 6 Ω is at neither extreme.)' },
+              { text: 'No test fails — 6 A is plausible for a 12 V source', correct: false, explanation: 'The hardest this port can ever push is I_sc = 6 A, into a dead short. With 6 Ω attached: 12/(2+6) = 1.5 A — the report quadruples it.' },
+            ],
+            hints: ['What is the largest current this port can deliver into ANY load?', 'Compare the report against I_sc = V_th/R_th.'],
+          }}
+          onComplete={() => incrementConceptChecks(SECTION_ID)}
+          onHint={() => incrementHints(SECTION_ID)}
+        />
+
+        <p className="text-slate-700 dark:text-slate-300">
+          Part 2 turns fields into numbers — volts per metre, teslas, newtons on invisible
+          charges — where intuition is weakest and the triad matters most. Watch for the
+          blue <strong>“Does this make sense?”</strong> callouts beside every simulation from
+          here on: they are this section riding along with you.
+        </p>
+      </section>
 
       <p className="text-slate-700 dark:text-slate-300">
         Everything here assumed resistors — pure algebra. Add capacitors and inductors and the

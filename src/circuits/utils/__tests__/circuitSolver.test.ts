@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { calculateCircuitResponse, calculateTransferFunction } from '@circuits/utils/circuitSolver';
+import {
+  calculateCircuitResponse,
+  calculateTransferFunction,
+  calculateDCDivider,
+  switchedRCTau,
+  switchedRCCurrentJump,
+  switchedFirstOrder,
+  secondOrderStepICs,
+} from '@circuits/utils/circuitSolver';
 import { classifyDamping, CRITICAL_DAMPING_TOLERANCE } from '@circuits/types/circuit';
 
 // Tolerance for floating-point comparisons
@@ -222,5 +230,161 @@ describe('calculateTransferFunction', () => {
   it('returns empty zeros array', () => {
     const result = calculateTransferFunction(100, 0.1, 0.0001);
     expect(result.zeros).toEqual([]);
+  });
+});
+
+describe('calculateDCDivider', () => {
+  it('computes the worked-example pre-state: 12 V through 4 kΩ into 8 kΩ ∥ C(open) gives 8 V', () => {
+    // Capacitor = open at DC, so this is a pure divider:
+    // v = 12 × 8000/(4000 + 8000) = 12 × 2/3 = 8 V
+    expect(calculateDCDivider(12, 4000, 8000)).toBeCloseTo(8, 10);
+  });
+
+  it('passes the full source through when the series resistance is zero', () => {
+    // v = 20 × 8000/(0 + 8000) = 20 V
+    expect(calculateDCDivider(20, 0, 8000)).toBeCloseTo(20, 10);
+  });
+
+  it('returns 0 when the shunt branch is a short', () => {
+    // v = 12 × 0/(4000 + 0) = 0 V
+    expect(calculateDCDivider(12, 4000, 0)).toBeCloseTo(0, 10);
+  });
+
+  it('returns NaN when the total resistance is non-positive', () => {
+    // Rseries + Rshunt = −4000 + 4000 = 0 — divider undefined
+    expect(calculateDCDivider(12, -4000, 4000)).toBeNaN();
+  });
+});
+
+describe('switchedRCTau', () => {
+  it('worked example: τ = 2 kΩ × 25 µF = 50 ms', () => {
+    // τ = R·C = 2000 × 25×10⁻⁶ = 0.05 s
+    expect(switchedRCTau(2000, 25e-6)).toBeCloseTo(0.05, 10);
+  });
+
+  it('scales linearly with R: 8 kΩ × 25 µF = 200 ms', () => {
+    // τ = 8000 × 25×10⁻⁶ = 0.2 s
+    expect(switchedRCTau(8000, 25e-6)).toBeCloseTo(0.2, 10);
+  });
+
+  it('returns NaN for non-positive R or C', () => {
+    expect(switchedRCTau(0, 1e-6)).toBeNaN();
+    expect(switchedRCTau(2000, 0)).toBeNaN();
+  });
+});
+
+describe('switchedRCCurrentJump', () => {
+  it('worked example: i_C(0⁺) = (20 − 8)/2000 = 6 mA', () => {
+    // v_C cannot jump (holds 8 V), so the full 12 V difference lands on R:
+    // i = 12/2000 = 0.006 A — the discontinuous current the bench plots
+    expect(switchedRCCurrentJump(20, 8, 2000)).toBeCloseTo(0.006, 10);
+  });
+
+  it('discharge preset: i_C(0⁺) = (0 − 8)/2000 = −4 mA', () => {
+    expect(switchedRCCurrentJump(0, 8, 2000)).toBeCloseTo(-0.004, 10);
+  });
+
+  it('returns NaN for non-positive R', () => {
+    expect(switchedRCCurrentJump(20, 8, 0)).toBeNaN();
+  });
+});
+
+describe('switchedFirstOrder', () => {
+  // Worked-example fixture throughout: x(0⁺) = 8 V, x(∞) = 20 V, τ = 50 ms
+  it('starts exactly at x(0⁺)', () => {
+    // t = 0: 20 + (8 − 20)·e⁰ = 20 − 12 = 8
+    expect(switchedFirstOrder(8, 20, 0.05, 0)).toBeCloseTo(8, 10);
+  });
+
+  it('closes 63.2% of the gap after one τ', () => {
+    // t = τ: 20 − 12e⁻¹ = 20 − 4.41455 = 15.58545
+    // (equivalently 8 + 0.6321 × 12 = 15.585 — the 63.2% rule on the GAP)
+    expect(switchedFirstOrder(8, 20, 0.05, 0.05)).toBeCloseTo(15.585, 3);
+  });
+
+  it('has settled after 5τ', () => {
+    // t = 5τ: 20 − 12e⁻⁵ = 20 − 12 × 0.006738 = 20 − 0.08086 = 19.91914
+    expect(switchedFirstOrder(8, 20, 0.05, 0.25)).toBeCloseTo(19.919, 3);
+  });
+
+  it('holds flat at x0 before the switch (t < 0)', () => {
+    // Pre-switch segment: the chart plots x(0⁻) = 8 across the boundary
+    expect(switchedFirstOrder(8, 20, 0.05, -0.1)).toBeCloseTo(8, 10);
+  });
+
+  it('handles pure discharge to zero', () => {
+    // x(∞) = 0, t = τ = 0.2 s: 0 + 8e⁻¹ = 2.94304 — the Tab-1 discharge sanity value
+    expect(switchedFirstOrder(8, 0, 0.2, 0.2)).toBeCloseTo(2.943, 3);
+  });
+
+  it('returns x(∞) when there is no gap', () => {
+    // x0 = x(∞) = 5: the exponential carries zero amplitude — no transient at any t
+    expect(switchedFirstOrder(5, 5, 0.1, 7)).toBeCloseTo(5, 10);
+  });
+
+  it('returns NaN for non-positive τ', () => {
+    expect(switchedFirstOrder(8, 20, 0, 0.1)).toBeNaN();
+  });
+});
+
+describe('secondOrderStepICs', () => {
+  it('worked example oracle: 5 V pre-state under a 10 V step with zero slope gives A1 = −5, A2 = −3.75', () => {
+    // Series RLC R = 6 Ω, L = 1 mH, C = 40 µF: α = 3000 s⁻¹, ω_d = 4000 rad/s (3-4-5 triangle).
+    // ICs: v_C(0⁺) = 5 V, dv_C/dt(0⁺) = 0 (series i_L pins the slope), x∞ = 10 V.
+    //   A1 = x0 − x∞ = 5 − 10 = −5
+    //   A2 = (dxdt0 + α·A1)/ω_d = (0 + 3000·(−5))/4000 = −15000/4000 = −3.75
+    const { A1, A2 } = secondOrderStepICs(3000, 4000, 5, 10, 0);
+    expect(A1).toBeCloseTo(-5, 10);
+    expect(A2).toBeCloseTo(-3.75, 10);
+  });
+
+  it('zero-state constants reproduce the legacy RLC solver samples (same-physics cross-tie)', () => {
+    // Same circuit, zero state: R = 6 Ω, L = 1 mH, C = 40 µF, 10 V step.
+    //   α  = R/(2L)  = 6/0.002 = 3000 s⁻¹
+    //   ω₀ = 1/√(LC) = 1/√(4×10⁻⁸) = 5000 rad/s, ζ = α/ω₀ = 0.6 → underdamped
+    //   ω_d = ω₀√(1 − ζ²) = 5000 × 0.8 = 4000 rad/s
+    // Zero state: x0 = 0, dxdt0 = 0, x∞ = 10
+    //   A1 = 0 − 10 = −10;  A2 = (0 + 3000·(−10))/4000 = −7.5
+    // — exactly the constants calculateCircuitResponse bakes in invisibly: its step form
+    //   Vs·(1 − e^(−αt)(cos ω_d t + (α/ω_d) sin ω_d t)) expands to
+    //   10 + e^(−3000t)(−10 cos 4000t − 7.5 sin 4000t).
+    const { A1, A2 } = secondOrderStepICs(3000, 4000, 0, 10, 0);
+    expect(A1).toBeCloseTo(-10, 10);
+    expect(A2).toBeCloseTo(-7.5, 10);
+
+    // Reconstruct v(t) = 10 + e^(−3000t)(A1 cos 4000t + A2 sin 4000t) and compare against
+    // the solver's own samples. timeStep = 1e-4 s and data[k].time = k·timeStep exactly
+    // (integer-counter sampling), so t = 0.2 / 0.5 / 1.0 ms are indices 2 / 5 / 10.
+    // Hand values:
+    //   t = 0.2 ms: αt = 0.6, ω_d t = 0.8 rad → 10 + 0.54881×(−12.34724) = 3.2237 V
+    //   t = 0.5 ms: αt = 1.5, ω_d t = 2.0 rad → 10 + 0.22313×(−2.65826)  = 9.4069 V
+    //   t = 1.0 ms: αt = 3.0, ω_d t = 4.0 rad → 10 + 0.04979×(+12.21246) = 10.6080 V
+    const response = calculateCircuitResponse(
+      'RLC',
+      { R: 6, L: 0.001, C: 0.00004, voltage: 10 },
+      1e-4,
+      0.002
+    );
+    expect(response.dampingType).toBe('underdamped');
+
+    for (const k of [2, 5, 10]) {
+      const t = k * 1e-4;
+      const reconstructed =
+        10 + Math.exp(-3000 * t) * (A1 * Math.cos(4000 * t) + A2 * Math.sin(4000 * t));
+      expect(response.data[k].time).toBeCloseTo(t, 12);
+      expect(response.data[k].voltage).toBeCloseTo(reconstructed, 10);
+    }
+
+    // Pin the hand-derived magnitudes too, so the cross-tie cannot pass with both
+    // sides wrong in the same way.
+    expect(response.data[2].voltage).toBeCloseTo(3.2237, 3);
+    expect(response.data[5].voltage).toBeCloseTo(9.4069, 3);
+    expect(response.data[10].voltage).toBeCloseTo(10.608, 3);
+  });
+
+  it('returns a NaN pair for non-positive ω_d', () => {
+    const { A1, A2 } = secondOrderStepICs(3000, 0, 5, 10, 0);
+    expect(A1).toBeNaN();
+    expect(A2).toBeNaN();
   });
 });

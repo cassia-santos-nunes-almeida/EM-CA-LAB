@@ -254,3 +254,52 @@ export function calculateTransferFunction(R: number, L: number, C: number): {
 
   return { numerator, denominator, poles, zeros: [] };
 }
+
+// ── Switched-circuit IC utilities (Switched Circuits & Initial Conditions section) ──
+
+/** DC voltage divider: Vs·Rshunt/(Rseries + Rshunt). NaN when Rseries + Rshunt ≤ 0. */
+export function calculateDCDivider(Vs: number, Rseries: number, Rshunt: number): number {
+  const Rtotal = Rseries + Rshunt;
+  if (Rtotal <= 0) return NaN;
+  return (Vs * Rshunt) / Rtotal;
+}
+
+/** First-order time constant τ = R·C (or pass L, R as (L/R) by the caller — RC form here). NaN for R ≤ 0 or C ≤ 0. */
+export function switchedRCTau(R: number, C: number): number {
+  if (R <= 0 || C <= 0) return NaN;
+  return R * C;
+}
+
+/** Capacitor-current jump at t = 0⁺ for the series source-R-C loop: (Vsrc − v0)/R amps. NaN for R ≤ 0. */
+export function switchedRCCurrentJump(Vsrc: number, v0: number, R: number): number {
+  if (R <= 0) return NaN;
+  return (Vsrc - v0) / R;
+}
+
+/**
+ * THE recipe: x(t) = xInf + (x0 − xInf)·e^(−t/τ) for t ≥ 0; returns x0 unchanged for t < 0
+ * (pre-switch flat segment, so charts can plot across the boundary). NaN for tau ≤ 0.
+ */
+export function switchedFirstOrder(x0: number, xInf: number, tau: number, t: number): number {
+  if (tau <= 0) return NaN;
+  if (t < 0) return x0;
+  return xInf + (x0 - xInf) * Math.exp(-t / tau);
+}
+
+/**
+ * Underdamped step coefficients from ICs — makes the solver's invisible constants visible:
+ * x(t) = xInf + e^(−αt)(A1·cos ω_d t + A2·sin ω_d t);
+ * A1 = x0 − xInf;  A2 = (dxdt0 + α·A1)/ω_d.  NaN pair for omegaD ≤ 0.
+ */
+export function secondOrderStepICs(
+  alpha: number,
+  omegaD: number,
+  x0: number,
+  xInf: number,
+  dxdt0: number
+): { A1: number; A2: number } {
+  if (omegaD <= 0) return { A1: NaN, A2: NaN };
+  const A1 = x0 - xInf;
+  const A2 = (dxdt0 + alpha * A1) / omegaD;
+  return { A1, A2 };
+}

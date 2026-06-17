@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -13,9 +14,12 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { RodOnRailsFigure } from './RodOnRailsFigure';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { rateToHz, emfArbToMillivolts } from './unitMapping';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
 const Q_NO_EMF: QuizQuestion = {
@@ -50,6 +54,25 @@ const Q_EMF_MAGNITUDE: QuizQuestion = {
   ],
 };
 
+const Q_MISSING_AREA: QuizQuestion = {
+  question:
+    'A classmate models this sim\'s coil at N = 10, f = 10 Hz (B₀ = 50 mT, loop radius 5 cm) and reports a peak EMF of 31.4 V. The equation-box readout peaks near 247 mV. What did the classmate miss?',
+  options: [
+    'The loop area A — they computed N·B₀·ω, whose units (T/s) are not even volts',
+    'The number of turns N',
+    'A factor of 2π — they used f where ω belongs',
+    'Nothing — the sim readout must be wrong',
+  ],
+  correctIndex: 0,
+  explanation:
+    'ℰ_peak = N·B₀·A·ω. Dropping A = πr² = 7.85×10⁻³ m² leaves N·B₀·ω = 10 × 0.05 × 62.8 = 31.4 — with units T/s, not volts: a weber needs the m² (Wb = T·m²). Restore the area: 31.4 × 7.85×10⁻³ = 0.247 V, matching the readout. The units test catches the slip without redoing any arithmetic.',
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: 'Check the units of their formula before checking any numbers.' },
+    { tier: 2, label: 'Procedural hint', content: 'ℰ = −N dΦ/dt and Φ = B·A. Which ingredient of Φ never appears in 31.4 = 10 × 0.05 × 62.8?' },
+    { tier: 3, label: 'Show worked step', content: 'ℰ_peak = N·B₀·A·ω = 10 × 0.05 × (π × 0.05²) × (2π × 10) ≈ 0.247 V — option A.' },
+  ],
+};
+
 const Q_LENZ_SIGN: QuizQuestion = {
   question: "In Faraday's law, EMF = −NdΦ/dt, the negative sign is a mathematical expression of:",
   options: ["Coulomb's law", "Lenz's law", "Ampère's law", "Ohm's law"],
@@ -63,18 +86,32 @@ const Q_LENZ_SIGN: QuizQuestion = {
   ],
 };
 
+const Q_MOTIONAL: QuizQuestion = {
+  question:
+    "An aircraft with a 60 m wingspan flies at 250 m/s through the vertical component of Earth's magnetic field, B = 5×10⁻⁵ T. What is the motional EMF between its wingtips?",
+  options: ['0.75 V', '0.75 mV', '75 V', 'Zero — there is no closed circuit, so no EMF'],
+  correctIndex: 0,
+  explanation:
+    'The wings are a flying rod: ε = Blv = 5×10⁻⁵ × 60 × 250 = 0.75 V. An EMF needs no closed circuit — the wingtips simply sit 0.75 V apart, like a battery nobody has connected (it is current that needs the loop). And you could never harvest it: any return wire flies through the same field and develops the same EMF, cancelling around the loop.',
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: 'The wingspan is the rod, the airspeed is v. Which formula from this block applies?' },
+    { tier: 2, label: 'Procedural hint', content: 'ε = Blv = 5×10⁻⁵ × 60 × 250. Carry the exponent carefully.' },
+    { tier: 3, label: 'Show worked step', content: '5×10⁻⁵ × 60 = 3×10⁻³; × 250 = 0.75 V — option A. Open-circuit EMF exists without current.' },
+  ],
+};
+
 const CHALLENGE: Challenge = {
   title: `Induce an EMF`,
-  description: `Use the induction simulation to investigate how the rate of magnetic-flux change and the number of loops together determine the induced EMF, and how the EMF direction tracks the changing flux (Lenz's law). The simulation drives a sinusoidal field B = sin(ωt) through the loops; you control its rate of change and the number of turns, and read the results in arbitrary units.`,
+  description: `Use the induction simulation to investigate how the rate of magnetic-flux change and the number of loops together determine the induced EMF, and how the EMF direction tracks the changing flux (Lenz's law). The simulation drives a sinusoidal field B = sin(ωt) through the loops; you control its rate of change and the number of turns, and read the results on a real model coil: radius 5 cm, peak field 50 mT, frequency set by you from 1 to 30 Hz.`,
   instructions: [
-    `Set the Loops (N) slider to 1 and the Rate (ω) slider to a low value (e.g. 0.5). Press Play in the PlayControls, then watch the EMF(t) readout in the Faraday's Law equation box and the on-canvas 'Induced EMF' label as the field cycles. Note the largest |EMF(t)| value you see.`,
-    `Drag the Rate (ω) slider (or the 'Drag to set ω' bar at the bottom of the canvas) up to about 2.0 and watch again: the induced-current arrows in the loop spin faster and the peak EMF(t) grows. Confirm that a faster dΦ/dt produces a larger induced EMF.`,
-    `Keep ω fixed and raise the Loops (N) slider from 1 toward 10. Watch the peak EMF(t) value in the equation box scale up roughly in proportion to N — verify that doubling the turns doubles the EMF, matching ℰ = −N dΦ/dt.`,
+    `Set the Loops (N) slider to 1 and the Frequency f slider to a low value (e.g. f = 5 Hz). Press Play in the PlayControls, then watch the EMF(t) readout in the Faraday's Law equation box and the on-canvas 'Induced EMF' label as the field cycles. Note the largest |EMF(t)| value you see.`,
+    `Drag the Frequency f slider (or the 'Drag to set f' bar at the bottom of the canvas) up to about 20 Hz and watch again: the induced-current arrows in the loop spin faster and the peak EMF(t) grows. Confirm that a faster dΦ/dt produces a larger induced EMF.`,
+    `Keep f fixed and raise the Loops (N) slider from 1 toward 10. Watch the peak EMF(t) value in the equation box scale up roughly in proportion to N — verify that doubling the turns doubles the EMF, matching ℰ = −N dΦ/dt.`,
     `Let it run and watch the 'B Field' label cycle between 'Out ⊙' and 'In ⊗' while the 'Induced EMF' label flips between 'CW ↻' and 'CCW ↺'. Note that the EMF reverses sign each time the flux switches from rising to falling — this sign flip is Lenz's law in action.`,
     `Use the Slider readouts and the live B(t) and EMF(t) values in the equation box to confirm the timing: EMF(t) peaks when B(t) crosses zero (fastest change) and falls to None when B(t) is at its maximum or minimum (momentarily unchanging).`,
     `Write a one-line conclusion tying your observations to ℰ = −N dΦ/dt: larger ω and larger N both increase the induced EMF, and the minus sign (the CW/CCW reversal) shows the EMF always opposes the change in flux.`,
   ],
-  hint: `There is no bar magnet to move here — the Rate (ω) slider IS your "magnet speed": it sets how fast the flux changes (dΦ/dt). Watch the EMF(t) readout peak exactly when the B Field label is switching between Out ⊙ and In ⊗.`,
+  hint: `There is no bar magnet to move here — the Frequency slider IS your "magnet speed": it sets how fast the flux changes (dΦ/dt). Watch the EMF(t) readout peak exactly when the B Field label is switching between Out ⊙ and In ⊗.`,
 };
 
 export function FaradaySection() {
@@ -206,7 +243,7 @@ export function FaradaySection() {
         ctx.fillStyle = isDarkMode ? '#94a3b8' : '#64748b';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`Drag to set ω = ${rate.toFixed(1)}`, cx, barY + 20);
+        ctx.fillText(`Drag to set f = ${rateToHz(rate).toFixed(0)} Hz`, cx, barY + 20);
       }
 
       animationRef.current = requestAnimationFrame(render);
@@ -294,7 +331,7 @@ export function FaradaySection() {
             </div>
           </div>
           <ControlPanel title="Experiment Controls">
-            <Slider label="Rate (ω)" value={rate} min={0.1} max={3.0} step={0.1} onChange={setRate} />
+            <Slider label={`Frequency f = ${rateToHz(rate).toFixed(0)} Hz`} value={rate} min={0.1} max={3.0} step={0.1} onChange={setRate} />
             <Slider label="Loops (N)" value={loops} min={1} max={10} onChange={setLoops} color="bg-indigo-600" />
             <PlayControls
               isPlaying={isPlaying}
@@ -343,17 +380,189 @@ export function FaradaySection() {
           title="Faraday's Law"
           equations={[
             { label: 'General', math: '\\mathcal{E} = -N \\frac{d\\Phi_B}{dt}', color: 'text-indigo-600' },
-            { label: 'Parameters', math: `N = ${loops},\\quad \\omega = ${rate.toFixed(1)}` },
-            { label: 'B(t)', math: `B = \\sin(\\omega t) \\approx ${liveB.toFixed(2)}` },
-            { label: 'EMF(t)', math: `\\mathcal{E} \\approx ${liveEmf.toFixed(2)}\\text{ (arb.)}`, color: Math.abs(liveEmf) > 0.5 ? 'text-amber-600 dark:text-amber-400 font-bold' : '' },
+            { label: 'Model coil', math: 'a = 5\\ \\text{cm},\\ A = \\pi a^2 = 7.85\\times 10^{-3}\\ \\text{m}^2,\\ B_0 = 50\\ \\text{mT}' },
+            { label: 'Parameters', math: `N = ${loops},\\quad f = ${rateToHz(rate).toFixed(0)}\\ \\text{Hz}` },
+            { label: 'B(t)', math: `B = B_0\\sin(2\\pi f t) \\approx ${(liveB * 50).toFixed(1)}\\ \\text{mT}` },
+            { label: 'EMF(t)', math: `\\mathcal{E} \\approx ${emfArbToMillivolts(liveEmf).toFixed(1)}\\ \\text{mV}`, color: Math.abs(liveEmf) > 0.5 ? 'text-amber-600 dark:text-amber-400 font-bold' : '' },
           ]}
         />
+
+        {/* ── Plausibility callout (unit 2G): the magnitude judgment the SI units enable ── */}
+        <PlausibilityCallout>
+          Max out the sim — N = 10 turns, f = 30 Hz, 50 mT through a 5 cm loop — and the
+          peak EMF is still only ≈ 0.74 V. Volts are <em>hard</em> to make with palm-sized
+          hardware. A grid generator gets to kilovolts by scaling every factor of{' '}
+          <MathWrapper formula="\mathcal{E} = N B A \omega" /> at once: hundreds of turns,
+          B near 1 T, square metres of coil, a 3000 rpm rotor.{' '}
+          <em>(Check: N = 100, B = 1 T, A = 1 m², ω = 314 rad/s → 31 kV — stator scale.)</em>{' '}
+          When homework hands you hundreds of volts from a desk-toy coil, run the magnitude
+          ladder before believing it.
+        </PlausibilityCallout>
 
         {/* Check: EMF magnitude calculation (after the Faraday's-law equation) */}
         <ConceptCheck data={toConceptCheck(Q_EMF_MAGNITUDE)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
+        {/* Check: critique exercise — the classmate's missing area (unit 2G) */}
+        <ConceptCheck data={toConceptCheck(Q_MISSING_AREA)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
         {/* Check: meaning of the negative sign (Lenz's law) */}
         <ConceptCheck data={toConceptCheck(Q_LENZ_SIGN)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
+        {/* ── Motional EMF: the rod on rails (unit 2D) ──
+            The derivations and the static figure are ungated (the figure is
+            purely presentational → gate-exempt, same class as FigureImage);
+            the EquationBox, the worked-numbers card and the energy-loop payoff
+            all sit behind the PredictionGate — the box's 'Energy audit' row IS
+            the gate's answer and its 'Drag force' row defuses the 'zero — constant
+            speed' trap, so neither may render before the prediction. */}
+        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            Motional EMF: the rod on rails
+          </h4>
+          <RodOnRailsFigure />
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <strong>Derivation 1 — the Lorentz view</strong> (the force you met in Section{' '}
+            {getSectionNumber('lorentz')}): drag a conducting rod of length{' '}
+            <MathWrapper formula="l" /> rightward at speed <MathWrapper formula="v" /> through a
+            field <MathWrapper formula="\vec{B}" /> (into the page). Every free charge{' '}
+            <em>inside the rod</em> is carried along at <MathWrapper formula="v" />, so each feels{' '}
+            <MathWrapper formula="\vec{F} = q\vec{v}\times\vec{B}" /> — magnitude{' '}
+            <MathWrapper formula="qvB" />, directed <strong>along the rod</strong> (check it:{' '}
+            <MathWrapper formula="\hat{x}\times(-\hat{z}) = +\hat{y}" />, up the rod for positive
+            charge). The magnetic force acts like a battery&apos;s chemistry: it pumps charge along
+            the rod. Work per unit charge from end to end:
+          </p>
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+            <MathWrapper block formula="\mathcal{E} = \frac{W}{q} = \frac{qvB \cdot l}{q} = Blv" />
+          </div>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <strong>Derivation 2 — the Faraday view:</strong> same answer, no force argument. The
+            loop&apos;s area is <MathWrapper formula="l \cdot x" />, so{' '}
+            <MathWrapper formula="\Phi = Blx" />, and
+          </p>
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+            <MathWrapper
+              block
+              formula="|\mathcal{E}| = \left|\frac{d\Phi}{dt}\right| = Bl\frac{dx}{dt} = Blv"
+            />
+          </div>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            Two different pieces of physics, one number — that agreement is not luck. In this
+            section&apos;s sim <em>you changed B with the loop fixed</em>; the rod{' '}
+            <em>changes the area with B fixed</em>. Faraday&apos;s law{' '}
+            <MathWrapper formula="\mathcal{E} = -N\,d\Phi_B/dt" /> covers both, and the Lorentz
+            force is the machinery behind the moving-conductor case. This is the generator: every
+            spinning turbine coil in the grid is rods sweeping through field.
+          </p>
+        </div>
+
+        <PredictionGate
+          question="You pull the rod at a steady 2.0 m/s against the magnetic drag. How does the mechanical power your hand delivers compare with the electrical power dissipated in the resistor?"
+          options={[
+            { id: 'more', label: 'More — some power is lost to the magnetic field' },
+            { id: 'equal', label: 'Exactly equal' },
+            { id: 'less', label: 'Less — the field contributes energy too' },
+            { id: 'zero', label: 'Zero — constant speed needs no power' },
+          ]}
+          getCorrectAnswer={() => 'equal'}
+          explanation={
+            <span>
+              Equal — and not approximately.{' '}
+              <MathWrapper formula="P_{mech} = Fv = (BIl)v = (Blv)I = \mathcal{E}I = P_{elec}" />:
+              the identity is algebra, not coincidence. The field brokers the transaction and keeps
+              nothing — a static magnetic field can do no work. (&quot;Zero&quot; is the subtle
+              trap: constant speed means zero <em>net</em> force, but the drag F = BIl is real, so
+              your hand pushes — and pushing at speed v is power.)
+            </span>
+          }
+          onPredict={(correct) => markPredictionGate('faraday', correct)}
+        >
+          {/* Summary equations (gated: 'Energy audit' is the gate's answer verbatim,
+              'Drag force' would defuse the constant-speed trap) */}
+          <EquationBox
+            title="Motional EMF (rod on rails)"
+            equations={[
+              { label: 'EMF', math: '\\mathcal{E} = Blv' },
+              { label: 'Current', math: 'I = Blv/R' },
+              { label: 'Drag force', math: 'F = BIl = B^2l^2v/R' },
+              { label: 'Energy audit', math: 'P_{mech} = Fv = \\mathcal{E}I = P_{elec}' },
+            ]}
+          />
+
+          {/* Worked example: run the whole loop, by hand */}
+          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+              Worked example: Run the whole loop, by hand
+            </h4>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              <MathWrapper formula="B = 0.5\,\text{T}" /> into the page, rod length{' '}
+              <MathWrapper formula="l = 0.4\,\text{m}" />, pulled at{' '}
+              <MathWrapper formula="v = 2.0\,\text{m/s}" />; total loop resistance{' '}
+              <MathWrapper formula="R = 0.1\,\Omega" />.
+            </p>
+            <div className="space-y-2 pl-4 border-l-2 border-engineering-blue-300 dark:border-engineering-blue-700">
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Step 1: EMF</p>
+              <MathWrapper
+                block
+                formula="\mathcal{E} = Blv = 0.5 \times 0.4 \times 2.0 = 0.40\,\text{V}"
+              />
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                Step 2: Current
+              </p>
+              <MathWrapper block formula="I = \mathcal{E}/R = 0.40/0.10 = 4.0\,\text{A}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                Direction: flux into the page is <em>growing</em>, so the induced current opposes
+                it — <strong>counter-clockwise</strong> (up the rod). Lenz, exactly as drawn in the
+                figure.
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                Step 3: The drag appears
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                That 4.0 A now flows <em>across</em> the field, so the rod itself feels the wire
+                force from Section {getSectionNumber('lorentz')}:
+              </p>
+              <MathWrapper block formula="F = BIl = 0.5 \times 4.0 \times 0.4 = 0.80\,\text{N}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                and <MathWrapper formula="I\,\vec{L}\times\vec{B}" /> points{' '}
+                <strong>left — against the pull</strong>. Lenz&apos;s law has become a measurable
+                force. Closed-form cross-check:{' '}
+                <MathWrapper formula="F = B^2l^2v/R = 0.25 \times 0.16 \times 2.0/0.1 = 0.80\,\text{N}" />{' '}
+                — identical.
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                Step 4: The books balance
+              </p>
+              <MathWrapper block formula="P_{mech} = Fv = 0.80 \times 2.0 = 1.6\,\text{W}" />
+              <MathWrapper block formula="P_{elec} = \mathcal{E}I = 0.40 \times 4.0 = 1.6\,\text{W}" />
+              <MathWrapper block formula="P_{heat} = I^2R = (4.0)^2 \times 0.1 = 1.6\,\text{W}" />
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                Three independent routes, one number.
+              </p>
+            </div>
+          </div>
+
+          {/* Reveal card: the energy loop closes */}
+          <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-900/15 p-5 space-y-3">
+            <p className="font-mono text-xs font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+              The energy loop closes
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Moving conductor → EMF (<MathWrapper formula="Blv" />) → current (
+              <MathWrapper formula="Blv/R" />) → opposing force (
+              <MathWrapper formula="B^2l^2v/R" />) → and the work done against that force comes
+              back out, joule for joule, as heat in the resistor.{' '}
+              <strong>This single loop is ILO 6 in one diagram</strong>: it is why Lenz&apos;s law{' '}
+              <em>must</em> oppose (aid the motion and the loop manufactures free energy), why
+              generators get harder to crank when you draw current from them, and why a magnetic
+              brake needs no brake pads. Next section ({getSectionNumber('lenz')}) you will{' '}
+              <em>feel</em> this drag in the magnet-and-coil sim — now you can also compute it.
+            </p>
+          </div>
+        </PredictionGate>
+
+        {/* Check: motional EMF between aircraft wingtips (CC-F) */}
+        <ConceptCheck data={toConceptCheck(Q_MOTIONAL)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
         <TheoryGuide>
           <p><strong>Induction:</strong> A changing magnetic field generates an Electric Field (EMF).</p>

@@ -18,8 +18,11 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { RealMedia } from './RealMedia';
 
 const POINTS = 200;
+/** Canvas attenuation scale: αpx = attenuation/300 px⁻¹, so slider = 1 damps a ~700 px canvas to ~10%. */
+const ATTEN_PX_SCALE = 1 / 300;
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
 const Q_TRIAD: QuizQuestion = {
@@ -74,6 +77,7 @@ const CHALLENGE: Challenge = {
     `Click the "AC Phasors" button. Drag the red V phasor tip and the amber I phasor tip around the dial (or use the "V Phase" and "I Phase" sliders), and watch both rotate together while keeping their fixed angular separation — read the live "Δφ = …°" and the "V leads I" / "V lags I" label.`,
     `With the phasors in phase (Δφ ≈ 0°), note the purple P(t) power curve sits mostly positive and the equation box shows the largest P_avg = ½V₀I₀cos(Δφ). Then set the phase difference to 90° and observe P_avg collapse toward zero — the cos(Δφ) power factor is doing the work.`,
     `Sweep Δφ between 0° and 90° (and try 180°) and conclude how the time-averaged power depends on cos(Δφ): maximum when in phase, zero at 90°, and negative-leaning when the phasors oppose.`,
+    `Back in the EM Wave 2D view, drag the new "Attenuation α (arb.)" slider from 0 to 1 and watch the dashed envelope eat the wave from left to right while the wavelength stays fixed; contrast with the Medium (n) dropdown, which slows and compresses the wave without shrinking it — loss and refraction are independent knobs a real material can turn at the same time.`,
   ],
   hint: `The same sinusoid drives both halves of this section: a faster-oscillating or denser medium reshapes the wave (v = c/n, λ shrinks, f fixed), and the angle between two rotating phasors sets the AC power through the cos(Δφ) factor — line up the phasors and power peaks, cross them at 90° and power vanishes.`,
 };
@@ -99,6 +103,7 @@ export function EMWaveSection() {
     iPhase: 0,
     isPlaying: true,
     refractiveIndex: 1.0,
+    attenuation: 0,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -446,6 +451,7 @@ export function EMWaveSection() {
     const omega = 2 * Math.PI * state.frequency;
     const k = (2 * Math.PI * state.frequency * state.refractiveIndex) / 300;
     const bVisualAmplitude = state.amplitude * state.refractiveIndex;
+    const alphaPx = state.attenuation * ATTEN_PX_SCALE;
 
     if (viewMode === WaveViewMode.VIEW_VI) {
       drawVIView(ctx, width, height, t, omega);
@@ -471,13 +477,31 @@ export function EMWaveSection() {
       ctx.strokeStyle = c.E_FIELD;
       ctx.beginPath();
       for (let i = 0; i <= POINTS; i++) {
-        const x = startX + (i / POINTS) * drawWidth;
-        const ph = k * ((i / POINTS) * drawWidth) - omega * t * 0.02 * state.speed;
-        const val = state.amplitude * Math.sin(ph);
+        const xOff = (i / POINTS) * drawWidth;
+        const x = startX + xOff;
+        const ph = k * xOff - omega * t * 0.02 * state.speed;
+        const val = state.amplitude * Math.exp(-alphaPx * xOff) * Math.sin(ph);
         const y = cyE - val;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
+
+      // Dashed decay envelope ±A·e^(−αpx·x) over the E panel (only when lossy)
+      if (state.attenuation > 0) {
+        ctx.strokeStyle = c.TEXT_MUTED;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        for (const sign of [1, -1]) {
+          ctx.beginPath();
+          for (let i = 0; i <= POINTS; i++) {
+            const xOff = (i / POINTS) * drawWidth;
+            const y = cyE - sign * state.amplitude * Math.exp(-alphaPx * xOff);
+            if (i === 0) ctx.moveTo(startX + xOff, y); else ctx.lineTo(startX + xOff, y);
+          }
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
 
       // Amplitude marker
       const ampX = startX + 40;
@@ -526,9 +550,10 @@ export function EMWaveSection() {
       ctx.strokeStyle = c.B_FIELD;
       ctx.beginPath();
       for (let i = 0; i <= POINTS; i++) {
-        const x = startX + (i / POINTS) * drawWidth;
-        const ph = k * ((i / POINTS) * drawWidth) - omega * t * 0.02 * state.speed;
-        const val = bVisualAmplitude * Math.sin(ph);
+        const xOff = (i / POINTS) * drawWidth;
+        const x = startX + xOff;
+        const ph = k * xOff - omega * t * 0.02 * state.speed;
+        const val = bVisualAmplitude * Math.exp(-alphaPx * xOff) * Math.sin(ph);
         const y = cyB - val;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
@@ -540,19 +565,21 @@ export function EMWaveSection() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (let i = 0; i <= POINTS; i += 10) {
-        const x = startX + (i / POINTS) * drawWidth;
-        const ph = k * ((i / POINTS) * drawWidth) - omega * t * 0.02 * state.speed;
-        const val = bVisualAmplitude * Math.sin(ph);
+        const xOff = (i / POINTS) * drawWidth;
+        const x = startX + xOff;
+        const ph = k * xOff - omega * t * 0.02 * state.speed;
+        const val = bVisualAmplitude * Math.exp(-alphaPx * xOff) * Math.sin(ph);
         if (Math.abs(val) > 5) {
           const symbol = val > 0 ? '⊙' : '⊗';
           ctx.fillText(symbol, x, cyB + (val > 0 ? 15 : -15));
         }
       }
 
-      // Energy density bar: u ∝ E² + B² ∝ sin²(kx - ωt) at midpoint
+      // Energy density bar: u ∝ E² + B² ∝ e^(−2αx)·sin²(kx − ωt) at midpoint —
+      // the same e^(−αx) envelope the field curves above carry, squared.
       const midPh = k * (drawWidth / 2) - omega * t * 0.02 * state.speed;
-      const sinVal = Math.sin(midPh);
-      const uNorm = sinVal * sinVal; // u ∝ sin²
+      const sinVal = Math.exp(-alphaPx * (drawWidth / 2)) * Math.sin(midPh);
+      const uNorm = sinVal * sinVal; // u ∝ e^(−2αx)·sin²
       const barY = height / 2 - 8;
       const barW = 120;
       ctx.fillStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
@@ -607,9 +634,10 @@ export function EMWaveSection() {
       ctx.beginPath();
       ctx.strokeStyle = c.E_FIELD;
       for (let i = 0; i <= POINTS; i++) {
-        const x = startX + (i / POINTS) * drawWidth;
-        const ph = k * ((i / POINTS) * drawWidth) - omega * t * 0.02 * state.speed;
-        const val = state.amplitude * Math.sin(ph);
+        const xOff = (i / POINTS) * drawWidth;
+        const x = startX + xOff;
+        const ph = k * xOff - omega * t * 0.02 * state.speed;
+        const val = state.amplitude * Math.exp(-alphaPx * xOff) * Math.sin(ph);
         const y = centerY - val;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         if (i % 8 === 0) {
@@ -630,9 +658,10 @@ export function EMWaveSection() {
       ctx.beginPath();
       ctx.strokeStyle = c.B_FIELD;
       for (let i = 0; i <= POINTS; i++) {
-        const x = startX + (i / POINTS) * drawWidth;
-        const ph = k * ((i / POINTS) * drawWidth) - omega * t * 0.02 * state.speed;
-        const val = bVisualAmplitude * Math.sin(ph);
+        const xOff = (i / POINTS) * drawWidth;
+        const x = startX + xOff;
+        const ph = k * xOff - omega * t * 0.02 * state.speed;
+        const val = bVisualAmplitude * Math.exp(-alphaPx * xOff) * Math.sin(ph);
         const drawX = x - val * 0.5;
         const drawY = centerY + val * 0.6;
         if (i === 0) ctx.moveTo(drawX, drawY); else ctx.lineTo(drawX, drawY);
@@ -1044,6 +1073,9 @@ export function EMWaveSection() {
                   <option value="1.33">Water (n=1.33)</option>
                   <option value="1.5">Glass (n=1.50)</option>
                 </select>
+                <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                  n bends and slows the wave; α eats it. A real material can do both.
+                </p>
               </div>
             )}
             <Slider
@@ -1063,6 +1095,17 @@ export function EMWaveSection() {
                 max={100}
                 onChange={(v) => setState((s) => ({ ...s, amplitude: v }))}
                 color="bg-pink-600"
+              />
+            )}
+            {viewMode !== WaveViewMode.VIEW_VI && (
+              <Slider
+                label="Attenuation α (arb.)"
+                value={state.attenuation}
+                min={0}
+                max={2}
+                step={0.1}
+                onChange={(v) => setState((s) => ({ ...s, attenuation: v }))}
+                color="bg-rose-600"
               />
             )}
             {viewMode === WaveViewMode.VIEW_VI && (
@@ -1159,6 +1202,7 @@ export function EMWaveSection() {
                   { label: 'B(x,t)', math: `\\frac{E_0}{v} \\sin(kx - \\omega t) = \\frac{n E_0}{c} \\sin(kx - \\omega t)`, color: 'text-blue-600' },
                   { label: 'Velocity', math: `v = \\frac{c}{n} = \\frac{c}{${state.refractiveIndex}}` },
                   { label: 'Wavelength', math: `\\lambda = \\frac{\\lambda_0}{n} \\approx ${lambda} \\text{ (arb.)}` },
+                  { label: 'Lossy medium', math: `E(x,t) = E_0 e^{-\\alpha x}\\sin(kx-\\omega t),\\quad \\alpha = ${state.attenuation.toFixed(1)}\\ \\text{(arb.)}`, color: 'text-rose-600 dark:text-rose-400' },
                   { label: 'Energy', math: 'u = \\frac{1}{2}\\epsilon_0 E^2 + \\frac{1}{2\\mu_0} B^2', color: 'text-purple-600 dark:text-purple-400' },
                   { label: 'Poynting', math: '\\vec{S} = \\frac{1}{\\mu_0}(\\vec{E} \\times \\vec{B})', color: 'text-purple-600 dark:text-purple-400' },
                 ]
@@ -1237,6 +1281,11 @@ export function EMWaveSection() {
             </>
           )}
         </TheoryGuide>
+        <RealMedia
+          onCheckComplete={onCheckComplete}
+          onCheckHint={onCheckHint}
+          onGatePredict={(correct) => markPredictionGate('em-wave', correct)}
+        />
       </div>
       <GuidedChallenge challenge={CHALLENGE} />
     </SectionLayout>

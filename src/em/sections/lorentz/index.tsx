@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { Move } from 'lucide-react';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
@@ -13,9 +14,11 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { sliderToSpeedKms, pxPerSecToKms, cyclotronRadiusMm, forceAttoN } from './unitMapping';
 
 interface ParticleState {
   x: number;
@@ -68,13 +71,32 @@ const Q_FORCE_DIR: QuizQuestion = {
   ],
 };
 
+const Q_SELECTOR: QuizQuestion = {
+  question:
+    'A velocity selector has crossed fields E = 1.0×10⁵ V/m and B = 0.5 T, arranged so the electric and magnetic forces on a moving charge oppose. Which particles pass through undeflected?',
+  options: [
+    'Those with v = 2.0×10⁵ m/s — regardless of charge or mass',
+    'Only positive charges with v = 2.0×10⁵ m/s — negative ones deflect the other way',
+    'Those with v = 5.0×10⁴ m/s',
+    'Lighter particles, at any speed',
+  ],
+  correctIndex: 0,
+  explanation:
+    'Undeflected means zero net force: qE = qvB, so v = E/B = (1.0×10⁵)/(0.5) = 2.0×10⁵ m/s. The charge cancels — flipping its sign flips BOTH forces, so the balance survives — and mass never enters at all. (5.0×10⁴ is E×B; the selector divides.) This q- and m-blindness is the whole point: it hands the mass spectrometer a single-speed beam.',
+  hints: [
+    { tier: 1, label: 'Conceptual hint', content: 'Straight-line passage = zero net force. Set the two force magnitudes equal.' },
+    { tier: 2, label: 'Procedural hint', content: 'qE = qvB. Solve for v and watch what cancels.' },
+    { tier: 3, label: 'Show worked step', content: 'v = E/B = 1.0×10⁵ / 0.5 = 2.0×10⁵ m/s, for either charge sign and any mass — option A.' },
+  ],
+};
+
 const CHALLENGE: Challenge = {
   title: `Cyclotron Radius Investigation`,
-  description: `Send a charged particle circling in a uniform magnetic field and discover how the cyclotron radius depends on speed, field strength, mass, and charge — verifying r = mv / (|q|B) using the simulation's live readouts and on-screen vectors.`,
+  description: `Send a charged particle circling in a uniform magnetic field and discover how the cyclotron radius depends on speed, field strength, mass, and charge — verifying r = mv / (|q|B) using the simulation's live readouts and on-screen vectors — now in real ion units (u, e, mT, km/s, mm).`,
   instructions: [
-    `Set the 'Velocity v' slider to a clear positive value (e.g. 50) and the 'B-field' slider positive (the canvas label should read 'External B: Into Page'), then click 'Respawn' so the particle launches into a steady circular orbit. Hover the mouse over the canvas (without dragging) to reveal the readout box and note the |v| and r_c (cyclotron radius) values.`,
-    `Without changing anything else, drag the 'Velocity v' slider to roughly double its value and click 'Respawn'. Hover again and confirm r_c grows in proportion to |v| — doubling the speed roughly doubles the radius.`,
-    `Return 'Velocity v' to its original value and Respawn. Now increase the magnitude of the 'B-field' slider (push it further from 0). Hover and confirm r_c shrinks: a stronger field tightens the orbit (r_c is inversely proportional to B).`,
+    `Set the 'Launch speed' slider to a clear positive value (the default ≈ +12 km/s) and the 'B-field' slider positive (the canvas label should read 'External B: Into Page'), then click 'Respawn' so the particle launches into a steady circular orbit. Hover the mouse over the canvas (without dragging) to reveal the readout box and note the |v| and r_c (cyclotron radius) values.`,
+    `Without changing anything else, drag the 'Launch speed' slider to roughly double its value and click 'Respawn'. Hover again and confirm r_c grows in proportion to |v| — doubling the speed roughly doubles the radius.`,
+    `Return 'Launch speed' to its original value and Respawn. Now increase the magnitude of the 'B-field' slider (push it further from 0). Hover and confirm r_c shrinks: a stronger field tightens the orbit (r_c is inversely proportional to B).`,
     `Raise the 'Mass m' slider toward 5 and Respawn. Hover to see r_c expand — heavier particles are harder to deflect — matching the m in r = mv / (|q|B). Cross-check your numbers against the live 'Computed r' line in the Lorentz Force equation box.`,
     `Watch the green 'v' arrow and the 'F' force arrow on the particle: confirm F is always perpendicular to v (it points toward the orbit centre), so the magnetic force does no work and the speed stays constant — only the direction turns.`,
     `Flip the 'Charge q' slider to a negative value and Respawn; observe that the orbit circulates the opposite way (the canvas readout still shows the same r_c, since r depends on |q|). Conclude how velocity, field, mass, and charge each shape the cyclotron orbit.`,
@@ -321,31 +343,33 @@ export function LorentzSection() {
           ctx.fill();
         }
 
-        // Drag hints
+        // Drag hints + SI scale legend (unit 2G: the mapping is a pure relabel)
         ctx.fillStyle = col.TEXT_MUTED;
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, cvs.height - 10);
+        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, cvs.height - 24);
+        ctx.fillText('Scale: 1 px = 1 mm · ion (q in e, m in u) · ~100,000× slow motion', 10, cvs.height - 10);
 
-        // Hover readout: show speed, |F|, cyclotron radius
+        // Hover readout: speed, |F|, cyclotron radius — in real SI (unit 2G).
+        // r in px IS r in mm by construction (1 px = 1 mm), so the px arithmetic
+        // is kept verbatim and only the unit suffix is added.
         if (hoverPos.current && dragMode === 'none') {
           const speed = Math.hypot(p.vx, p.vy);
           const Beff = Math.abs(bField / 20);
-          const Fmag = Math.abs(charge) * speed * Beff;
           const rCyc = Beff > 0.01 && charge !== 0
-            ? (mass * speed / (Math.abs(charge) * Beff)).toFixed(1)
+            ? `${(mass * speed / (Math.abs(charge) * Beff)).toFixed(1)} mm`
             : '∞';
 
           const lines = [
-            `|v| = ${speed.toFixed(1)}`,
-            `|F| = ${Fmag.toFixed(1)}`,
+            `|v| = ${pxPerSecToKms(speed).toFixed(1)} km/s`,
+            `|F| = ${forceAttoN(Math.abs(charge), pxPerSecToKms(speed), Beff).toFixed(1)} aN`,
             `r_c = ${rCyc}`,
           ];
 
           ctx.font = '10px monospace';
-          const tw = 110;
+          const tw = 130;
           const th = 46;
-          const tx = 10, ty = cvs.height - 65;
+          const tx = 10, ty = cvs.height - 80;
           ctx.fillStyle = isDarkMode ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)';
           ctx.beginPath();
           ctx.roundRect(tx, ty, tw, th, 4);
@@ -415,10 +439,10 @@ export function LorentzSection() {
             </div>
           </div>
           <ControlPanel title="Particle Controls">
-            <Slider label={`Charge q = ${charge} (arb. units)`} value={charge} min={-5} max={5} onChange={setCharge} color="bg-red-600" />
-            <Slider label={`Mass m = ${mass} (arb. units)`} value={mass} min={0.5} max={5} step={0.5} onChange={setMass} color="bg-slate-500" />
-            <Slider label={`Velocity v = ${velocity} (arb.)`} value={velocity} min={-100} max={100} onChange={setVelocity} color="bg-emerald-600" />
-            <Slider label={`B-field = ${(bField / 20).toFixed(1)} (arb.)`} value={bField} min={-100} max={100} onChange={setBField} color="bg-blue-600" />
+            <Slider label={`Charge q = ${charge} e`} value={charge} min={-5} max={5} onChange={setCharge} color="bg-red-600" />
+            <Slider label={`Mass m = ${mass} u`} value={mass} min={0.5} max={5} step={0.5} onChange={setMass} color="bg-slate-500" />
+            <Slider label={`Launch speed = ${velocity >= 0 ? '+' : '−'}${sliderToSpeedKms(velocity).toFixed(1)} km/s`} value={velocity} min={-100} max={100} onChange={setVelocity} color="bg-emerald-600" />
+            <Slider label={`B-field = ${(bField / 20).toFixed(1)} mT`} value={bField} min={-100} max={100} onChange={setBField} color="bg-blue-600" />
             <button
               onClick={handleReset}
               className="w-full mt-4 py-3 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg font-bold text-slate-700 dark:text-slate-200 flex justify-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
@@ -432,6 +456,17 @@ export function LorentzSection() {
           </ControlPanel>
         </div>
       </PredictionGate>
+
+      {/* ── Plausibility callout (unit 2G): the magnitude judgment the SI units enable ── */}
+      <PlausibilityCallout>
+        Hover the orbit at the default settings:{' '}
+        <MathWrapper formula="|F| \approx 4.8\ \text{aN}" /> — five billionths of a billionth
+        of a newton. How can a force that feeble bend the beam into a tight 100 mm circle?
+        Judge a force against the inertia it acts on:{' '}
+        <MathWrapper formula="a = F/m \approx \frac{4.8\times10^{-18}}{3.3\times10^{-27}} \approx 1.5\times10^{9}\ \text{m/s}^2" />{' '}
+        — about 150 million g. (And gravity on this ion is ~3×10⁻²⁶ N, eight orders below
+        the magnetic force — which is why the sim honestly ignores it.)
+      </PlausibilityCallout>
 
       {/* Check: circular motion (after observing the v × B trajectory) */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
@@ -457,10 +492,12 @@ export function LorentzSection() {
         <EquationBox
           title="Lorentz Force"
           equations={[
-            { label: 'Force', math: '\\vec{F} = q(\\vec{v} \\times \\vec{B})', color: 'text-amber-600 dark:text-amber-400' },
+            { label: 'Full force', math: '\\vec{F} = q(\\vec{E} + \\vec{v} \\times \\vec{B})', color: 'text-indigo-600 dark:text-indigo-400' },
+            { label: 'Magnetic part', math: '\\vec{F} = q(\\vec{v} \\times \\vec{B})', color: 'text-amber-600 dark:text-amber-400' },
             { label: 'Radius', math: 'r = \\frac{mv}{|q|B}', color: 'text-emerald-600 dark:text-emerald-400' },
+            { label: 'On a wire', math: '\\vec{F} = I\\,\\vec{L} \\times \\vec{B}', color: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'Computed r', math: charge !== 0 && bField !== 0
-              ? `r = \\frac{${mass} \\times ${Math.abs(velocity)}}{${Math.abs(charge)} \\times ${Math.abs(bField / 20).toFixed(1)}} = ${(mass * Math.abs(velocity) / (Math.abs(charge) * Math.abs(bField / 20 || 1))).toFixed(1)} \\text{ (arb.)}`
+              ? `r = \\frac{${mass}\\,\\text{u} \\times ${sliderToSpeedKms(velocity).toFixed(1)}\\,\\text{km/s}}{${Math.abs(charge)}\\,e \\times ${Math.abs(bField / 20).toFixed(1)}\\,\\text{mT}} = ${cyclotronRadiusMm(mass, Math.abs(charge), Math.abs(bField / 20), sliderToSpeedKms(velocity)).toFixed(0)}\\ \\text{mm}`
               : '\\text{—}' },
           ]}
         />
@@ -470,6 +507,139 @@ export function LorentzSection() {
 
         {/* Check: force direction from v × B */}
         <ConceptCheck data={toConceptCheck(Q_FORCE_DIR)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
+        {/* ── The complete Lorentz force (unit 2D — ILO 2 polish) ── */}
+        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            The complete Lorentz force
+          </h4>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            The sim above lives entirely in the magnetic term — and so has every formula in Part 2
+            so far. The full law has two halves:
+          </p>
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+            <MathWrapper block formula="\vec{F} = q\vec{E} + q\,\vec{v} \times \vec{B}" />
+          </div>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            They behave <strong>nothing alike</strong>. The electric half pushes along{' '}
+            <MathWrapper formula="\vec{E}" /> whether the charge moves or not, and{' '}
+            <strong>does work</strong> — it is the only half that can change a particle&apos;s
+            speed. The magnetic half needs motion, always pushes at right angles to it, and{' '}
+            <strong>never does work</strong> (<MathWrapper formula="\vec{F}\cdot\vec{v} = 0" /> —
+            you watched the sim&apos;s speed stay constant for exactly this reason). Accelerators
+            exploit the division of labour: E-fields to speed particles up, B-fields to steer them
+            around the ring.
+          </p>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <strong>The crossed-field trick:</strong> arrange{' '}
+            <MathWrapper formula="\vec{E} \perp \vec{B}" /> so the two forces oppose. For one
+            special speed they cancel exactly:
+          </p>
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+            <MathWrapper block formula="qE = qvB \;\Longrightarrow\; v = \frac{E}{B}" />
+          </div>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            Notice what dropped out: <strong>q and m both</strong>. Any particle — proton,
+            electron, ion, either sign — flies straight through if and only if its speed is E/B.
+            That is a <strong>velocity selector</strong>: the front door of every mass
+            spectrometer, delivering a single-speed beam so that the magnetic stage afterwards can
+            sort by mass alone (<MathWrapper formula="r = mv/qB" />, the radius you measured
+            above).
+          </p>
+        </div>
+
+        {/* Check: velocity selector — crossed E and B fields (CC-L) */}
+        <ConceptCheck data={toConceptCheck(Q_SELECTOR)} onComplete={onCheckComplete} onHint={onCheckHint} />
+
+        {/* ── From particles to wires: F = BIl (unit 2D — pays the forward reference from ampere) ── */}
+        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            From particles to wires: F = BIl
+          </h4>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            A wire is just a pipe of drifting charges, so the magnetic force on it is bookkeeping.
+            Take a straight segment: length <MathWrapper formula="l" />, cross-section{' '}
+            <MathWrapper formula="A" />, carrier density <MathWrapper formula="n" /> per m³, each
+            carrier with charge <MathWrapper formula="q" /> drifting at{' '}
+            <MathWrapper formula="v_d" />:
+          </p>
+          <ul className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed list-disc pl-5 space-y-1">
+            <li>
+              Carriers in the segment: <MathWrapper formula="nAl" />
+            </li>
+            <li>
+              Force on each: <MathWrapper formula="qv_d B" /> (field ⊥ wire)
+            </li>
+            <li>
+              Total: <MathWrapper formula="F = (nAl)(qv_d B) = (nAqv_d)(lB)" />
+            </li>
+          </ul>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            But <MathWrapper formula="nAqv_d" /> <strong>is the current</strong>{' '}
+            <MathWrapper formula="I" /> — the same regrouping that defines it. So:
+          </p>
+          <div className="bg-white dark:bg-slate-800/60 rounded-lg p-4">
+            <MathWrapper
+              block
+              formula="F = BIl \qquad\text{(} \perp \text{ case)} \qquad\qquad \vec{F} = I\,\vec{L} \times \vec{B} \qquad\text{(general)}"
+            />
+          </div>
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            The microscopic drift speed (sub-millimetre per second in copper) and the carrier count
+            both vanish into <MathWrapper formula="I" /> — the force cares only about the{' '}
+            <em>current</em>, which is why a wire carrying 10 A feels the same force whether it is
+            copper, aluminium, or a salt solution. Section {getSectionNumber('ampere')} already
+            used this to weigh two wires against each other; here is where it comes from.
+          </p>
+        </div>
+
+        {/* Worked example: why a loudspeaker works (F = BIl in a radial gap field) */}
+        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 space-y-3">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+            Worked example: Why a loudspeaker works
+          </h4>
+          <p className="text-sm text-slate-700 dark:text-slate-300">
+            A voice coil sits in the radial field of a ring magnet,{' '}
+            <MathWrapper formula="B = 1.0\,\text{T}" /> everywhere in the gap. The coil:{' '}
+            <MathWrapper formula="N = 100" /> turns of diameter{' '}
+            <MathWrapper formula="25\,\text{mm}" />, driven at{' '}
+            <MathWrapper formula="I = 0.50\,\text{A}" />.
+          </p>
+          <div className="space-y-2 pl-4 border-l-2 border-engineering-blue-300 dark:border-engineering-blue-700">
+            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              Step 1: Wire length in the field
+            </p>
+            <MathWrapper
+              block
+              formula="l = N \cdot \pi D = 100 \times \pi \times 0.025 = 2.5\pi \approx 7.85\,\text{m}"
+            />
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              Nearly eight metres of wire hiding in a palm-sized coil.
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">Step 2: Force</p>
+            <MathWrapper
+              block
+              formula="F = BIl = 1.0 \times 0.50 \times 7.85 = 3.93\,\text{N} \approx 3.9\,\text{N}"
+            />
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              The <em>radial</em> field geometry is the clever part: every point of every circular
+              turn crosses B at right angles, so the whole 7.85 m contributes — and the force is
+              axial (in/out), exactly the direction a cone must move.
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              Step 3: Does this make sense?
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              The moving mass (coil + cone) is about 10 g, so{' '}
+              <MathWrapper formula="a = F/m = 3.93/0.010 \approx 393\,\text{m/s}^2" /> — about 40 g
+              of acceleration (393/9.81 ≈ 40). Sounds violent, but a cone reproducing 20 kHz
+              reverses direction 40 000 times a second — huge accelerations over micrometre
+              excursions are precisely the job. A DC motor is the same{' '}
+              <MathWrapper formula="\vec{F} = I\,\vec{L} \times \vec{B}" /> on each rotor
+              conductor, with the force turned into torque by the lever arm of the rotor radius.
+            </p>
+          </div>
+        </div>
 
         <TheoryGuide>
           <p>

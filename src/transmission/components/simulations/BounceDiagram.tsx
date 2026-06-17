@@ -595,7 +595,7 @@ export function BounceDiagram({ className = '' }: BounceDiagramProps) {
         {/* Fixed parameters & steady-state readout */}
         <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400 font-mono pt-2 border-t border-slate-100 dark:border-slate-700">
           <span>V<sub>s</sub> = {VS}V</span>
-          <span>Z<sub>0</sub> = {Z0}\u03A9</span>
+          <span>Z<sub>0</sub> = {Z0}Ω</span>
           <span>V<sub>0</sub> = {initialVoltage(gammaSource).toFixed(2)}V</span>
           <span className="font-semibold text-engineering-blue-600 dark:text-engineering-blue-400">
             V<sub>ss</sub> = {Number.isFinite(vSS) ? `${vSS.toFixed(2)}V` : '\u221E (unstable)'}

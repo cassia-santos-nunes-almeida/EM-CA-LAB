@@ -4,6 +4,7 @@ import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { CollapsibleSection } from '@shared/components/common/CollapsibleSection';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { SectionHook } from '@shared/components/common/SectionHook';
@@ -205,25 +206,15 @@ export function TransmissionLines() {
         }}
       />
 
-      <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
-        <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
-          Does this make sense?
-        </p>
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          For a short circuit, <MathWrapper formula="\Gamma = -1" />. The voltage at
-          the load is zero. Is that consistent with what a short circuit means?
-        </p>
-      </div>
-      <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
-        <p className="text-xs font-semibold text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">
-          Does this make sense?
-        </p>
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          A 50 &Omega; coaxial cable has <MathWrapper formula="Z_0 = 50\,\Omega" />{' '}
-          regardless of its length. Why does length not appear in the{' '}
-          <MathWrapper formula="Z_0" /> formula?
-        </p>
-      </div>
+      <PlausibilityCallout>
+        For a short circuit, <MathWrapper formula="\Gamma = -1" />. The voltage at
+        the load is zero. Is that consistent with what a short circuit means?
+      </PlausibilityCallout>
+      <PlausibilityCallout>
+        A 50 &Omega; coaxial cable has <MathWrapper formula="Z_0 = 50\,\Omega" />{' '}
+        regardless of its length. Why does length not appear in the{' '}
+        <MathWrapper formula="Z_0" /> formula?
+      </PlausibilityCallout>
     </section>
   );
 
