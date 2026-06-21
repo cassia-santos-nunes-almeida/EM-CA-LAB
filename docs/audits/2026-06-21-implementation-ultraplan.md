@@ -17,6 +17,29 @@ sibling; **tabs-unify is already done at baseline and is struck from scope.**
 
 ---
 
+## Standing principles (owner directive, 2026-06-22)
+
+These apply to **every** item below, including the safe-wins.
+
+1. **Strict correctness is non-negotiable.** Every formula, numeric worked example, unit / dimensional
+   consistency, ConceptCheck answer *and* distractor, prediction-gate correct-answer rule, simulation math,
+   and conceptual/prose claim must be rigorously correct — verified against Ulaby/Ida/Nilsson and first
+   principles, not assumed. Nothing is "probably fine."
+2. **Simplify wherever possible — safely.** Remove duplication and dead code, consolidate divergent patterns,
+   cut incidental complexity — but **only** when the change preserves every existing behavior *and* the
+   physics/maths rigor, **proven by tests, not assumed**. Do **not** add functionality.
+3. **Hold the bar.** No lazy or "safest-quick" fixes, no symptom-patching, no leaving a known-questionable
+   thing because it's faster. Root-cause everything; verify before claiming done.
+
+> **Net before refactor (hard sequencing).** The audit proved the suite asserts structure but **no** test
+> asserts physics correctness — so any simplification done *before* a correctness/units test net exists is
+> precisely the unreliable shortcut principle 3 forbids. Therefore #9 (correctness pass + permanent net) is a
+> prerequisite for **all** of Track C (simplification).
+
+A comprehensive correctness audit — every formula / unit / ConceptCheck / gate / sim-math / prose claim across
+all 25 sections vs Ulaby/Ida/Nilsson, each reported defect independently recomputed — is **running now**
+(`wf_ad494dba-25b`). Its verified defect list will be appended here; confirmed defects fold into #9.
+
 ## Track A — Safe wins (no owner decision; start on approval)
 
 | # | Item | Effort | Why |
@@ -29,7 +52,7 @@ sibling; **tabs-unify is already done at baseline and is struck from scope.**
 | 6 | **Add a `PlausibilityCallout` to lenz, polarization, maxwell** (the ILO-8 EM hole; grep count 0 each). ~6-line callout anchoring one computed quantity to a real magnitude + `getAllByText('Does this make sense?')` smoke assertion, mirroring ampere/gauss/magnetic-circuits. | M ~1.5d | **#1 content gap.** Highest-value pedagogical add; zero physics/curriculum change. |
 | 7 | **Resolve GuidedChallenge completion tracking** — wire `onComplete` (`:20,27,32-35`) to the store, or document it non-tracked, consistently across call sites. | S ~0.5d | Removes ambiguity; either resolution is internally consistent and reversible. |
 | 8 | **Audit + add a `PredictionGate` to laplace-theory** (zero gates today; the one circuits theory section missing the locked predict-first pattern). Confirm it isn't intentionally a pure-derivation chapter first. | S-M ~1d (dep: #1) | Honors "blocking predict-first everywhere." Any gate inside its Tabs must lift state above the tab (the #1 remount caveat). |
-| 9 | **Add a physics/coefficient correctness smoke layer.** Golden-number assertions on high-traffic worked examples (B=4.00 T, ζ, M≈126 µH) + a lint forbidding raw double-backslash literals in `formula=` props. **Do NOT re-derive the clean solvers** — guard the rendered output. | M ~2d | Closes the blind spot that makes every future content edit risky (premortem #1 / KaTeX-bug class). |
+| 9 | **Comprehensive correctness pass + permanent net (UPGRADED per directive).** (a) Fix every *confirmed* defect from the strict-correctness audit across all 25 sections — formulas, numeric examples, units, ConceptCheck answers+distractors, gate rules, sim math, prose claims. (b) Lock it in: golden-number assertions on every worked example, a dimensional/unit check, and a KaTeX literal-backslash lint over all `formula=` props. **Do NOT re-derive the clean solvers** — guard rendered output + everything else. | L ~3-5d (was M) | The directive's backbone safe-win and the **prerequisite for all of Track C**. Depends on the correctness audit (`wf_ad494dba-25b`). Closes premortem #1 (no test asserts physics correctness). |
 
 **Track A total ≈ 7.5 days.** All independent except #8 (depends on #1).
 
@@ -58,6 +81,22 @@ sibling; **tabs-unify is already done at baseline and is struck from scope.**
 | 14 | **Migrate EM sims to the self-measuring `getBoundingClientRect` hook** — retires the entire canvas-mis-size risk class by decoupling sizing from layout (SWOT's recommended sequencing: do this *before* committing to any bench). | L ~3-5d | #2, #12 | Approve the 10-sim port. |
 
 ---
+
+## Track C — Safe simplification (gated behind the correctness net, per directive)
+
+Simplify wherever possible **without losing any functionality or physics rigor — proven by tests**. Every item
+here ships only after #9's correctness/units net covers the touched code, and must be green on the full unit
+suite **and** e2e before merge. **Rule:** if a simplification's behavior and rigor can't be pinned by a test,
+it does not ship — that is the "no quick, unreliable fix" line.
+
+| Item | Notes |
+|---|---|
+| Consolidate the 3 canvas-sizing strategies onto the one self-measuring hook | overlaps Track-B #14; retires a whole bug class |
+| De-duplicate the triplicated section chrome into the shared `SectionShell` | overlaps Track-B #10/#13 |
+| Remove dead code — the at-origin distractor (#4) and any unreachable branches the correctness audit flags | each test-guarded |
+| Per-section simplifications surfaced by the correctness audit (`wf_ad494dba-25b`) | folded in when it returns; each test-guarded, zero behavior change |
+
+Effort: incremental, per item; sized once the correctness audit returns its `simplificationOpportunities`.
 
 ## The 5 owner decisions (recap from the devil's-advocate panel)
 
