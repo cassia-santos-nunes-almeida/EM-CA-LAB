@@ -5,6 +5,8 @@
 > **This plan is the Gate-2 decision artifact.** Nothing here is built until the owner approves it. The
 > safe-wins need no decision and can start immediately on approval; the owner-decision track needs explicit
 > sign-off (and is sequenced so its dependencies are correct).
+>
+> **🔒 LOCKED 2026-06-23.** All Gate-2 deliverables — the strict-correctness audit ([Appendix A](./2026-06-21-full-audit.md#appendix-a--strict-correctness-audit-2026-06-22--verified-defect-list)), the decision-panel review ([Appendix B](./2026-06-21-full-audit.md#appendix-b--gate-2-decision-panel-review-2026-06-22)), this ultraplan, and the app-wide [Navigation & Shell Spec](../design/2026-06-23-navigation-shell-spec.md) (+ committed prototypes) — are **committed and pushed** on `audit/2026-06-21-full-audit` (PR #28). **No `src/` changes have been made. Implementation begins only in a NEW session, on an explicit command.**
 
 **Executive summary.** All 12 ILOs grade **solid** at baseline, so the next front is a quality/consistency/
 UX-integrity push, not a coverage rescue. Highest-value content gap: ILO-8 plausibility coverage in the EM

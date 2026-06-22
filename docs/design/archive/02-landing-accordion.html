@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EM-CA-LAB · Vertical Part accordion (click to open · sections on the left)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea; --screen:#0f172a; --card:#fff; --border:#e7e2d6;
+    --title:#1c1814; --muted:#7a7263; --ink:#33302a; --led:#10b981; --cta:#2563eb;
+    --p1:#d97706; --p1l:#b45309; --p1bg:#fdf6ec; --p1bd:#f0d9b5;
+    --p2:#dc2626; --p2l:#b91c1c; --p2bg:#fdeeee; --p2bd:#f1c4c4;
+    --p3:#2563eb; --p3l:#1d4ed8; --p3bg:#eef3fd; --p3bd:#bcd2f5;
+    --p4:#7c3aed; --p4l:#6d28d9; --p4bg:#f4eefe; --p4bd:#d6c2f3;
+    --p5:#059669; --p5l:#047857; --p5bg:#eafaf3; --p5bd:#b4e6cf;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --sans:"Inter",system-ui,sans-serif;
+    --display:"Space Grotesk","Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#ddd6c7;color:var(--title);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+  .doc-head{background:#1c1814;color:#e7e2d6;padding:30px 0 26px}
+  .doc-head .kick{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#e0a96d;margin:0 0 9px}
+  .doc-head h1{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+  .doc-head p{color:#b8ad97;max-width:740px;margin:10px 0 0;font-size:14px}
+  .doc-head .hint{font-family:var(--mono);font-size:11px;color:#e0a96d;margin-top:12px}
+
+  .band{padding:36px 0}
+
+  .device{border:1px solid #cabfa6;border-radius:14px;overflow:hidden;box-shadow:0 26px 60px -28px rgba(28,24,20,.55);background:#fff;max-width:980px;margin:0 auto}
+  .device-bar{height:34px;background:#faf7f0;border-bottom:1px solid #e7e2d6;display:flex;align-items:center;gap:7px;padding:0 14px}
+  .device-bar i{width:11px;height:11px;border-radius:50%;background:#d8cdb6;display:inline-block}
+  .device-bar .url{margin-left:12px;font-family:var(--mono);font-size:11px;color:#a99c81;background:#fff;border:1px solid #e7e2d6;border-radius:6px;padding:3px 12px}
+  .ground{background:
+    linear-gradient(rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg,rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,
+    var(--paper);padding:24px 26px 30px}
+  .led{width:8px;height:8px;border-radius:50%;background:var(--led);box-shadow:0 0 0 3px rgba(16,185,129,.18);flex:none}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}} .led.live{animation:blink 2.4s ease-in-out infinite}
+
+  /* compact hero with through-line */
+  .hero{background:var(--screen);border-radius:13px;padding:18px 22px;color:#e7e2d6;margin-bottom:20px;box-shadow:inset 0 0 0 1px #2a2620}
+  .hero .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+  .hero .kick{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#e0a96d;margin:0 0 5px}
+  .hero h1{font-family:var(--display);font-size:23px;font-weight:600;letter-spacing:-.01em;line-height:1.12}
+  .hero .meta{font-family:var(--mono);font-size:10px;color:#6b6452;text-align:right;letter-spacing:.06em}
+  .hero svg{margin-top:12px}
+  .sweep{stroke-dasharray:4 200;animation:sweep 6s linear infinite}
+  @keyframes sweep{to{stroke-dashoffset:-980}}
+
+  .lead{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 2px 10px;display:flex;align-items:center;gap:8px}
+
+  /* ── vertical Part accordion ── */
+  .parts{display:flex;flex-direction:column;gap:10px}
+  details.part{border:1px solid var(--bd);border-left:4px solid var(--ac);border-radius:11px;background:var(--bg);overflow:hidden}
+  details.part>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;outline:none}
+  details.part>summary::-webkit-details-marker{display:none}
+  details.part>summary:focus-visible{box-shadow:inset 0 0 0 2px var(--ac)}
+  .spark{flex:none;width:62px;height:34px;background:var(--screen);border-radius:7px;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px #2a2620}
+  .spark svg{width:100%;height:100%;display:block}
+  .spark .led{position:absolute;top:4px;right:5px;width:6px;height:6px}
+  .s-main{flex:1;min-width:0}
+  .s-pn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--acl)}
+  .s-title{font-size:16px;font-weight:700;line-height:1.18;margin-top:1px}
+  .s-right{display:flex;align-items:center;gap:14px;flex:none}
+  .s-count{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .chev{width:22px;height:22px;border-radius:50%;border:1px solid var(--bd);display:grid;place-items:center;color:var(--acl);font-size:11px;transition:transform .2s ease;background:#fff}
+  details.part[open] .chev{transform:rotate(180deg)}
+
+  .open-body{display:grid;grid-template-columns:1fr 270px;gap:18px;padding:4px 16px 16px 16px;border-top:1px dashed var(--bd)}
+  .open-body{animation:reveal .18s ease-out}
+  @keyframes reveal{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+
+  /* clickable section list (LEFT) */
+  ol.seclist{list-style:none;margin:14px 0 0;padding:0;columns:1}
+  ol.seclist.two{columns:2;column-gap:18px}
+  ol.seclist li{break-inside:avoid;margin-bottom:2px}
+  ol.seclist a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:13px;transition:background .12s,color .12s}
+  ol.seclist a:hover,ol.seclist a:focus-visible{background:#fff;color:var(--acl);outline:none}
+  .sn{font-family:var(--mono);font-size:10.5px;color:var(--muted);flex:none;width:24px}
+  .dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ac);flex:none}
+  .dot.done{background:var(--ac)}
+  ol.seclist a:hover .sn{color:var(--acl)}
+
+  /* detail rail (RIGHT) */
+  .detail{padding-top:14px}
+  .scope{background:var(--screen);border-radius:9px;height:74px;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px #2a2620;margin-bottom:11px}
+  .scope .grat{position:absolute;inset:0;background:linear-gradient(rgba(148,163,184,.10) 1px,transparent 1px) 0 0/15px 15px,linear-gradient(90deg,rgba(148,163,184,.10) 1px,transparent 1px) 0 0/15px 15px}
+  .scope b{position:absolute;top:6px;left:8px;font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--ac)}
+  .scope .led{position:absolute;top:7px;right:8px}
+  .scope svg{position:relative;width:100%;height:100%;display:block}
+  .detail .sum{font-size:12.5px;color:var(--ink);margin:0 0 12px;line-height:1.45}
+  .detail .start{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--cta);color:#fff;text-decoration:none;font-family:var(--mono);font-size:12px;font-weight:700;border-radius:8px;padding:10px}
+  .detail .prog{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:9px;display:flex;align-items:center;gap:7px}
+  .detail .prog .bar{flex:1;height:5px;border-radius:3px;background:#e7e2d6;overflow:hidden}
+  .detail .prog .bar i{display:block;height:100%;background:var(--ac)}
+
+  .foot{background:#1c1814;color:#b8ad97;padding:28px 0 34px;font-size:13px}
+  .foot .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .foot h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e0a96d;margin-bottom:10px}
+  .foot ul{margin:0;padding-left:16px}.foot li{margin:4px 0}
+  .foot code{font-family:var(--mono);color:#f4f1ea;background:#2a2620;padding:1px 5px;border-radius:4px;font-size:11px}
+
+  @media (max-width:760px){
+    .open-body{grid-template-columns:1fr}
+    ol.seclist.two{columns:1}
+    .foot .wrap{grid-template-columns:1fr}
+    .s-count{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){.sweep,.led.live,.open-body{animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="wrap">
+    <p class="kick">EM-CA-LAB · vertical Part accordion · 2026-06-23</p>
+    <h1>Each Part vertical — click to open its sections on the left</h1>
+    <p>The five Parts stack as a vertical accordion. Open one (only one at a time) and its section list appears on the
+       left — every section clickable, numbered, with a tick for what you've visited — while the instrument trace and
+       "start" sit on the right. The landing becomes the table of contents.</p>
+    <p class="hint">▸ This one is interactive — click any Part header to open / close it.</p>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="device">
+      <div class="device-bar"><i></i><i></i><i></i><span class="url">em-ca-lab.vercel.app/</span></div>
+      <div class="ground">
+
+        <!-- compact hero -->
+        <div class="hero">
+          <div class="top">
+            <div><p class="kick">Virtual laboratory · predict, then observe</p><h1>Five instruments. One bench.</h1></div>
+            <div class="meta">THE THROUGH-LINE<br>circuits → fields → waves → lines</div>
+          </div>
+          <svg viewBox="0 0 980 64" width="100%" height="56" preserveAspectRatio="none" role="img" aria-label="Signal morphing across the five parts">
+            <g stroke="#2a2620" stroke-width="1"><line x1="0" y1="34" x2="980" y2="34"/>
+              <line x1="196" y1="0" x2="196" y2="64"/><line x1="392" y1="0" x2="392" y2="64"/><line x1="588" y1="0" x2="588" y2="64"/><line x1="784" y1="0" x2="784" y2="64"/></g>
+            <path d="M8,46 L48,46 L48,16 C72,16 72,56 96,36 C114,22 122,48 138,36 C150,28 156,40 168,36" fill="none" stroke="#f59e0b" stroke-width="2.2"/>
+            <g stroke="#ef4444" stroke-width="1.8"><circle cx="294" cy="34" r="3.5" fill="#ef4444"/><line x1="294" y1="34" x2="266" y2="18"/><line x1="294" y1="34" x2="322" y2="18"/><line x1="294" y1="34" x2="266" y2="50"/><line x1="294" y1="34" x2="322" y2="50"/><line x1="294" y1="34" x2="258" y2="34"/><line x1="294" y1="34" x2="330" y2="34"/></g>
+            <g fill="none" stroke="#3b82f6" stroke-width="1.8"><circle cx="490" cy="34" r="9"/><circle cx="490" cy="34" r="18"/><circle cx="490" cy="34" r="27" opacity=".5"/><circle cx="490" cy="34" r="2" fill="#3b82f6"/></g>
+            <path d="M592,34 Q616,6 640,34 T688,34 T736,34 T784,34" fill="none" stroke="#a855f7" stroke-width="2.2"/>
+            <path d="M800,34 L860,34 L872,12 L884,34 L972,34" fill="none" stroke="#10b981" stroke-width="2.2"/>
+            <path d="M800,34 L868,34 L878,54 L888,34 L972,34" fill="none" stroke="#10b981" stroke-width="1.4" stroke-dasharray="3 4" opacity=".55"/>
+            <line class="sweep" x1="8" y1="34" x2="972" y2="34" stroke="#e0a96d" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <p class="lead"><span class="led live"></span> Five parts · 25 sections · open one to begin</p>
+
+        <div class="parts">
+
+          <!-- ░░ PART 1 (open) ░░ -->
+          <details class="part" name="parts" open style="--ac:var(--p1);--acl:var(--p1l);--bg:var(--p1bg);--bd:var(--p1bd)">
+            <summary>
+              <span class="spark"><span class="led live"></span><svg viewBox="0 0 62 34" preserveAspectRatio="none" aria-hidden="true"><path d="M4,26 L20,26 L20,8 C34,8 34,30 44,20 C52,13 56,24 60,20" fill="none" stroke="var(--p1)" stroke-width="2"/></svg></span>
+              <span class="s-main"><span class="s-pn">PART 01 · CIRCUITS</span><div class="s-title">Circuit Analysis, Laplace &amp; Transients</div></span>
+              <span class="s-right"><span class="s-count">9 sections</span><span class="chev">▾</span></span>
+            </summary>
+            <div class="open-body">
+              <ol class="seclist two">
+                <li><a href="#"><span class="sn">1.1</span><span class="dot done"></span>Component Physics</a></li>
+                <li><a href="#"><span class="sn">1.2</span><span class="dot done"></span>Circuit Analysis</a></li>
+                <li><a href="#"><span class="sn">1.3</span><span class="dot"></span>Nodal &amp; Mesh Analysis</a></li>
+                <li><a href="#"><span class="sn">1.4</span><span class="dot"></span>Circuit Theorems</a></li>
+                <li><a href="#"><span class="sn">1.5</span><span class="dot"></span>Switched Circuits &amp; Initial Conditions</a></li>
+                <li><a href="#"><span class="sn">1.6</span><span class="dot"></span>Laplace Theory</a></li>
+                <li><a href="#"><span class="sn">1.7</span><span class="dot"></span>Partial Fractions &amp; Heaviside</a></li>
+                <li><a href="#"><span class="sn">1.8</span><span class="dot"></span>s-Domain Analysis</a></li>
+                <li><a href="#"><span class="sn">1.9</span><span class="dot"></span>Interactive Lab</a></li>
+              </ol>
+              <div class="detail">
+                <div class="scope"><div class="grat"></div><b>STEP &amp; RING</b><span class="led live"></span><svg viewBox="0 0 240 74" preserveAspectRatio="none" aria-hidden="true"><path d="M8,58 L60,58 L60,16 C100,16 100,68 130,42 C152,24 162,50 180,42 C196,35 204,48 232,42" fill="none" stroke="var(--p1)" stroke-width="2.4"/></svg></div>
+                <p class="sum">The algorithmic toolkit — from R, L, C through the Laplace transform to the transient response of real circuits.</p>
+                <a class="start" href="#">START PART 1 ▸</a>
+                <div class="prog"><span>2/9</span><span class="bar"><i style="width:22%"></i></span></div>
+              </div>
+            </div>
+          </details>
+
+          <!-- ░░ PART 2 ░░ -->
+          <details class="part" name="parts" style="--ac:var(--p2);--acl:var(--p2l);--bg:var(--p2bg);--bd:var(--p2bd)">
+            <summary>
+              <span class="spark"><span class="led live"></span><svg viewBox="0 0 62 34" aria-hidden="true"><g stroke="var(--p2)" stroke-width="1.6"><circle cx="31" cy="17" r="3" fill="var(--p2)"/><line x1="31" y1="17" x2="13" y2="6"/><line x1="31" y1="17" x2="49" y2="6"/><line x1="31" y1="17" x2="13" y2="28"/><line x1="31" y1="17" x2="49" y2="28"/><line x1="31" y1="17" x2="7" y2="17"/><line x1="31" y1="17" x2="55" y2="17"/></g></svg></span>
+              <span class="s-main"><span class="s-pn">PART 02 · E-FIELD</span><div class="s-title">Electric &amp; Magnetic Fields</div></span>
+              <span class="s-right"><span class="s-count">4 sections</span><span class="chev">▾</span></span>
+            </summary>
+            <div class="open-body">
+              <ol class="seclist">
+                <li><a href="#"><span class="sn">2.1</span><span class="dot"></span>Coulomb's Law</a></li>
+                <li><a href="#"><span class="sn">2.2</span><span class="dot"></span>Gauss's Law</a></li>
+                <li><a href="#"><span class="sn">2.3</span><span class="dot"></span>Ampère's Law</a></li>
+                <li><a href="#"><span class="sn">2.4</span><span class="dot"></span>Lorentz Force</a></li>
+              </ol>
+              <div class="detail">
+                <div class="scope"><div class="grat"></div><b>RADIAL FIELD</b><span class="led live"></span><svg viewBox="0 0 240 74" aria-hidden="true"><g stroke="var(--p2)" stroke-width="2"><circle cx="120" cy="37" r="4.5" fill="var(--p2)"/><line x1="120" y1="37" x2="78" y2="14"/><line x1="120" y1="37" x2="162" y2="14"/><line x1="120" y1="37" x2="78" y2="60"/><line x1="120" y1="37" x2="162" y2="60"/><line x1="120" y1="37" x2="66" y2="37"/><line x1="120" y1="37" x2="174" y2="37"/></g></svg></div>
+                <p class="sum">Ground the toolkit in field physics — Coulomb's and Gauss's laws, Ampère's law, and the Lorentz force.</p>
+                <a class="start" href="#">START PART 2 ▸</a>
+                <div class="prog"><span>0/4</span><span class="bar"><i style="width:0%"></i></span></div>
+              </div>
+            </div>
+          </details>
+
+          <!-- ░░ PART 3 ░░ -->
+          <details class="part" name="parts" style="--ac:var(--p3);--acl:var(--p3l);--bg:var(--p3bg);--bd:var(--p3bd)">
+            <summary>
+              <span class="spark"><span class="led live"></span><svg viewBox="0 0 62 34" aria-hidden="true"><g fill="none" stroke="var(--p3)" stroke-width="1.6"><circle cx="31" cy="17" r="5"/><circle cx="31" cy="17" r="10"/><circle cx="31" cy="17" r="15" opacity=".5"/><circle cx="31" cy="17" r="1.6" fill="var(--p3)"/></g></svg></span>
+              <span class="s-main"><span class="s-pn">PART 03 · B-FIELD</span><div class="s-title">Induction, Magnetics &amp; Inductance</div></span>
+              <span class="s-right"><span class="s-count">4 sections</span><span class="chev">▾</span></span>
+            </summary>
+            <div class="open-body">
+              <ol class="seclist">
+                <li><a href="#"><span class="sn">3.1</span><span class="dot"></span>Faraday's Law</a></li>
+                <li><a href="#"><span class="sn">3.2</span><span class="dot"></span>Lenz's Law</a></li>
+                <li><a href="#"><span class="sn">3.3</span><span class="dot"></span>Magnetic Circuits</a></li>
+                <li><a href="#"><span class="sn">3.4</span><span class="dot"></span>Transformers</a></li>
+              </ol>
+              <div class="detail">
+                <div class="scope"><div class="grat"></div><b>FLUX LOOPS</b><span class="led live"></span><svg viewBox="0 0 240 74" aria-hidden="true"><g fill="none" stroke="var(--p3)" stroke-width="2"><circle cx="120" cy="37" r="10"/><circle cx="120" cy="37" r="20"/><circle cx="120" cy="37" r="30" opacity=".5"/><circle cx="120" cy="37" r="2.5" fill="var(--p3)"/></g></svg></div>
+                <p class="sum">Changing flux induces voltage — Faraday's law, Lenz's opposition, magnetic circuits, and the transformer.</p>
+                <a class="start" href="#">START PART 3 ▸</a>
+                <div class="prog"><span>0/4</span><span class="bar"><i style="width:0%"></i></span></div>
+              </div>
+            </div>
+          </details>
+
+          <!-- ░░ PART 4 ░░ -->
+          <details class="part" name="parts" style="--ac:var(--p4);--acl:var(--p4l);--bg:var(--p4bg);--bd:var(--p4bd)">
+            <summary>
+              <span class="spark"><span class="led live"></span><svg viewBox="0 0 62 34" aria-hidden="true"><path d="M4,17 Q14,3 24,17 T44,17 T64,17" fill="none" stroke="var(--p4)" stroke-width="2"/></svg></span>
+              <span class="s-main"><span class="s-pn">PART 04 · WAVES</span><div class="s-title">Maxwell, Waves, Radiation &amp; Antennas</div></span>
+              <span class="s-right"><span class="s-count">4 sections</span><span class="chev">▾</span></span>
+            </summary>
+            <div class="open-body">
+              <ol class="seclist">
+                <li><a href="#"><span class="sn">4.1</span><span class="dot"></span>Maxwell's Equations</a></li>
+                <li><a href="#"><span class="sn">4.2</span><span class="dot"></span>EM Waves</a></li>
+                <li><a href="#"><span class="sn">4.3</span><span class="dot"></span>Polarization</a></li>
+                <li><a href="#"><span class="sn">4.4</span><span class="dot"></span>Antennas</a></li>
+              </ol>
+              <div class="detail">
+                <div class="scope"><div class="grat"></div><b>PROPAGATION</b><span class="led live"></span><svg viewBox="0 0 240 74" aria-hidden="true"><path d="M8,37 Q32,7 56,37 T104,37 T152,37 T200,37 T248,37" fill="none" stroke="var(--p4)" stroke-width="2.4"/></svg></div>
+                <p class="sum">Fuse E and B into Maxwell's equations, then let the field propagate as a wave and radiate from an antenna.</p>
+                <a class="start" href="#">START PART 4 ▸</a>
+                <div class="prog"><span>0/4</span><span class="bar"><i style="width:0%"></i></span></div>
+              </div>
+            </div>
+          </details>
+
+          <!-- ░░ PART 5 ░░ -->
+          <details class="part" name="parts" style="--ac:var(--p5);--acl:var(--p5l);--bg:var(--p5bg);--bd:var(--p5bd)">
+            <summary>
+              <span class="spark"><span class="led live"></span><svg viewBox="0 0 62 34" aria-hidden="true"><path d="M4,18 L28,18 L34,6 L40,18 L60,18" fill="none" stroke="var(--p5)" stroke-width="2"/><path d="M4,18 L32,18 L38,30 L44,18 L60,18" fill="none" stroke="var(--p5)" stroke-width="1.3" stroke-dasharray="2 3" opacity=".6"/></svg></span>
+              <span class="s-main"><span class="s-pn">PART 05 · LINES</span><div class="s-title">Transmission Lines &amp; Distributed Systems</div></span>
+              <span class="s-right"><span class="s-count">4 sections</span><span class="chev">▾</span></span>
+            </summary>
+            <div class="open-body">
+              <ol class="seclist">
+                <li><a href="#"><span class="sn">5.1</span><span class="dot"></span>Lumped to Distributed</a></li>
+                <li><a href="#"><span class="sn">5.2</span><span class="dot"></span>Transmission Lines</a></li>
+                <li><a href="#"><span class="sn">5.3</span><span class="dot"></span>Line Impedance &amp; Matching</a></li>
+                <li><a href="#"><span class="sn">5.4</span><span class="dot"></span>Transients</a></li>
+              </ol>
+              <div class="detail">
+                <div class="scope"><div class="grat"></div><b>REFLECTION</b><span class="led live"></span><svg viewBox="0 0 240 74" aria-hidden="true"><path d="M8,40 L110,40 L122,12 L134,40 L232,40" fill="none" stroke="var(--p5)" stroke-width="2.4"/><path d="M8,40 L118,40 L130,66 L142,40 L232,40" fill="none" stroke="var(--p5)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".6"/></svg></div>
+                <p class="sum">Where circuits meet waves: when a wire is long enough that the signal reflects off its far end — impedance, matching, and transients.</p>
+                <a class="start" href="#">START PART 5 ▸</a>
+                <div class="prog"><span>0/4</span><span class="bar"><i style="width:0%"></i></span></div>
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div><h4>What's new here</h4><ul><li>Parts stack <b>vertically</b> (accordion)</li><li>Open one → its <b>section list</b> appears, <b>clickable</b>, on the left</li><li>Right rail keeps the instrument trace + Start + progress</li></ul></div>
+    <div><h4>How it works</h4><ul><li>Native <code>&lt;details name="parts"&gt;</code> — <b>one open at a time</b>, no JS, keyboard + screen-reader ready</li><li>Tick = visited; numbers from the curriculum spine</li></ul></div>
+    <div><h4>Open questions for you</h4><ul><li>Keep the dark hero, or drop it so the accordion leads?</li><li>Section list 1-col or 2-col when a Part has 9?</li><li>Trace screens dark (now) or light plots?</li></ul></div>
+  </div>
+</footer>
+
+</body>
+</html>
