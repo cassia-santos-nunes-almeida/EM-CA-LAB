@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EM-CA-LAB · Nav behaviours prototype — scroll-spy · auto-collapse · mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea; --screen:#0f172a; --card:#fff; --border:#e7e2d6; --rail:#fbf9f4;
+    --title:#1c1814; --muted:#7a7263; --ink:#33302a; --led:#10b981; --cta:#2563eb;
+    --p1:#d97706; --p1l:#b45309; --p1bg:#fdf6ec; --p1bd:#f0d9b5;
+    --p2:#dc2626; --p2l:#b91c1c; --p2bg:#fdeeee; --p2bd:#f1c4c4;
+    --p3:#2563eb; --p3l:#1d4ed8; --p3bg:#eef3fd; --p3bd:#bcd2f5;
+    --p4:#7c3aed; --p4l:#6d28d9; --p4bg:#f4eefe; --p4bd:#d6c2f3;
+    --p5:#059669; --p5l:#047857; --p5bg:#eafaf3; --p5bd:#b4e6cf;
+    --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif; --display:"Space Grotesk","Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#ddd6c7;color:var(--title);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  .doc-head{background:#1c1814;color:#e7e2d6;padding:28px 0 22px}
+  .doc-head .kick{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#e0a96d;margin:0 0 9px}
+  .doc-head h1{font-family:var(--display);font-size:23px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+  .doc-head p{color:#b8ad97;max-width:760px;margin:9px 0 0;font-size:14px}
+  .try{font-family:var(--mono);font-size:11px;color:#e0a96d;margin-top:11px;line-height:1.7}
+  .band{padding:28px 0}
+  .cap{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8a7d63;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .cap .n{background:#1c1814;color:#f4f1ea;border-radius:5px;padding:2px 8px;font-weight:700}
+  .led{width:8px;height:8px;border-radius:50%;background:var(--led);box-shadow:0 0 0 3px rgba(16,185,129,.18);flex:none;display:inline-block}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}.led.live{animation:blink 2.4s ease-in-out infinite}
+
+  .device{border:1px solid #cabfa6;border-radius:14px;overflow:hidden;box-shadow:0 24px 56px -28px rgba(28,24,20,.55);background:#fff;max-width:1020px;margin:0 auto}
+  .device-bar{height:36px;background:#faf7f0;border-bottom:1px solid #e7e2d6;display:flex;align-items:center;gap:7px;padding:0 12px}
+  .device-bar i{width:11px;height:11px;border-radius:50%;background:#d8cdb6}
+  .device-bar .url{margin-left:10px;font-family:var(--mono);font-size:11px;color:#a99c81;background:#fff;border:1px solid #e7e2d6;border-radius:6px;padding:3px 12px}
+  .device-bar .tog{margin-left:auto;font-family:var(--mono);font-size:10px;color:#5b5446;border:1px solid #cabfa6;border-radius:6px;padding:4px 9px;background:#fff;cursor:pointer}
+  .device-bar .tog:hover{background:#f1ece1}
+  .status{font-family:var(--mono);font-size:10px;color:#a99c81;margin-right:8px}
+  .status b{color:#5b5446}
+
+  .app{display:grid;grid-template-columns:264px 1fr;transition:grid-template-columns .22s ease}
+  .app.collapsed{grid-template-columns:58px 1fr}
+  .app.collapsed .sb{display:none}.app:not(.collapsed) .rail{display:none}
+
+  /* sidebar */
+  .sb{background:var(--rail);border-right:1px solid var(--border);display:flex;flex-direction:column}
+  .sb-brand{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1px solid var(--border)}
+  .sb-brand .b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--title);display:flex;align-items:center;gap:8px;font-weight:700}
+  .sb-prog{padding:10px 15px;border-bottom:1px solid var(--border)}
+  .sb-prog .row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .sb-prog .bar{height:6px;border-radius:3px;background:#e7e2d6;overflow:hidden}.sb-prog .bar i{display:block;height:100%;width:8%;background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3))}
+  .nav{padding:8px;overflow:auto;flex:1;max-height:430px}
+  details.pnav{margin-bottom:2px}
+  details.pnav>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;outline:none}
+  details.pnav>summary::-webkit-details-marker{display:none}
+  details.pnav>summary:hover{background:#f1ece1}
+  details.pnav.cur>summary{background:var(--bg)}
+  .pbar{width:4px;height:26px;border-radius:3px;background:var(--ac);flex:none}
+  .pmeta{flex:1;min-width:0}.pnum{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--acl)}
+  .pname{font-size:12.5px;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pcount{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+  .pchev{font-size:10px;color:var(--muted);transition:transform .18s}
+  details.pnav[open] .pchev{transform:rotate(180deg)}
+  .seclist{list-style:none;margin:2px 0 6px;padding:0 0 0 13px}
+  .seclist>li>a{display:flex;align-items:center;gap:9px;padding:6px 9px 6px 11px;border-radius:7px;text-decoration:none;color:var(--ink);font-size:12.5px}
+  .seclist>li>a:hover{background:#f1ece1;color:var(--acl)}
+  .sn{font-family:var(--mono);font-size:10px;color:var(--muted);width:22px;flex:none}
+  .sdot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ac);flex:none}
+  .sdot.done{background:var(--ac)}
+  .seclist>li>a.active{background:var(--bg);color:var(--acl);font-weight:700;box-shadow:inset 0 0 0 1px var(--bd)}
+  .seclist>li>a.active .sn{color:var(--acl)}
+  .seclist>li>a.active .sdot{border:none;background:var(--led);box-shadow:0 0 0 3px rgba(16,185,129,.18)}
+  /* level 3 — only the in-view section shows it (JS toggles .show) */
+  .subnav{list-style:none;margin:0;padding:0 0 0 30px;position:relative;max-height:0;overflow:hidden;opacity:0;transition:max-height .22s ease,opacity .18s ease}
+  .subnav.show{max-height:200px;opacity:1;margin:3px 0 6px}
+  .subnav::before{content:"";position:absolute;left:24px;top:4px;bottom:8px;width:1.5px;background:var(--bd)}
+  .subnav a{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;text-decoration:none;font-size:11.5px;color:var(--muted);cursor:pointer}
+  .subnav a:hover{color:var(--acl);background:#f1ece1}
+  .subnav .tick{width:5px;height:5px;border-radius:50%;background:#d8cdb6;flex:none;margin-left:-2px}
+  .subnav a.done .tick{background:var(--ac)}
+  .subnav a.cur{color:var(--acl);font-weight:700}
+  .subnav a.cur .tick{background:var(--led);box-shadow:0 0 0 3px rgba(16,185,129,.18)}
+  .sb-foot{border-top:1px solid var(--border);padding:10px 15px;display:flex;align-items:center;justify-content:space-between}
+  .sb-foot a{font-family:var(--mono);font-size:11px;color:var(--muted);text-decoration:none}
+
+  /* icon rail */
+  .rail{background:var(--rail);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:8px}
+  .rail .mark{width:30px;height:30px;border-radius:8px;background:var(--screen);display:grid;place-items:center;margin-bottom:4px}
+  .chip{position:relative;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--bd);background:var(--bg);color:var(--acl)}
+  .chip.cur{background:var(--ac);color:#fff;border-color:var(--ac)}
+  .chip .cdot{position:absolute;top:-3px;right:-3px}
+  .chip .fly{position:absolute;left:46px;top:-6px;width:208px;background:#fff;border:1px solid var(--border);border-left:4px solid var(--ac);border-radius:10px;box-shadow:0 18px 40px -18px rgba(28,24,20,.5);padding:9px;z-index:5;display:none;text-align:left}
+  .chip:hover .fly{display:block}
+  .fly .ft{font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--acl);padding:2px 6px 6px}
+  .fly a{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink);text-decoration:none;padding:5px 6px;border-radius:6px}
+  .fly a:hover{background:var(--bg);color:var(--acl)}
+  .rail .grow{flex:1}.rail .exp{width:34px;height:34px;border-radius:8px;border:1px solid var(--bd);background:#fff;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+
+  /* content (scrolls) */
+  .content{position:relative;height:472px;overflow-y:auto;scroll-behavior:smooth;background:linear-gradient(rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,var(--paper)}
+  .ctop{position:sticky;top:0;z-index:3;background:rgba(244,241,234,.92);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:11px 26px}
+  .crumb{font-family:var(--mono);font-size:11px;color:var(--muted)}.crumb b{color:var(--p3l)}.crumb .here{color:var(--p3l);font-weight:700}
+  .autobadge{font-family:var(--mono);font-size:9.5px;color:var(--p3l);background:rgba(37,99,235,.08);border:1px solid var(--p3bd);border-radius:999px;padding:2px 8px;display:none;align-items:center;gap:5px}
+  .autobadge.show{display:inline-flex}
+  .inner{padding:18px 26px 260px}
+  .doc-sec{padding-top:8px}
+  .stitle{font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:2px}
+  .stag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--p3l)}
+  .sub{min-height:188px;padding-top:14px}
+  .subhdr{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acl);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .subhdr::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ac)}
+  .pcard{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;font-size:13px;color:var(--ink)}
+  .pcard p{margin:0 0 9px}.pcard p:last-child{margin:0}
+  .benchmini{background:var(--screen);color:#cdbfa6;border-radius:10px;padding:13px;font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+  .benchmini .l{color:var(--ac)}
+  .simtag{font-family:var(--mono);font-size:9px;color:#fff;background:var(--ac);border-radius:5px;padding:1px 6px;margin-left:8px}
+
+  /* mobile frames */
+  .phones{display:flex;gap:26px;justify-content:center;flex-wrap:wrap}
+  .phone{width:300px;border:9px solid #1c1814;border-radius:30px;overflow:hidden;background:var(--paper);box-shadow:0 22px 50px -24px rgba(28,24,20,.6);position:relative}
+  .phone .scr{height:540px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .pbarT{background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:11px 13px}
+  .pbarT .ham{font-size:17px;color:var(--p3l)}
+  .pbarT .t{font-size:13px;font-weight:700}.pbarT .t small{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);font-weight:400}
+  .pcontent{flex:1;padding:14px;background:linear-gradient(rgba(120,108,86,.06) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,rgba(120,108,86,.06) 1px,transparent 1px) 0 0/22px 22px,var(--paper);font-size:12.5px;color:var(--ink)}
+  .pcontent .mini{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+  /* bottom tab bar */
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--border);padding:7px 6px 9px;justify-content:space-around;align-items:flex-end}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--mono);font-size:9px;color:var(--muted);text-decoration:none;flex:1}
+  .tab .b{width:30px;height:30px;border-radius:9px;border:1px solid var(--tbd);background:var(--tbg);color:var(--tl);display:grid;place-items:center;font-weight:700;font-size:11px}
+  .tab.cur .b{background:var(--tc);color:#fff;border-color:var(--tc);transform:translateY(-3px);box-shadow:0 6px 14px -4px var(--tc)}
+  .tab.cur{color:var(--tl);font-weight:700}
+  /* drawer */
+  .drawer{position:absolute;inset:0;background:rgba(28,24,20,.45);display:flex}
+  .drawer .panel{width:230px;background:var(--rail);height:100%;padding:12px;overflow:auto;animation:slide .2s ease}
+  @keyframes slide{from{transform:translateX(-100%)}to{transform:none}}
+  .drawer .dp{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;font-size:12.5px}
+  .drawer .dp.cur{background:var(--p3bg)}
+  .drawer .dbar{width:4px;height:22px;border-radius:3px}
+  .drawer .dsub{list-style:none;margin:2px 0 8px;padding-left:22px;font-size:11.5px;color:var(--muted)}
+  .drawer .dsub li{padding:3px 0;display:flex;gap:7px;align-items:center}
+  .drawer .dsub .tick{width:5px;height:5px;border-radius:50%;background:var(--p3)}
+  .reco{font-family:var(--mono);font-size:11px;color:#5b5446;text-align:center;margin-top:14px}
+  .reco b{color:var(--p3l)}
+
+  .foot{background:#1c1814;color:#b8ad97;padding:26px 0 32px;font-size:13px}
+  .foot .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .foot h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e0a96d;margin-bottom:10px}
+  .foot ul{margin:0;padding-left:16px}.foot li{margin:4px 0}
+  .foot code{font-family:var(--mono);color:#f4f1ea;background:#2a2620;padding:1px 5px;border-radius:4px;font-size:11px}
+
+  @media (max-width:820px){.app,.app.collapsed{grid-template-columns:1fr}.sb,.rail{display:none}.foot .wrap{grid-template-columns:1fr}}
+  @media (prefers-reduced-motion:reduce){.led.live{animation:none!important}.content{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="wrap">
+    <p class="kick">EM-CA-LAB · nav behaviours prototype · 2026-06-23</p>
+    <h1>Working prototype — scroll-spy subnav · auto-collapse · mobile</h1>
+    <p>Not a picture this time. Scroll the content and the section's subsections reveal only while it's in view; the
+       active one tracks your position and every entry is clickable. Toggle the sidebar and it remembers your choice;
+       scroll into a sim-heavy section and it auto-collapses for the bench. Mobile shows both patterns.</p>
+    <p class="try">▸ TRY: scroll the panel · click a subsection · hit “⟨ collapse” · scroll down into <b>3.2 Lenz (sim-heavy)</b> and watch it auto-collapse · reload to see your toggle persist</p>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="cap"><span class="n">1</span> desktop — live behaviours</div>
+    <div class="device">
+      <div class="device-bar"><i></i><i></i><i></i><span class="url">em-ca-lab.vercel.app/faraday</span>
+        <span class="status" id="status">sidebar: <b>expanded</b></span>
+        <button class="tog" id="toggle">⟨ collapse</button>
+      </div>
+      <div class="app" id="app">
+        <aside class="sb" id="sb"></aside>
+        <aside class="rail" id="rail"></aside>
+        <main class="content" id="content">
+          <div class="ctop">
+            <div class="crumb" id="crumb">PART 03 / <b>3.1 Faraday's Law</b> / <span class="here">Flux &amp; the EMF rule</span></div>
+            <span class="autobadge" id="autobadge"><span class="led live"></span>auto-collapsed for the bench</span>
+          </div>
+          <div class="inner" id="inner"></div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="cap"><span class="n">2</span> mobile — the rail becomes…</div>
+    <div class="phones">
+      <!-- A · bottom tab bar -->
+      <div class="phone">
+        <div class="scr">
+          <div class="pbarT"><span class="ham">☰</span><span class="t">Faraday's Law<small>PART 03 · 3.1 · Changing flux</small></span><span class="led live" style="margin-left:auto"></span></div>
+          <div class="pcontent">
+            <div class="mini"><b style="font-family:var(--mono);font-size:10px;color:var(--p3l)">EXPERIMENT · CHANGING FLUX</b><p style="margin:6px 0 0;font-size:12px">Bring the magnet toward the coil — but predict first.</p></div>
+            <div class="mini" style="background:var(--screen);color:#cdbfa6;font-family:var(--mono);font-size:11px;display:flex;justify-content:space-between"><span style="color:var(--p3)">BENCH · ARMED</span><span class="led live"></span></div>
+            <p style="font-size:11.5px;color:var(--muted)">Scroll for concept checks &amp; the motional-EMF bench…</p>
+          </div>
+          <div class="tabbar">
+            <a class="tab" style="--tc:var(--p1);--tl:var(--p1l);--tbg:var(--p1bg);--tbd:var(--p1bd)"><span class="b">01</span>CIRC</a>
+            <a class="tab" style="--tc:var(--p2);--tl:var(--p2l);--tbg:var(--p2bg);--tbd:var(--p2bd)"><span class="b">02</span>E</a>
+            <a class="tab cur" style="--tc:var(--p3);--tl:var(--p3l);--tbg:var(--p3bg);--tbd:var(--p3bd)"><span class="b">03</span>B-FIELD</a>
+            <a class="tab" style="--tc:var(--p4);--tl:var(--p4l);--tbg:var(--p4bg);--tbd:var(--p4bd)"><span class="b">04</span>WAVE</a>
+            <a class="tab" style="--tc:var(--p5);--tl:var(--p5l);--tbg:var(--p5bg);--tbd:var(--p5bd)"><span class="b">05</span>LINE</a>
+          </div>
+        </div>
+      </div>
+      <!-- B · hamburger drawer -->
+      <div class="phone">
+        <div class="scr">
+          <div class="pbarT"><span class="ham">☰</span><span class="t">Faraday's Law<small>PART 03 · 3.1</small></span></div>
+          <div class="drawer">
+            <div class="panel">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;display:flex;gap:8px;align-items:center;padding:4px 6px 10px"><span class="led live"></span>EM·CA LAB</div>
+              <div class="dp"><span class="dbar" style="background:var(--p1)"></span><b style="font-size:12.5px">01 · Circuits</b></div>
+              <div class="dp"><span class="dbar" style="background:var(--p2)"></span><b style="font-size:12.5px">02 · E-field</b></div>
+              <div class="dp cur"><span class="dbar" style="background:var(--p3)"></span><b style="font-size:12.5px;color:var(--p3l)">03 · B-field</b></div>
+              <ul class="dsub">
+                <li style="color:var(--p3l);font-weight:700">› 3.1 Faraday's Law</li>
+                <li style="padding-left:14px;color:var(--p3l)"><span class="tick" style="background:var(--led)"></span>Changing flux</li>
+                <li style="padding-left:14px"><span class="tick"></span>Concept checks</li>
+                <li style="padding-left:14px"><span class="tick"></span>Motional EMF</li>
+                <li>› 3.2 Lenz's Law</li>
+                <li>› 3.3 Magnetic Circuits</li>
+              </ul>
+              <div class="dp"><span class="dbar" style="background:var(--p4)"></span><b style="font-size:12.5px">04 · Waves</b></div>
+              <div class="dp"><span class="dbar" style="background:var(--p5)"></span><b style="font-size:12.5px">05 · Lines</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="reco">Recommendation: <b>bottom tab-bar</b> for Parts (thumb-reach, keeps the instrument-chip identity) → tap a Part opens a sheet with its sections; hamburger drawer as the full a-z fallback.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div><h4>Scroll-spy (level 3)</h4><ul><li>Subnav reveals <b>only while its section is in view</b></li><li>Active subsection tracks scroll (live dot); passed = filled</li><li>Every entry <b>clickable</b> → smooth-scrolls to that part of the page</li></ul></div>
+    <div><h4>Auto-collapse</h4><ul><li>Manual toggle, <b>persisted</b> (<code>localStorage</code>)</li><li>Sim-heavy section ⇒ auto-collapse for the bench; badge says why</li><li>Manually expanding on a sim-heavy section <b>pins</b> it open (your choice wins)</li></ul></div>
+    <div><h4>Mobile</h4><ul><li>Rail → <b>bottom tab-bar</b> of Part chips (recommended)</li><li>or hamburger <b>drawer</b> with the full accordion</li><li>One source of truth drives all three — desktop, rail, mobile</li></ul></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ── one data structure drives sidebar + content (mirrors curriculum.ts) ──
+  var PARTS = [
+    {n:1,q:'CIRCUITS',name:'Circuit Analysis & Laplace',ac:'p1',done:2,total:9,sections:[
+      {num:'1.1',id:'component-physics',title:'Component Physics',done:true},{num:'1.2',id:'circuit-analysis',title:'Circuit Analysis',done:true},{num:'1.9',id:'interactive-lab',title:'Interactive Lab'}]},
+    {n:2,q:'E-FIELD',name:'Electric & Magnetic Fields',ac:'p2',done:0,total:4,sections:[
+      {num:'2.1',id:'coulomb',title:"Coulomb's Law"},{num:'2.4',id:'lorentz',title:'Lorentz Force'}]},
+    {n:3,q:'B-FIELD',name:'Induction & Inductance',ac:'p3',done:0,total:4,current:true,sections:[
+      {num:'3.1',id:'faraday',title:"Faraday's Law",subs:[
+        {id:'faraday-flux',t:'Flux & the EMF rule',done:true},
+        {id:'faraday-bench',t:'Experiment · Changing flux'},
+        {id:'faraday-checks',t:'Concept checks',badge:'0/4'},
+        {id:'faraday-motional',t:'Experiment · Motional EMF'},
+        {id:'faraday-challenge',t:'Your turn — challenge'}]},
+      {num:'3.2',id:'lenz',title:"Lenz's Law",simHeavy:true,subs:[
+        {id:'lenz-principle',t:'The opposition principle'},
+        {id:'lenz-bench',t:'Experiment · Force arrows'},
+        {id:'lenz-checks',t:'Concept checks',badge:'0/2'}]},
+      {num:'3.3',id:'magnetic-circuits',title:'Magnetic Circuits',subs:[
+        {id:'mag-reluctance',t:'Reluctance & magnetic Ohm’s law'},
+        {id:'mag-bench',t:'Experiment · The toroid'},
+        {id:'mag-checks',t:'Concept checks',badge:'0/3'}]},
+      {num:'3.4',id:'transformers',title:'Transformers'}]},
+    {n:4,q:'WAVES',name:'Maxwell, Waves & Antennas',ac:'p4',done:0,total:4,sections:[
+      {num:'4.1',id:'maxwell',title:"Maxwell's Equations"},{num:'4.2',id:'em-wave',title:'EM Waves'}]},
+    {n:5,q:'LINES',name:'Transmission Lines',ac:'p5',done:0,total:4,sections:[
+      {num:'5.1',id:'lumped-distributed',title:'Lumped to Distributed'},{num:'5.4',id:'transients',title:'Transients'}]}
+  ];
+  var cur = PARTS[2]; // current part
+  var vv = function(p){return 'var(--'+p.ac+')'}, vl=function(p){return 'var(--'+p.ac+'l)'}, vbg=function(p){return 'var(--'+p.ac+'bg)'}, vbd=function(p){return 'var(--'+p.ac+'bd)'};
+
+  // ── render sidebar ──
+  var sb = document.getElementById('sb');
+  sb.innerHTML =
+    '<div class="sb-brand"><span class="b"><span class="led live"></span> EM·CA LAB</span></div>'+
+    '<div class="sb-prog"><div class="row"><span>Course progress</span><span>2 / 25</span></div><div class="bar"><i></i></div></div>'+
+    '<nav class="nav" id="nav"></nav>'+
+    '<div class="sb-foot"><a href="#">‹ Course home</a><span class="led live"></span></div>';
+  var nav = document.getElementById('nav');
+  PARTS.forEach(function(p){
+    var st='--ac:'+vv(p)+';--acl:'+vl(p)+';--bg:'+vbg(p)+';--bd:'+vbd(p);
+    var secs = p.sections.map(function(s){
+      var sub='';
+      if(s.subs){ sub='<ul class="subnav" id="subnav-'+s.id+'">'+s.subs.map(function(u){
+        return '<li><a data-target="'+u.id+'" class="'+(u.done?'done':'')+'"><span class="tick"></span>'+u.t+(u.badge?'<span class="badge" style="font-family:var(--mono);font-size:8.5px;color:var(--muted);margin-left:auto;border:1px solid var(--bd);border-radius:4px;padding:0 4px">'+u.badge+'</span>':'')+'</a></li>';
+      }).join('')+'</ul>'; }
+      return '<li><a href="#" data-sec="'+s.id+'" class="secLink"><span class="sn">'+s.num+'</span><span class="sdot'+(s.done?' done':'')+'"></span>'+s.title+'</a>'+sub+'</li>';
+    }).join('');
+    nav.insertAdjacentHTML('beforeend',
+      '<details class="pnav'+(p.current?' cur':'')+'"'+(p.current?' open':'')+' style="'+st+'">'+
+        '<summary><span class="pbar"></span><span class="pmeta"><span class="pnum">0'+p.n+' · '+p.q+'</span><div class="pname">'+p.name+'</div></span><span class="pcount">'+p.done+'/'+p.total+'</span><span class="pchev">▾</span></summary>'+
+        '<ul class="seclist">'+secs+'</ul>'+
+      '</details>');
+  });
+
+  // ── render icon rail ──
+  var rail = document.getElementById('rail');
+  rail.innerHTML='<div class="mark"><span class="led live"></span></div>'+PARTS.map(function(p){
+    var st='--ac:'+vv(p)+';--acl:'+vl(p)+';--bg:'+vbg(p)+';--bd:'+vbd(p);
+    var fly='<span class="fly"><div class="ft">PART 0'+p.n+' · '+p.q+'</div>'+p.sections.map(function(s){return '<a href="#">'+s.num+' '+s.title+'</a>';}).join('')+'</span>';
+    return '<div class="chip'+(p.current?' cur':'')+'" style="'+st+'">0'+p.n+(p.current?'<span class="cdot led live"></span>':'')+fly+'</div>';
+  }).join('')+'<div class="grow"></div><div class="exp" id="expBtn" title="Expand">⟩</div>';
+
+  // ── render content (current part's sections, with anchored subs) ──
+  var inner = document.getElementById('inner');
+  var lorem = {
+    'faraday-flux':['Every transformer relies on Faraday’s law: a changing flux through a loop induces a voltage, emf = −N·dΦ/dt. The faster the change, the larger the emf, and its sign opposes the change.','It is the principle behind the entire power grid.'],
+    'faraday-bench':['Bring the magnet toward the coil and watch the induced current — but commit a prediction first; the bench stays dark until you do.'],
+    'faraday-checks':['Four checks on flux, area, rate, and the sign of the induced current.'],
+    'faraday-motional':['A rod sliding on rails sweeps through the field: emf = Blv. A spinning turbine coil in the grid is just rods sweeping through field.'],
+    'faraday-challenge':['Pull the rod at constant speed and account for every watt: P_mech = Fv = ℰI = P_elec.'],
+    'lenz-principle':['Lenz’s law fixes the sign: the induced current always opposes the change that produced it. Approach the coil and it pushes back.'],
+    'lenz-bench':['Drag the magnet across the coil and watch the braking force. (Canvas-heavy — the sidebar tucks away so the field gets room.)'],
+    'lenz-checks':['Two checks on the direction of the induced current and the braking force.'],
+    'mag-reluctance':['A magnetic circuit obeys an Ohm’s-law analogy: mmf = Φ·ℛ, with reluctance ℛ = l/(μA).'],
+    'mag-bench':['Wind N turns on a toroid and solve the series-reluctance loop.'],
+    'mag-checks':['Three checks on reluctance, flux, and the effect of an air gap.']
+  };
+  cur.sections.forEach(function(s){
+    if(!s.subs){ return; }
+    var blocks = s.subs.map(function(u){
+      var body=(lorem[u.id]||['…']).map(function(t){return '<p>'+t+'</p>';}).join('');
+      var bench = /bench|motional|toroid/.test(u.id) ? '<div class="benchmini" style="--ac:'+vv(cur)+'"><span class="l">BENCH · ARMED — predict first</span><span class="led live"></span></div>' : '';
+      return '<div class="sub" id="'+u.id+'" data-sec="'+s.id+'" data-sub="'+u.t+'"><div class="subhdr" style="--ac:'+vv(cur)+';--acl:'+vl(cur)+'">'+u.t+'</div><div class="pcard">'+body+bench+'</div></div>';
+    }).join('');
+    inner.insertAdjacentHTML('beforeend',
+      '<div class="doc-sec" data-secroot="'+s.id+'"><div class="stag" style="color:'+vl(cur)+'">PART 0'+cur.n+' · '+cur.q+(s.simHeavy?'<span class="simtag" style="--ac:'+vv(cur)+'">SIM-HEAVY</span>':'')+'</div><div class="stitle">'+s.num+'  '+s.title+'</div>'+blocks+'</div>');
+  });
+
+  // ── state + behaviours ──
+  var app=document.getElementById('app'), content=document.getElementById('content'),
+      statusEl=document.getElementById('status'), crumb=document.getElementById('crumb'),
+      autobadge=document.getElementById('autobadge'), toggle=document.getElementById('toggle');
+  var KEY='emca_sb_pref';
+  var pref = localStorage.getItem(KEY)==='col' ? 'col':'exp';   // persisted manual choice
+  var simActive=false, pinnedSection=null, activeSecId=null;
+
+  function effectiveCollapsed(){
+    if(pref==='col') return true;                       // manually collapsed → always
+    if(simActive && pinnedSection!==activeSecId) return true; // auto on sim-heavy unless pinned here
+    return false;
+  }
+  function render(){
+    var col=effectiveCollapsed();
+    app.classList.toggle('collapsed',col);
+    var why = pref==='col' ? 'collapsed · your setting'
+            : (col ? 'collapsed · auto (sim-heavy)' : 'expanded · your setting');
+    statusEl.innerHTML='sidebar: <b>'+why+'</b>';
+    autobadge.classList.toggle('show', col && pref!=='col');
+    toggle.textContent = col ? 'expand ⟩' : '⟨ collapse';
+  }
+  toggle.addEventListener('click',function(){
+    var col=effectiveCollapsed();
+    if(col){ // user wants it OPEN
+      pref='exp';
+      if(simActive) pinnedSection=activeSecId; // pin open for this sim-heavy section
+    } else { pref='col'; }
+    localStorage.setItem(KEY,pref);
+    render();
+  });
+  document.getElementById('expBtn').addEventListener('click',function(){ pref='exp'; if(simActive)pinnedSection=activeSecId; localStorage.setItem(KEY,pref); render(); });
+
+  // scroll-spy: one observer of position drives active sub/section + subnav reveal + auto-collapse
+  var subEls=[].slice.call(inner.querySelectorAll('.sub'));
+  function spy(){
+    var line=content.scrollTop+90, active=subEls[0];
+    subEls.forEach(function(el){ if(el.offsetTop<=line) active=el; });
+    if(!active) return;
+    var subId=active.id, secId=active.getAttribute('data-sec'), subName=active.getAttribute('data-sub');
+    // sidebar: highlight active section, reveal ONLY its subnav, mark active sub
+    document.querySelectorAll('.secLink').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-sec')===secId); });
+    document.querySelectorAll('.subnav').forEach(function(u){ u.classList.toggle('show', u.id==='subnav-'+secId); });
+    var passed=true;
+    document.querySelectorAll('#subnav-'+secId+' a').forEach(function(a){
+      var t=a.getAttribute('data-target');
+      a.classList.toggle('cur', t===subId);
+      // mark subs above the current one as done
+      a.classList.toggle('done', t!==subId && passed && t!==subId);
+      if(t===subId) passed=false;
+    });
+    crumb.innerHTML='PART 0'+cur.n+' / <b>'+secId.replace(/^\w/,function(c){return c;}) +'</b>';
+    var sec=cur.sections.filter(function(s){return s.id===secId;})[0];
+    crumb.innerHTML='PART 0'+cur.n+' / <b>'+(sec?sec.num+' '+sec.title:secId)+'</b> / <span class="here">'+subName+'</span>';
+    // auto-collapse logic
+    var sim=!!(sec&&sec.simHeavy);
+    if(secId!==activeSecId){ activeSecId=secId; if(!sim) pinnedSection=null; } // leaving sim-heavy resets pin
+    simActive=sim;
+    render();
+  }
+  content.addEventListener('scroll',spy,{passive:true});
+
+  // subsection clicks (sidebar level-3) → smooth scroll
+  nav.addEventListener('click',function(e){
+    var a=e.target.closest('a[data-target]'); if(!a) return; e.preventDefault();
+    var el=document.getElementById(a.getAttribute('data-target'));
+    if(el) content.scrollTo({top:el.offsetTop-70,behavior:'smooth'});
+  });
+  // section clicks → scroll to section root
+  nav.addEventListener('click',function(e){
+    var a=e.target.closest('a.secLink'); if(!a) return; e.preventDefault();
+    var root=inner.querySelector('[data-secroot="'+a.getAttribute('data-sec')+'"]');
+    if(root) content.scrollTo({top:root.offsetTop-60,behavior:'smooth'});
+  });
+
+  render(); spy();
+})();
+</script>
+</body>
+</html>

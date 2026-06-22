@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EM-CA-LAB · Combined direction (A hero+traces × C warmth+summaries)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea;          /* warm ground (C) — replaces cool chassis on this page */
+    --paper-2:#efe9dc;
+    --screen:#0f172a;         /* instrument screen (A) */
+    --card:#ffffff; --border:#e7e2d6;
+    --title:#1c1814; --muted:#7a7263; --ink:#33302a;
+    --led:#10b981; --cta:#2563eb;
+    --p1:#d97706; --p1l:#b45309; --p1bg:#fdf6ec; --p1bd:#f0d9b5;
+    --p2:#dc2626; --p2l:#b91c1c; --p2bg:#fdeeee; --p2bd:#f1c4c4;
+    --p3:#2563eb; --p3l:#1d4ed8; --p3bg:#eef3fd; --p3bd:#bcd2f5;
+    --p4:#7c3aed; --p4l:#6d28d9; --p4bg:#f4eefe; --p4bd:#d6c2f3;
+    --p5:#059669; --p5l:#047857; --p5bg:#eafaf3; --p5bd:#b4e6cf;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --sans:"Inter",system-ui,sans-serif;
+    --display:"Space Grotesk","Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#ddd6c7;color:var(--title);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+  .doc-head{background:#1c1814;color:#e7e2d6;padding:32px 0 28px}
+  .doc-head .kick{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#e0a96d;margin:0 0 10px}
+  .doc-head h1{font-family:var(--display);font-size:27px;font-weight:600;letter-spacing:-.01em;line-height:1.18}
+  .doc-head p{color:#b8ad97;max-width:760px;margin:11px 0 0;font-size:14.5px}
+  .recipe{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .recipe span{font-family:var(--mono);font-size:11px;border:1px solid #3a342a;border-radius:999px;padding:4px 11px;color:#cdbfa6}
+  .recipe b{color:#e0a96d}
+
+  .band{padding:40px 0}
+  .band-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8a7d63;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .band-label .n{background:#1c1814;color:#f4f1ea;border-radius:5px;padding:2px 8px;font-weight:700}
+
+  /* device chrome */
+  .device{border:1px solid #cabfa6;border-radius:14px;overflow:hidden;box-shadow:0 26px 60px -28px rgba(28,24,20,.55);background:#fff;max-width:1040px}
+  .device-bar{height:34px;background:#faf7f0;border-bottom:1px solid #e7e2d6;display:flex;align-items:center;gap:7px;padding:0 14px}
+  .device-bar i{width:11px;height:11px;border-radius:50%;background:#d8cdb6;display:inline-block}
+  .device-bar .url{margin-left:12px;font-family:var(--mono);font-size:11px;color:#a99c81;background:#fff;border:1px solid #e7e2d6;border-radius:6px;padding:3px 12px}
+
+  /* warm grid-paper ground (C) */
+  .ground{background:
+    linear-gradient(rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg,rgba(120,108,86,.06) 1px,transparent 1px) 0 0/24px 24px,
+    var(--paper);}
+
+  .app{display:grid;grid-template-columns:206px 1fr}
+  .rail{background:#fbf9f4;border-right:1px solid var(--border);padding:16px 14px;font-size:12.5px}
+  .rail .brand{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:16px}
+  .led{width:8px;height:8px;border-radius:50%;background:var(--led);box-shadow:0 0 0 3px rgba(16,185,129,.18);flex:none}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}} .led.live{animation:blink 2.4s ease-in-out infinite}
+  .rail .grp{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:#a99c81;margin:14px 0 5px;text-transform:uppercase}
+  .rail .lnk{display:block;padding:5px 8px;border-radius:6px;color:#5b5446;text-decoration:none}
+  .rail .lnk.on{background:#f1ece1;color:var(--title);font-weight:600}
+  .rail .lnk .pp{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:middle}
+
+  .stage{padding:26px 26px 34px}
+
+  /* ── HERO (A, dark) ── */
+  .hero{position:relative;background:var(--screen);border-radius:14px;overflow:hidden;padding:24px 26px;color:#e7e2d6;margin-bottom:24px;box-shadow:inset 0 0 0 1px #2a2620}
+  .hero .kick{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#e0a96d;margin:0 0 8px}
+  .hero h1{font-family:var(--display);font-size:29px;font-weight:600;letter-spacing:-.015em;line-height:1.1;max-width:560px}
+  .hero p{color:#9a8f79;max-width:540px;margin:9px 0 0;font-size:14px}
+  .hero .rail2{margin-top:18px;border-top:1px dashed #3a342a;padding-top:14px}
+  .hero .cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6b6452;margin-bottom:6px}
+  .sweep{stroke-dasharray:4 220;animation:sweep 6s linear infinite}
+  @keyframes sweep{to{stroke-dashoffset:-1100}}
+
+  /* ── PART CARDS (C warmth + A trace screen + C summary) ── */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{position:relative;border:1px solid;border-radius:13px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s ease,box-shadow .15s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -22px rgba(28,24,20,.5)}
+  .card .head{display:flex;gap:14px;padding:15px 16px 0}
+  .card .scope{flex:none;width:96px;height:60px;background:var(--screen);border-radius:8px;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px #2a2620}
+  .card .scope svg{width:100%;height:100%;display:block}
+  .card .scope .grat{position:absolute;inset:0;background:
+    linear-gradient(rgba(148,163,184,.10) 1px,transparent 1px) 0 0/16px 16px,
+    linear-gradient(90deg,rgba(148,163,184,.10) 1px,transparent 1px) 0 0/16px 16px;}
+  .card .scope b{position:absolute;top:5px;left:7px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--ac)}
+  .card .scope .led{position:absolute;top:6px;right:7px}
+  .card .htext{flex:1;min-width:0}
+  .card .pn{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--acl)}
+  .card h3{font-size:15.5px;font-weight:700;margin:3px 0;line-height:1.2}
+  .card .body{padding:10px 16px 15px;display:flex;flex-direction:column;flex:1}
+  .card p.sum{font-size:12.5px;color:var(--ink);margin:0 0 11px;line-height:1.45}
+  .card .meta{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bd);padding-top:11px;margin-top:auto}
+  .card .secs{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .card .go{font-family:var(--mono);font-size:11px;font-weight:700;text-decoration:none;color:var(--acl);display:inline-flex;gap:6px;align-items:center}
+  .card .go .arr{transition:transform .15s ease}.card:hover .go .arr{transform:translateX(4px)}
+
+  /* ── SECTION SHELL (combined language) ── */
+  .sec-top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:13px 0;margin-bottom:16px}
+  .crumb{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em}.crumb b{color:var(--p3l)}
+  .sec-prog{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .sec-prog .bar{width:88px;height:6px;border-radius:3px;background:#e7e2d6;overflow:hidden}
+  .sec-prog .bar i{display:block;height:100%;width:62%;background:var(--p3)}
+  .sec-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--p3l);background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+  .sec-title{font-family:var(--display);font-size:25px;font-weight:600;letter-spacing:-.01em}
+  .sec-body{display:grid;grid-template-columns:1fr 348px;gap:20px;margin-top:16px}
+  .prose-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+  .prose-card p{font-size:13.5px;color:var(--ink);margin:0 0 10px}
+  .prose-card .eq{font-family:var(--mono);background:var(--screen);color:#e7e2d6;border-radius:8px;padding:12px 14px;font-size:13px;margin:12px 0}
+  .prose-card .eq .v{color:#e0a96d}
+  .bench{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:sticky;top:14px}
+  .bench .ph{background:var(--screen);color:#cdbfa6;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 14px;display:flex;justify-content:space-between;align-items:center}
+  .gate{padding:18px 16px;background:var(--p3bg)}
+  .gate .lock{font-family:var(--mono);font-size:10px;color:var(--p3l);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:10px}
+  .gate h4{font-size:14px;margin:0 0 12px;color:var(--title)}
+  .gate .opt{display:block;background:#fff;border:1px solid var(--p3bd);border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:8px;cursor:pointer;transition:border-color .12s,background .12s}
+  .gate .opt:hover{border-color:var(--p3)}
+  .gate .opt.pick{border-color:var(--p3);background:rgba(37,99,235,.08);font-weight:600}
+  .gate .commit{width:100%;margin-top:4px;background:var(--cta);color:#fff;border:none;border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer}
+  .gate .hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+
+  .foot{background:#1c1814;color:#b8ad97;padding:32px 0 38px;font-size:13px}
+  .foot .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .foot h4{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e0a96d;margin-bottom:10px}
+  .foot ul{margin:0;padding-left:16px}.foot li{margin:4px 0}
+  .foot code{font-family:var(--mono);color:#f4f1ea;background:#2a2620;padding:1px 5px;border-radius:4px;font-size:11px}
+  .note{background:#2a2620;border:1px solid #3a342a;border-radius:8px;padding:10px 12px;font-size:12px;color:#cdbfa6;grid-column:1/-1;margin-top:4px}
+  .note b{color:#e0a96d}
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr}.rail{display:none}
+    .grid,.sec-body,.foot .wrap{grid-template-columns:1fr}
+    .card .head{flex-direction:column}.card .scope{width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){.sweep,.led.live{animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <div class="wrap">
+    <p class="kick">EM-CA-LAB · combined direction · 2026-06-23</p>
+    <h1>A's instrument hero &amp; traces, on C's warm notebook ground</h1>
+    <p>The synthesis you asked for: one dark hero with the morphing through-line signal (the dramatic moment),
+       then warm tinted Part cards — each with its characteristic trace on a small instrument screen and a one-line
+       summary of what it covers. Real palette, real course content. Does it hang together? Here it is.</p>
+    <div class="recipe">
+      <span>hero + through-line: <b>Direction A</b></span>
+      <span>per-Part trace screens: <b>A</b></span>
+      <span>warm ground + tinted cards: <b>C</b></span>
+      <span>one-line summaries: <b>C</b></span>
+      <span>display type: <b>Space Grotesk</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- ════════ COMBINED LANDING ════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="band-label"><span class="n">1</span> the landing</div>
+    <div class="device">
+      <div class="device-bar"><i></i><i></i><i></i><span class="url">em-ca-lab.vercel.app/</span></div>
+      <div class="ground">
+        <div class="app">
+          <aside class="rail">
+            <div class="brand"><span class="led live"></span> EM·CA LAB</div>
+            <div class="grp">Part 01 · Circuits</div>
+            <a class="lnk on"><span class="pp" style="background:var(--p1)"></span>Component Physics</a>
+            <a class="lnk"><span class="pp" style="background:var(--p1)"></span>Circuit Analysis</a>
+            <a class="lnk"><span class="pp" style="background:var(--p1)"></span>Laplace Theory</a>
+            <div class="grp">Part 02 · E-field</div>
+            <a class="lnk"><span class="pp" style="background:var(--p2)"></span>Coulomb's Law</a>
+            <a class="lnk"><span class="pp" style="background:var(--p2)"></span>Gauss's Law</a>
+            <div class="grp">Part 04 · Waves</div>
+            <a class="lnk"><span class="pp" style="background:var(--p4)"></span>EM Waves</a>
+          </aside>
+          <div class="stage">
+
+            <div class="hero">
+              <p class="kick">Virtual laboratory · predict, then observe</p>
+              <h1>Five instruments. One bench.</h1>
+              <p>From a circuit's step response to a wave reflecting off the end of a line — one continuous signal,
+                 traced across five parts.</p>
+              <div class="rail2">
+                <div class="cap"><span>THE THROUGH-LINE — circuits → fields → waves → lines</span><span>CH1–CH5 · 2.00 ms/div</span></div>
+                <svg viewBox="0 0 1100 110" width="100%" height="92" preserveAspectRatio="none" role="img" aria-label="Signal trace morphing across the five parts">
+                  <g stroke="#2a2620" stroke-width="1"><line x1="0" y1="58" x2="1100" y2="58"/>
+                    <line x1="220" y1="0" x2="220" y2="110"/><line x1="440" y1="0" x2="440" y2="110"/>
+                    <line x1="660" y1="0" x2="660" y2="110"/><line x1="880" y1="0" x2="880" y2="110"/></g>
+                  <path d="M10,78 L58,78 L58,28 C88,28 88,92 116,60 C138,40 148,76 166,60 C180,50 188,66 202,60" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+                  <g stroke="#ef4444" stroke-width="2"><circle cx="330" cy="58" r="4" fill="#ef4444"/>
+                    <line x1="330" y1="58" x2="296" y2="34"/><line x1="330" y1="58" x2="364" y2="34"/>
+                    <line x1="330" y1="58" x2="296" y2="82"/><line x1="330" y1="58" x2="364" y2="82"/>
+                    <line x1="330" y1="58" x2="286" y2="58"/><line x1="330" y1="58" x2="374" y2="58"/></g>
+                  <g fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="550" cy="58" r="12"/><circle cx="550" cy="58" r="23"/><circle cx="550" cy="58" r="34" opacity=".5"/><circle cx="550" cy="58" r="2.5" fill="#3b82f6"/></g>
+                  <path d="M664,58 Q693,18 722,58 T780,58 T838,58 T896,58" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+                  <path d="M910,58 L972,58 L984,28 L996,58 L1090,58" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                  <path d="M910,58 L980,58 L990,84 L1000,58 L1090,58" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3 4" opacity=".6"/>
+                  <line class="sweep" x1="10" y1="58" x2="1090" y2="58" stroke="#e0a96d" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="grid">
+              <!-- P1 -->
+              <article class="card" style="--ac:var(--p1);--acl:var(--p1l);--bd:var(--p1bd);background:var(--p1bg);border-color:var(--p1bd)">
+                <div class="head">
+                  <div class="scope"><div class="grat"></div><b>STEP &amp; RING</b><span class="led live"></span>
+                    <svg viewBox="0 0 96 60" preserveAspectRatio="none" aria-hidden="true"><path d="M5,46 L30,46 L30,14 C50,14 50,54 66,34 C78,22 84,42 92,34" fill="none" stroke="var(--p1)" stroke-width="2.2"/></svg></div>
+                  <div class="htext"><div class="pn">PART 01 · CIRCUITS</div><h3>Circuit Analysis, Laplace &amp; Transients</h3></div>
+                </div>
+                <div class="body">
+                  <p class="sum">The algorithmic toolkit — from R, L, C through the Laplace transform to the transient response of real circuits.</p>
+                  <div class="meta"><span class="secs">9 sections · Component Physics → Interactive Lab</span><a class="go" href="#">START <span class="arr">→</span></a></div>
+                </div>
+              </article>
+              <!-- P2 -->
+              <article class="card" style="--ac:var(--p2);--acl:var(--p2l);--bd:var(--p2bd);background:var(--p2bg);border-color:var(--p2bd)">
+                <div class="head">
+                  <div class="scope"><div class="grat"></div><b>RADIAL FIELD</b><span class="led live"></span>
+                    <svg viewBox="0 0 96 60" aria-hidden="true"><g stroke="var(--p2)" stroke-width="1.8"><circle cx="48" cy="30" r="3.5" fill="var(--p2)"/><line x1="48" y1="30" x2="20" y2="12"/><line x1="48" y1="30" x2="76" y2="12"/><line x1="48" y1="30" x2="20" y2="48"/><line x1="48" y1="30" x2="76" y2="48"/><line x1="48" y1="30" x2="12" y2="30"/><line x1="48" y1="30" x2="84" y2="30"/></g></svg></div>
+                  <div class="htext"><div class="pn">PART 02 · E-FIELD</div><h3>Electric &amp; Magnetic Fields</h3></div>
+                </div>
+                <div class="body">
+                  <p class="sum">Ground the toolkit in field physics — Coulomb's and Gauss's laws, Ampère's law, and the Lorentz force.</p>
+                  <div class="meta"><span class="secs">4 sections · Coulomb → Lorentz</span><a class="go" href="#">START <span class="arr">→</span></a></div>
+                </div>
+              </article>
+              <!-- P3 -->
+              <article class="card" style="--ac:var(--p3);--acl:var(--p3l);--bd:var(--p3bd);background:var(--p3bg);border-color:var(--p3bd)">
+                <div class="head">
+                  <div class="scope"><div class="grat"></div><b>FLUX LOOPS</b><span class="led live"></span>
+                    <svg viewBox="0 0 96 60" aria-hidden="true"><g fill="none" stroke="var(--p3)" stroke-width="1.8"><circle cx="48" cy="30" r="8"/><circle cx="48" cy="30" r="16"/><circle cx="48" cy="30" r="24" opacity=".5"/><circle cx="48" cy="30" r="2" fill="var(--p3)"/></g></svg></div>
+                  <div class="htext"><div class="pn">PART 03 · B-FIELD</div><h3>Induction, Magnetics &amp; Inductance</h3></div>
+                </div>
+                <div class="body">
+                  <p class="sum">Changing flux induces voltage — Faraday's law, Lenz's opposition, magnetic circuits, and the transformer.</p>
+                  <div class="meta"><span class="secs">4 sections · Faraday → Transformers</span><a class="go" href="#">START <span class="arr">→</span></a></div>
+                </div>
+              </article>
+              <!-- P4 -->
+              <article class="card" style="--ac:var(--p4);--acl:var(--p4l);--bd:var(--p4bd);background:var(--p4bg);border-color:var(--p4bd)">
+                <div class="head">
+                  <div class="scope"><div class="grat"></div><b>PROPAGATION</b><span class="led live"></span>
+                    <svg viewBox="0 0 96 60" aria-hidden="true"><path d="M5,30 Q20,6 35,30 T65,30 T95,30" fill="none" stroke="var(--p4)" stroke-width="2.2"/></svg></div>
+                  <div class="htext"><div class="pn">PART 04 · WAVES</div><h3>Maxwell, Waves, Radiation &amp; Antennas</h3></div>
+                </div>
+                <div class="body">
+                  <p class="sum">Fuse E and B into Maxwell's equations, then let the field propagate as a wave and radiate from an antenna.</p>
+                  <div class="meta"><span class="secs">4 sections · Maxwell → Antennas</span><a class="go" href="#">START <span class="arr">→</span></a></div>
+                </div>
+              </article>
+              <!-- P5 full width -->
+              <article class="card" style="--ac:var(--p5);--acl:var(--p5l);--bd:var(--p5bd);background:var(--p5bg);border-color:var(--p5bd);grid-column:1/-1">
+                <div class="head">
+                  <div class="scope"><div class="grat"></div><b>REFLECTION</b><span class="led live"></span>
+                    <svg viewBox="0 0 96 60" aria-hidden="true"><path d="M5,32 L44,32 L52,10 L60,32 L92,32" fill="none" stroke="var(--p5)" stroke-width="2.2"/><path d="M5,32 L50,32 L58,52 L66,32 L92,32" fill="none" stroke="var(--p5)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".6"/></svg></div>
+                  <div class="htext"><div class="pn">PART 05 · LINES</div><h3>Transmission Lines &amp; Distributed Systems</h3></div>
+                </div>
+                <div class="body">
+                  <p class="sum">Where circuits meet waves: when a wire is long enough that the signal reflects off its far end — impedance, matching, and transients.</p>
+                  <div class="meta"><span class="secs">4 sections · Lumped → Distributed → Transmission Lines → Transients</span><a class="go" href="#">START <span class="arr">→</span></a></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ SECTION SHELL (combined) ════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="band-label"><span class="n">2</span> a section, same language</div>
+    <div class="device">
+      <div class="device-bar"><i></i><i></i><i></i><span class="url">em-ca-lab.vercel.app/faraday</span></div>
+      <div class="ground" style="padding:24px 28px 32px">
+        <div class="sec-top">
+          <div class="crumb">PART 03 · B-FIELD &nbsp;/&nbsp; <b>3.1 Faraday's Law</b></div>
+          <div class="sec-prog"><span>SECTION 14/25</span><span class="bar"><i></i></span><span>62%</span></div>
+        </div>
+        <span class="sec-tag"><span class="led live"></span> PREDICT → OBSERVE</span>
+        <div class="sec-title">Faraday's Law</div>
+        <div class="sec-body">
+          <div class="prose-card">
+            <p>Move a magnet through a coil and a voltage appears across its ends. The faster the flux through the loop
+               changes, the larger the induced emf — and its sign always <em>opposes</em> the change that made it.</p>
+            <div class="eq">emf = &minus;N · <span class="v">dΦ/dt</span>&nbsp;&nbsp;&nbsp;[ V = turns × Wb/s ]</div>
+            <p>Before you run the bench, commit to a prediction. The instrument stays dark until you do — a guess you've
+               committed to is one you'll remember.</p>
+          </div>
+          <aside class="bench">
+            <div class="ph"><span>BENCH · FARADAY</span><span style="display:flex;gap:6px;align-items:center"><span class="led live"></span>ARMED</span></div>
+            <div class="gate">
+              <div class="lock">▮ locked · predict first</div>
+              <h4>Double the speed of the magnet. The peak induced emf will…</h4>
+              <label class="opt">stay the same</label>
+              <label class="opt pick">double</label>
+              <label class="opt">quadruple</label>
+              <button class="commit">COMMIT PREDICTION ▸</button>
+              <p class="hint">The simulation reveals once you commit.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div><h4>From A</h4><ul><li>Dark hero + <b>through-line</b> signal (the one bold moment)</li><li>Per-Part <b>trace screens</b> showing each Part's physics</li><li>Green LED · mono readouts</li></ul></div>
+    <div><h4>From C</h4><ul><li>Warm grid-paper ground</li><li>Per-Part <b>tinted cards</b> + accent border</li><li>One-line <b>summary</b> on every Part</li></ul></div>
+    <div><h4>Type</h4><ul><li><b>Space Grotesk</b> display</li><li><b>JetBrains Mono</b> tags/readouts/numerals</li><li><b>Inter</b> body</li></ul></div>
+    <div><h4>Still to decide</h4><ul><li>Dark mode pass</li><li>2–3 more section types (chart sections, multi-tab)</li><li>Mobile layout detail</li></ul></div>
+    <div class="note"><b>Token implication:</b> "C's warmth" means re-pointing <code>--color-chassis</code> from cool <code>#f1f5f9</code> to warm <code>#f4f1ea</code> (page-wide), plus the warm card/border tokens. The dark hero &amp; trace-screens are what keep the instrument contrast against the warm ground. Mockup only — no <code>src/</code> changes yet.</div>
+  </div>
+</footer>
+
+</body>
+</html>
