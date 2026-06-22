@@ -45,19 +45,59 @@ The 12 majors are the must-fix core of #9 below; the deduped simplification oppo
 All pinned core solvers re-confirmed clean — every confirmed defect is in a call-site, displayed formula,
 ConceptCheck keying, default control state, sim sign/label, or prose claim.
 
+## Panel-review reshaping (Gate-2 decision board, 2026-06-22) — folded in
+
+A 5-lens decision board (run `wf_cbf7b4be-bdf`, 22 agents: devil's-advocate / SWOT / premortem / steelman /
+red-team, each grounded in `src/`; 15 decision-critical claims independently verified — **0 of the 12 majors and
+0 of the 15 claims refuted**) stress-tested this plan. Verdict: **GO, with a re-shaped Track A and a tightened
+Track B.** Full record: [`2026-06-21-full-audit.md` Appendix B](./2026-06-21-full-audit.md#appendix-b--gate-2-decision-panel-review-2026-06-22). The changes below are **adopted**:
+
+1. **Split #9 → #9a then #9b.** #9a authors the correctness net asserting the CORRECT values (lands **RED**
+   against today's code); #9b applies the 29 fixes to turn it green. **Never fix-then-assert** — the output
+   layer is entirely untested, so a typo in a "correction" ships green exactly like the original bug.
+   Red-before-green is a **merge requirement**, and the net asserts the **call-site binding** (rendered string /
+   chart input == solver output), not just the solver.
+2. **#2 (bitmap-height e2e net) is the FIRST merge and a HARD gate** on #12/#13/#14 — baseline the *correct*
+   height before any canvas change (deriving it afterward would baseline the bug).
+3. **Appendix A is NOT exhaustive.** The panel found an audit-missed defect (capacitor plate-SVG normalization,
+   Appendix B.1), so #9 runs a **fresh uniform sweep** of displayed/sim math — especially the 12 resume-cached
+   sections — not a closed checklist.
+4. **Severity re-bucket** (Appendix B.3): tier 1 = wrong physics/math a student ingests (#1,#2,#3, #4-arrow,
+   #5-doublekey, #6,#7, #8-wave) fixed first; tier 2 = wrong label/default/prose (#10,#11,#12). **Promote A.2 #1
+   (RLC decay double-count) into tier 1** — same class as #1/#2, mis-filed as minor.
+5. **Fix-scope corrections** (audit fixes the panel caught as wrong/incomplete — full table in Appendix B.2):
+   #8 = fix the EXISTING laplace gate's remount re-lock, NOT add a gate; #9-bounce = fix the function the
+   COMPONENT renders (`BounceDiagram.tsx:160-165` local γ-space copy), not the test-only util; #10 = relabel-only
+   (existing test pins pattern values, not ring labels = false-green); #11 = the one-line default fix is
+   INCOMPLETE (also fix the `:32` SVG normalization); #5 = focus a `tabIndex=-1` reveal wrapper + aria-live
+   gated to the Continue/Skip transition; lenz Track-C "reuse `:315`" won't compile (block-scoped).
+6. **Track B reshaped:** **#14 leads** — it is a **10-sim re-architecture, not a hook swap** (EM sims hardcode
+   `parentElement.clientHeight` inline, e.g. `coulomb:247-248`, and the self-measuring hook adds devicePixelRatio,
+   changing the coordinate space every draw routine assumes); it retires the canvas-mis-size risk class. **#13
+   bench-rollout → optional follow-on.** Re-estimate #10 and #14 **above** their current tags.
+
+**Owner decisions taken this session (2026-06-22):**
+- **Retint → FULL "engaging, not AI-generic" redesign** (owner overrode the panel's minimal-accent option). A
+  real design workstream — **visual mockups FIRST** (owner's durable preference), touching gate/body/sim chrome,
+  not a 1-file accent. Interacts with #10 (both touch `SectionLayout`); supersedes the "full retint rejected"
+  line in §"NOT in scope".
+- **#13 split-pane bench → kept in the plan, decided at Gate-2** (not cut). The panel's "optional once #14 lands"
+  view is noted; the owner decides scope when reviewing Track B.
+- Still open for Gate-2: Track B approval + scope, #14/#12 re-estimate sign-off, ILO9/badge check.
+
 ## Track A — Safe wins (no owner decision; start on approval)
 
 | # | Item | Effort | Why |
 |---|---|---|---|
 | 1 | **Strike tabs-unify; mark DONE-at-baseline.** One shared `Tabs.tsx` (useId-scoped ids, full keyboard, controlled+uncontrolled superset, regression-tested); no surviving `TabSet`. Note the panel-remount caveat (`Tabs.tsx:86`) for stateful children. | S ~0.25d | Re-doing it is a no-op/regression risk; surfaces the remount caveat that #8 depends on. |
-| 2 | **Add a bitmap-HEIGHT (+aspect/min-size) assertion to `e2e/sim-paint.spec.ts`.** Today `expectPainted()` asserts only `distinctColors>2` (`:86`) — a collapsed-height canvas passes green. Capture per-route baseline `bitmapH`/`cssH`, assert above a floor. | S-M ~1d | The regression net that makes the canvas migration (#12-14) safe. **Must land before any spike.** |
+| 2 | **Add a bitmap-HEIGHT (+aspect/min-size) assertion to `e2e/sim-paint.spec.ts`.** Today `expectPainted()` asserts only `distinctColors>2` (`:86`) — a collapsed-height canvas passes green. Capture per-route baseline `bitmapH`/`cssH` (baseline the **correct** height, before any canvas change), assert above a floor. | S-M ~1d | The regression net that makes the canvas migration (#12-14) safe. **FIRST merge; a HARD gate on #12/#13/#14, not a recommendation.** |
 | 3 | **Fix the InteractiveLab damping stale-verdict bug.** Bucket `predictionResetKey` on `classifyDamping(ζ)` (the decision boundary) instead of raw R/L/C on a log(1.2) scale (`index.tsx:416-419` vs `:716`); add a test pinning verdict↔resetKey. | S ~0.5d | A predict-first gate grading against a verdict it never froze — a correctness bug shipping green. |
 | 4 | **Remove the dead unwinnable "At the origin" pole distractor** (`SDomainPanel.tsx:120`; `getCorrectPoleAnswer` `:38-42` never returns it). | XS ~0.25d | A permanently-wrong option teaches a false lesson and erodes gate trust. |
 | 5 | **Add focus management + aria-live to the `PredictionGate` reveal.** On pass it swaps prompt for children (`:125-126`) with no focus move; the result block (`:181-198`) has no `role="alert"`/aria-live. Add the live region + focus the revealed heading. | S ~0.75d | a11y regression on the most-used primitive; one fix propagates to ~30 call sites. |
 | 6 | **Add a `PlausibilityCallout` to lenz, polarization, maxwell** (the ILO-8 EM hole; grep count 0 each). ~6-line callout anchoring one computed quantity to a real magnitude + `getAllByText('Does this make sense?')` smoke assertion, mirroring ampere/gauss/magnetic-circuits. | M ~1.5d | **#1 content gap.** Highest-value pedagogical add; zero physics/curriculum change. |
 | 7 | **Resolve GuidedChallenge completion tracking** — wire `onComplete` (`:20,27,32-35`) to the store, or document it non-tracked, consistently across call sites. | S ~0.5d | Removes ambiguity; either resolution is internally consistent and reversible. |
-| 8 | **Audit + add a `PredictionGate` to laplace-theory** (zero gates today; the one circuits theory section missing the locked predict-first pattern). Confirm it isn't intentionally a pure-derivation chapter first. | S-M ~1d (dep: #1) | Honors "blocking predict-first everywhere." Any gate inside its Tabs must lift state above the tab (the #1 remount caveat). |
-| 9 | **Comprehensive correctness pass + permanent net (UPGRADED per directive; audit now COMPLETE).** (a) Fix every confirmed defect in [Appendix A](./2026-06-21-full-audit.md#appendix-a--strict-correctness-audit-2026-06-22--verified-defect-list) — **12 major (A.1) + 17 minor (A.2)**. The 12 majors are the must-fix core: 3 s-domain transfer-function transcription errors (RC `I(s)` spurious-s, RLC `V_C(s)` missing-s, RL impulse off-by-R), the lenz force-arrow wrong-direction + Q_RING_DIR double-key, the polarization axial-ratio reciprocal + ψ 90° sign bug, the transmission-line reversed wave animation, the bounce-diagram marginal-stability guard, the antennas inverted polar ring, the capacitor default-area-outside-slider, and the transformers stale "next section" bridge. (b) Lock it in: golden-number assertions on every worked example, ConceptCheck answer+distractor-independence assertions (esp. directional CCs — A.4), sim sign/direction assertions for canvas sims (lenz/antennas), a dimensional/unit check, and a KaTeX literal-backslash lint over all `formula=` props. **Do NOT re-derive the clean solvers** — guard rendered output + everything else. | L ~3-5d | The directive's backbone safe-win and the **prerequisite for all of Track C**. Closes premortem #1 (no test asserts physics correctness). |
+| 8 | **Fix the EXISTING laplace-theory gate's remount re-lock** (panel correction — laplace-theory ALREADY ships a blocking `PredictionGate` at `LaplaceMotivation.tsx:24-123`; the original "zero gates / add a gate" premise was factually wrong). Real work: wire `initialPassed`/`onPassed` and lift unlock state above the Tabs at that call site so a tab switch doesn't re-lock it (the #1 remount caveat). | S ~0.5d (dep: #1) | Honors "blocking predict-first everywhere" by fixing the gate that exists, not manufacturing a second contrived one. |
+| 9 | **Comprehensive correctness pass + permanent net (UPGRADED per directive; audit now COMPLETE).** (a) Fix every confirmed defect in [Appendix A](./2026-06-21-full-audit.md#appendix-a--strict-correctness-audit-2026-06-22--verified-defect-list) — **12 major (A.1) + 17 minor (A.2)**. The 12 majors are the must-fix core: 3 s-domain transfer-function transcription errors (RC `I(s)` spurious-s, RLC `V_C(s)` missing-s, RL impulse off-by-R), the lenz force-arrow wrong-direction + Q_RING_DIR double-key, the polarization axial-ratio reciprocal + ψ 90° sign bug, the transmission-line reversed wave animation, the bounce-diagram marginal-stability guard, the antennas inverted polar ring, the capacitor default-area-outside-slider, and the transformers stale "next section" bridge. (b) Lock it in: golden-number assertions on every worked example, ConceptCheck answer+distractor-independence assertions (esp. directional CCs — A.4), sim sign/direction assertions for canvas sims (lenz/antennas), a dimensional/unit check, and a KaTeX literal-backslash lint over all `formula=` props. **SPLIT per panel:** #9a authors the net asserting CORRECT values (lands **RED** vs today's code) → #9b applies the fixes to green; **red-before-green is a merge gate**, and the net asserts **call-site binding** (rendered string == solver output), not just solvers. Run #9 as a **fresh uniform sweep** — Appendix A is not exhaustive (panel found an audit-missed capacitor SVG-normalization defect, Appendix B.1). **Do NOT re-derive the clean solvers.** | #9a ~3-4d → #9b ~2-3d (the **schedule-critical spine**, not a 3-5d "safe-win") | The directive's backbone and the **prerequisite for all of Track C**. Closes premortem #1 (no test pins displayed output). |
 
 **Track A total ≈ 7.5 days.** All independent except #8 (depends on #1).
 
@@ -80,7 +120,7 @@ ConceptCheck keying, default control state, sim sign/label, or prose claim.
 | # | Item | Effort | Depends | Decision needed |
 |---|---|---|---|---|
 | 10 | **Chrome-hoist prework** — break the `@em/constants/physics` import at `SectionLayout.tsx:6` (used only for default title/subtitle). Thread title/subtitle as props (or move metadata to `@shared/constants/curriculum`) so chrome can be hoisted to a shared `SectionShell` without a domain import. Pure refactor, no visual change. | M ~2d | #1 | Approve touching all 22+ section call signatures. |
-| 11 | **RETINT decision** — recommend the minimal per-Part chrome accent: apply existing `--color-part-N` tokens to the header rule only (`SectionLayout.tsx:63`), ~1 file, zero gate/body churn. Full retint (Part prop through ~30 gate sites + 265-occ audit) rejected. | S (minimal) / L (full) | none | **Pick:** minimal chrome accent / defer / full retint. **Never ship shell-unify without differentiation.** |
+| 11 | **RETINT — owner chose the FULL "engaging, not AI-generic" redesign** (2026-06-22, overriding the panel's minimal-accent recommendation). A real design workstream: **visual mockups FIRST** (owner's durable preference — show visuals, not prose), then apply across gate/body/sim chrome (~30 gate sites / ~58-file occ). Interacts with #10 (both touch `SectionLayout`). | L (full) | **DECIDED: full redesign** | Owner decision taken. Next sub-gate: approve the visual mockups before any implementation. |
 | 12 | **Canvas spike (time-boxed)** — prove whether an EM sim can live in `LabLayout`'s sticky/overflow column without mis-sizing. Spike on gauss + lorentz, pixel-verify (`getImageData`) desktop+mobile. maxwell = safest (self-measuring); em-wave phasor-sync = most fragile (exempt). | M ~2d | #2 | Approve the spike; its verdict gates #13. |
 | 13 | **Per-section `LabLayout`-inside-`SectionShell` rollout** — NOT blanket, NOT Tabs-rechapter. Keep 10 EM sections linear; exempt em-wave/maxwell/ampere. GuidedChallenge stays a persistent ungated sibling co-located with its bench. | L ~4-6d incremental | #10, #11, #12 | Approve scope + per-section candidate list. |
 | 14 | **Migrate EM sims to the self-measuring `getBoundingClientRect` hook** — retires the entire canvas-mis-size risk class by decoupling sizing from layout (SWOT's recommended sequencing: do this *before* committing to any bench). | L ~3-5d | #2, #12 | Approve the 10-sim port. |
@@ -99,9 +139,9 @@ it does not ship — that is the "no quick, unreliable fix" line.
 | Consolidate the 3 canvas-sizing strategies onto the one self-measuring hook | overlaps Track-B #14; retires a whole bug class |
 | De-duplicate the triplicated section chrome into the shared `SectionShell` | overlaps Track-B #10/#13 |
 | Remove dead code — the at-origin distractor (#4) and any unreachable branches the correctness audit flags | each test-guarded |
-| **~15 per-section simplifications from the correctness audit** ([Appendix A.5](./2026-06-21-full-audit.md#a5--simplification-opportunities-deduped-each-net-first-per-the-directive)) | each carries its own **net-first** tag (the specific test that must exist first); zero behavior change. Highlights: collapse the now-redundant 3-form s-domain chains; delete the polarization `ex===ey` special case + `Linear ? Infinity` branch (the fixes *are* the simplifications); consolidate the duplicated `BounceDiagram` math into `transmissionMath.ts` (single source + one guard fix); hoist the byte-identical `ReadoutCard` and `verticalZigzag`/`horizontalZigzag` SVG helpers; source the Iron-Core preset from the shared `materials` array; de-dup the coulomb µC→C conversion. |
+| **~15 per-section simplifications from the correctness audit** ([Appendix A.5](./2026-06-21-full-audit.md#a5--simplification-opportunities-deduped-each-net-first-per-the-directive)) | each carries its own **net-first** tag (the specific test that must exist first); zero behavior change. Highlights: collapse the now-redundant 3-form s-domain chains; delete the polarization `ex===ey` special case + `Linear ? Infinity` branch (the fixes *are* the simplifications); consolidate the duplicated `BounceDiagram` math into `transmissionMath.ts` — **⚠ panel trap: fix the guard in the function the COMPONENT renders (`BounceDiagram.tsx:160-165` local γ-space copy) and assert via the RENDERED readout; the exported util is test-only and itself mis-handles the marginal case**; hoist the byte-identical `ReadoutCard` and `verticalZigzag`/`horizontalZigzag` SVG helpers; source the Iron-Core preset from the shared `materials` array; de-dup the coulomb µC→C conversion. |
 
-Effort: incremental, per item; sizes are in Appendix A.5. **Several Track-C items and #9 fixes coincide** (e.g. polarization, lenz, transients) — fixing the defect and removing its special-case/duplication is one change, gated by the same new test.
+Effort: incremental, per item; sizes are in Appendix A.5. **Several Track-C items and #9 fixes coincide** (e.g. polarization, transients) — fixing the defect and removing its special-case/duplication is one change, gated by the same new test. **⚠ panel caveats:** lenz is NOT a one-edit coincidence — the A.5 "reuse the `(v·dNorm)<0` value at `:315`" is block-scoped and won't compile; fix `fLen:354` alone first. The two polarization fixes ARE one-edit, but their pinning test must cover boundary states (ex==ey with cos δ<0 ⇒ ψ=−45/135; near-linear χ→0 AR limit), not just the 3 clean archetypes.
 
 ## The 5 owner decisions (recap from the devil's-advocate panel)
 
@@ -111,8 +151,8 @@ Effort: incremental, per item; sizes are in Appendix A.5. **Several Track-C item
    incompatible with `LabLayout`'s content-sized column.
 3. **GuidedChallenge placement?** → **Persistent ungated sibling** beside a visible bench; bare tab is a trap;
    never a 2nd gate.
-4. **Retint timing?** → minimal chrome accent now **or** defer — but **never unify the shell without
-   differentiation** (#11).
+4. **Retint?** → **DECIDED 2026-06-22: FULL "engaging, not AI-generic" redesign** (owner override of the
+   panel's minimal-accent recommendation) — visual mockups first; see #11.
 5. **Migration shape?** → **(a)** `LabLayout`-inside-`SectionShell`, per-section, single-gate sections first;
    exempt em-wave/maxwell/ampere (#13).
 
@@ -122,6 +162,8 @@ Effort: incremental, per item; sizes are in Appendix A.5. **Several Track-C item
 - **Re-deriving physics solvers** — verified clean (solveToroid, partial-fractions residues, em-wave media
   math, dipole 73 Ω, Lorentz Boris).
 - **tabs-unify** — already shipped at baseline.
-- **Full per-Part retint of the gate/body** — rejected as high-effort/low-value.
+- ~~**Full per-Part retint of the gate/body** — rejected as high-effort/low-value.~~ **SUPERSEDED 2026-06-22:
+  the owner chose the full "engaging, not AI-generic" redesign (#11); it is now IN scope as a mockups-first
+  design workstream.**
 - **em-wave SI retrofit** — real but medium-cost and separate; not required to hold any ILO grade. Track it for
   a later content pass.

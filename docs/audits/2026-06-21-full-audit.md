@@ -425,3 +425,63 @@ rule) and must stay green on the full unit suite + e2e. Tag = the test that must
 > render more ConceptChecks than their `expectedChecks` count (transformers 3 vs 0, nodal-mesh 3 vs 0, maxwell fires
 > 6 events vs 3, gauss/faraday gating) — this is the documented "EM sections target 3, everything else completes on
 > first visit (0)" rule, intentional, and physics-clean. Listed for owner awareness, not for #9.
+
+---
+
+## Appendix B · Gate-2 decision-panel review (2026-06-22)
+
+**Why this appendix exists.** Before acting on Appendix A + the ultraplan, the owner asked for the whole Gate-2
+package to be stress-tested as a multi-agent panel. Run `wf_cbf7b4be-bdf`, **22 agents**: five independent
+lenses (devil's-advocate, SWOT, premortem, steelman, red-team — each grounded in `src/`, not the plan alone) →
+a disagreement-mapper → **15 decision-critical claims, each independently verified against the code** → a
+synthesis. **0 of the 12 majors and 0 of the 15 claims were refuted** (5 confirmed, 10 "partly" — the nuance
+generally strengthened the finding or added a correction). Verdict: **GO, with a re-shaped Track A and a
+tightened Track B.** Analysis only; no `src/` changes. The net-before-refactor spine and the killed
+bench-everywhere call were both **confirmed correct**.
+
+### B.1 · Audit-missed defect (proves Appendix A is not exhaustive)
+
+- **[major/units] component-physics · `CapacitorSection.tsx:32`** — the plate-SVG normalization
+  `areaNorm = (area - 0.005) / (0.10 - 0.005)` uses a divisor range `[0.005, 0.10] m²` that is **~100× the real
+  Plate-Area slider range** (`[5e-5, 1e-3] m²`); the `:31` comment itself mislabels the units. Result:
+  `areaNorm` is **negative across the entire slider**, so the plate drawing is frozen at its ~35 px floor and
+  never responds to the control. This is a **distinct, second defect** in the same file as A.1 #11 — so #11's
+  one-line default-area fix is **incomplete**: also fix the `:32` normalization to the real slider range, and add
+  a test that plate height varies monotonically across the slider (not merely that the default reads 0.885 pF).
+  **Implication:** #9 must run a *fresh uniform sweep* of displayed/sim math, not treat Appendix A as a closed
+  checklist — especially the 12 sections whose audits were resume-cached.
+
+### B.2 · Fix-scope corrections (audit-recommended fixes the panel caught as wrong or incomplete)
+
+| Item | Audit said | Panel correction (verified vs code) |
+|---|---|---|
+| **#8 laplace gate** | "zero gates today; add a `PredictionGate`" | laplace-theory **already ships a blocking gate** (`LaplaceMotivation.tsx:24-123`). Real work = fix its **Tabs-remount re-lock** (`initialPassed`/`onPassed`, lift state above the tab). Do NOT add a second gate. |
+| **#9-item-9 bounce guard** | "consolidate onto `transmissionMath.ts` + fix the guard there" | **Fix-the-wrong-file trap.** The component renders its **own local γ-space `steadyStateVoltage`** (`BounceDiagram.tsx:160-165`, called `:223`) — it does **not** import the util, which is test-only *and* mis-handles the marginal case. Fix the guard (`|Γ_L·Γ_S|≥1`) in the rendered function; assert via the **rendered readout**. |
+| **#10 antennas ring** | major; relabel | Correct that it's **relabel-only** — but the existing test (`transmissionMath.test.ts:280-293`) pins pattern **values, not ring labels** = **false-green**. New test must assert the **rendered tick placement**. Never touch `plotX/plotY`/`calculateRadiationPattern` (would rotate a correct lobe). |
+| **#11 capacitor default** | one-line default change | **Incomplete** — see B.1; also fix the `:32` SVG normalization. |
+| **#5 PredictionGate a11y** | "focus the revealed heading" | No-ops on ~30 canvas call sites (no heading) and would **steal focus on every Tabs switch**. Focus a `tabIndex=-1` reveal wrapper + aria-live, **gated to the Continue/Skip transition only**, not the `initialPassed` remount path. |
+| **lenz Track-C dedup** | "reuse the `(v·dNorm)<0` value at `:315`" | **Won't compile** — `:315` is block-scoped to the live-equation block. Fix `fLen:354` alone first; hoist the shared boolean later as a separate net-guarded edit. |
+
+### B.3 · Severity re-bucketing
+
+The "12 major" label mixes incommensurate harm. Triage in two tiers — **(1) wrong physics/math a student
+ingests:** A.1 #1,#2,#3 (s-domain transfers), #4 (lenz force direction), #5 (lenz double-key), #6,#7
+(polarization AR/ψ), #8 (reversed wave) — fix first, highest bar; **(2) wrong label / default / prose:** #10
+(antenna ring), #11 (capacitor default), #12 (transformers prose) — fix, lower urgency. **Promote A.2 #1** (RLC
+natural-response `e^{-αt}(A₁e^{s₁t}+A₂e^{s₂t})` double-counts decay when s₁,s₂ are the full poles) **into tier 1**
+— it is the same class as #1/#2 (a printed closed-form that's wrong), mis-filed as minor.
+
+### B.4 · Adopted reshaping
+
+The structural changes (split #9→#9a/#9b with red-before-green; #2 as first-merge hard gate; fresh uniform
+sweep; Track B led by the #14 re-architecture with #13 optional; re-estimate #10/#14 upward) are folded into the
+ultraplan's "Panel-review reshaping (2026-06-22)" section.
+
+### B.5 · Owner decisions taken (2026-06-22)
+
+- **Retint → FULL "engaging, not AI-generic" redesign** (owner override of the panel's minimal-accent
+  recommendation; a mockups-first design workstream). See ultraplan #11.
+- **#13 split-pane bench → kept in the plan, decided at Gate-2** (not cut).
+- Open for Gate-2: Track B approval + scope, #14/#12 re-estimate sign-off, ILO9/badge check, and the panel's
+  open questions (a curriculum `description` field for the subtitle migration; relabel-vs-remove the antenna
+  ring; #4 distractor delete-vs-replace).
