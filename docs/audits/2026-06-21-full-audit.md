@@ -224,3 +224,204 @@ GuidedChallenge stays a persistent ungated sibling; tabs-unify is struck as alre
 - Baseline `git diff --quiet 8c9397a` empty; audit authored on `audit/2026-06-21-full-audit`; **no `src/` changes.**
 - Two doc-only discrepancies surfaced (not code gaps): the 2D spec header still reads "implementation NOT
   started" though the code shipped; the em-wave SI retrofit is an explicit deferred NON-goal.
+
+---
+
+## Appendix A · Strict-correctness audit (2026-06-22) — verified defect list
+
+**Why this appendix exists.** Owner directive (2026-06-22): be *strictly correct* on physics / maths / units /
+numbers / concepts, and simplify the code without losing functionality or rigor. This appendix is the evidence
+layer for the first half — an exhaustive, adversarially-verified defect inventory that feeds safe-win **#9**
+(correctness pass + permanent test net) and Track C (safe simplification) in the companion ultraplan.
+
+**Method.** A 4-phase workflow (run `wf_b5656d27-cc1`, **39 agents**, ~2.1M tokens): one rigorous auditor per
+section enumerates and recomputes *every* formula / worked example / unit / ConceptCheck answer **and** distractor
+/ PredictionGate rule / simulation-math / prose claim against Ulaby, Ida, Nilsson & Riedel, SI throughout; **every
+reported defect is then independently re-derived from first principles (with units; sympy where algebraic) by an
+adversarial verifier** that confirms or refutes it; a completeness critic flags shallow checks; synthesis dedups.
+Read-only — **no `src/` changes**. (The first attempt, `wf_ad494dba-25b`/`wf_b5656d27-cc1` initial pass, lost 13
+audits + 4 verifies to a sustained Anthropic 529 overload; resumed from journal — 12 good audits cached, the
+17 failures + critic + synthesis re-run on the complete 25-section set.)
+
+**Result.** 25/25 sections audited. **30 raw defects → 29 confirmed, 1 refuted.** Verifier-adjudicated severity:
+**0 critical · 12 major · 17 minor.** All pinned core solvers (solveToroid, cover-up residues, media math,
+dipole 73 Ω, Boris) re-confirmed clean — every confirmed defect sits in a **call-site, displayed formula,
+ConceptCheck keying, default control state, sim sign/label, or prose claim**, never in the verified algorithms.
+
+> **Count reconciliation (strict correctness applied to our own reporting).** The synthesis agent self-reported
+> "30 confirmed (10 major / 20 minor)" while also stating the 1 antennas claim was *excluded* — internally
+> inconsistent (30 raw − 1 refuted = 29; and its own `topPriorities` lists 12 major-class items). Mapping each of
+> the 30 raw defects to its verifier's `correctedSeverity` is authoritative: **29 confirmed (12 major + 17 minor),
+> 1 refuted.** The lone auditor-major the verifier *downgraded* (RLC natural-response card, A.2 #1) is in the minors.
+
+### A.1 · Confirmed MAJOR defects (12) — the must-fix core of #9
+
+1. **[math]** `circuits/.../TimeDomain/index.tsx:275` (circuit-analysis) — RC step-response current `I(s)` middle
+   form is printed `V_sC / [s(RCs+1)]`, carrying a **spurious factor of s** (units A·s², and it inverse-transforms
+   to an extra non-decaying DC term that contradicts the section's own next step). **Correct:**
+   `I(s)=V_sC/(RCs+1)=(V_s/R)·1/(s+1/RC)`. *(sympy-verified; the s cancels.)*
+2. **[math]** `circuits/.../TimeDomain/index.tsx:537` (circuit-analysis) — RLC step-response `V_C(s)` is printed
+   `V_s/(s²LC+sRC+1)`, **missing the factor of s**. Final-value theorem on the printed form gives `V_C(∞)=0`, but a
+   capacitor under a step charges to `V_s`. **Correct:** `V_C(s)=V_s/[s(s²LC+sRC+1)]`. *(sympy + FVT verified; line
+   538 already prints the correct form.)*
+3. **[math]** `circuits/.../InteractiveLab/index.tsx:108` (interactive-lab) — RL impulse S-domain transfer printed
+   `H(s)=(R/L)/(s+R/L)` is **off by a factor of R** from the displayed `i(t)=(1/L)e^{-Rt/L}` (it is actually the
+   dimensionless v_R/v_in transfer — wrong quantity *and* units under a "Current" heading). **Correct:**
+   `H(s)=(1/L)/(s+R/L)`. (The parallel RC block is internally consistent, confirming RL is the outlier.)
+4. **[physics]** `em/sections/lenz/index.tsx:354` (lenz) — the F_mag braking-force arrow points the **wrong way over
+   the left half** of the canvas (the default/primary interaction region; magnet starts at pos 20, GuidedChallenge
+   drags from the left). `sign(fLen)` depends on the magnet's side via `intensity`, so it only opposes velocity when
+   the magnet is right of the coil. **Fix:** `fLen = -Math.sign(v)*Math.min(Math.abs(intensity)*10,150)` (depend on
+   v only). Currently contradicts the on-canvas velocity arrow and the REPULSION/ATTRACTION label.
+5. **[conceptcheck]** `em/sections/lenz/index.tsx:42-47` (lenz) — `Q_RING_DIR` is **double-keyed**: option 2
+   ("Clockwise, to oppose the decrease in flux", correct) and distractor option 0 ("Clockwise, to maintain the flux")
+   specify the **same correct direction with physically-equivalent Lenz reasoning**, yet option 0 is graded wrong.
+   Make option 0 unambiguously incorrect (wrong direction or a wrong cause).
+6. **[physics]** `em/sections/polarization/index.tsx:355-356,381` (polarization) — the displayed axial ratio is
+   `AR=|tan χ|`, the **reciprocal of the standard** `AR=|cot χ|` (Ulaby/IEEE 145); shows `0.375` where the true AR
+   is `2.667`, with a **false ~0→∞ discontinuity** (linear hard-coded to Infinity while near-linear tends to 0).
+   **Correct:** `AR=|cot χ| ∈ [1,∞)`.
+7. **[math]** `em/sections/polarization/index.tsx:349-351` (polarization) — orientation-angle special case forces
+   `ψ=45°` when `ex==ey`, which is **off by 90°** when `cos δ<0` (ψ should be −45°/135°; reachable via Circular
+   quick-set → drag δ to 135°). **Fix:** drop the special case; the general `ψ=0.5·atan2(2·Ex·Ey·cos δ, Ex²−Ey²)`
+   branch is already correct (degenerate only at the exact circle).
+8. **[physics]** `transmission/.../TransmissionLineSim.tsx:166-169` (transmission-lines) — in **sinusoidal mode** the
+   labeled "Incident" wave animates **toward the source** and "Reflected" **toward the load** (both reversed),
+   because the incident wave is coded `sin(k·pos + ωt)` (a −x wave). Inconsistent with the same component's STEP
+   mode, which propagates source→load correctly. **Fix:** `sin(k·pos − ωt)` and `γ·sin(k·(2L−pos) − ωt)` (preserves
+   `ref=γ·inc` at the load). Standing-wave envelope, nodes/antinodes, Γ/VSWR readouts are unaffected.
+9. **[physics]** `transmission/.../BounceDiagram.tsx:160-165` (transients) — the steady-state guard only fires for
+   `Γ_L·Γ_S→+1`; it reports a **finite Vss for the non-converging `Γ_L·Γ_S=−1` case** (e.g. `Γ_L=+1, Γ_S=−1` →
+   sustained 10/20/10/0 V oscillation, but displays `Vss=10.00 V`). Sliders reach exactly ±1.00. **Fix:** guard on
+   `|Γ_L·Γ_S| ≥ 1`, returning the "∞ (unstable)" indication.
+10. **[label]** `transmission/.../RadiationPatternSim.tsx:97-101` (antennas) — the numeric polar-angle ring is
+    **inverted vs the antenna θ convention** (broadside max sits at the 0° tick, axis null at 90°), contradicting the
+    section's own "θ=0 is along the axis" teaching and ConceptCheck. The qualitative lobe shape and the text labels
+    ("Antenna axis"/"Broadside") are correct; only the numeric scale is wrong. Relabel (θ=90° broadside, 0°/180°
+    nulls) or remove the ring.
+11. **[units]** `circuits/.../ComponentPhysics/index.tsx:47` (component-physics) — default `capacitorArea=0.01 m²`
+    (100 cm²) is **outside the Plate-Area slider range** (0.5–10 cm²): the opening "88.54 pF" reading is unreachable
+    and capacitance drops **~10×** the instant the slider is touched. **Fix:** set default to `1e-4 m²` (1 cm²,
+    → 0.885 pF, consistent) or widen the slider max to 100 cm².
+12. **[concept]** `transmission/.../Transformers.tsx:848-853` (transformers) — bridge callout promises the
+    transmission line as the **immediate next section**, but the live spine puts **Maxwell's Equations (4.1)** next
+    (transformers is 3.4, last of Part 3) and the transmission-line sections four later in Part 5; the page's own
+    "Next" button goes to Maxwell. **Fix:** reword to "Later, in Part 5, …" (also review the stale "Part 5's
+    distributed world" phrase at line 482) or re-sequence the section.
+
+### A.2 · Confirmed MINOR defects (17)
+
+1. **[physics, downgraded major→minor]** `circuits/.../TimeDomain/ResponseComparisons.tsx:32` — RLC natural-response
+   card `v(t)=e^{-αt}(A₁e^{s₁t}+A₂e^{s₂t})` **double-counts the decay** when `s₁,s₂` are the full poles (as defined
+   at `index.tsx:551` and used in `componentMath.rlc.overdamped`). Use `A₁e^{s₁t}+A₂e^{s₂t}` **or**
+   `e^{-αt}(A₁e^{βt}+A₂e^{-βt})`, β=√(α²−ω₀²) — one consistent convention.
+2. **[concept]** `circuits/.../ComponentPhysics/InductorSection.tsx:80` — "Core Materials" presets resolve to
+   Copper/Aluminum/Silver (μ_r≈1, two diamagnetic); misleading as magnetic cores. Restrict to Air + Iron/ferrite.
+3. **[units]** `circuits/.../ComponentPhysics/InductorSection.tsx:93` — Iron-core preset μ=6.3e-3 H/m pegs the
+   permeability slider at max (range μ·1e6∈[1.257,10], ~630× over); readout and L stay correct. Widen/log-scale.
+4. **[physics]** `circuits/.../InteractiveLab/challenges.ts:42` — "Make it Ring" requires ζ<0.3 (R<~19 Ω) but the
+   hint says "below 30 Ω" (ζ=0.474 there) — following the hint never wins. Change the hint to "~19 Ω".
+5. **[units]** `circuits/.../InteractiveLab/index.tsx:516` — impulse-mode Y-axis stays "Voltage (V) / Current (mA)",
+   but impulse responses carry an extra 1/time (V/s, A/s). Relabel when Input=Impulse.
+6. **[concept]** `circuits/.../InteractiveLab/index.tsx:283-295` — FirstOrderAnalysisPanel shows "reaches 63.2% of
+   final value" even in impulse mode (a decay to 0 with no final value; t=τ is 36.8% of the *peak*). Gate to step
+   mode or reword.
+7. **[physics]** `transmission/.../LineImpedance.tsx:292-293` — RG-58 loss aside "~20 dB/100 m" at 1 GHz is ~4× low
+   (real ~70–100 dB/100 m; theoretical floor ~35). Prose-only, point holds; fix the figure to ~80 dB/100 m.
+8. **[physics]** `transmission/.../LadderAnimation.tsx:129-131` (lumped-distributed) — default props give wave speed
+   **exactly c** (3.00e8 m/s), contradicting the same section's YourTurn ("a real coax is below c due to the
+   dielectric", v/c=2/3). Pick defaults with v<c (e.g. totalC=2.25e-12 → v≈2e8). Formula `v=1/√(L'C')` is correct.
+9. **[conceptcheck]** `transmission/.../LumpedDistributed.tsx:345-347` — distractor explanation ("used L'/C' not √")
+   implies 2500 Ω, not the offered 25 Ω; the item is still winnable (answer 50 Ω uniquely correct). Change distractor
+   to 2500 Ω or reword.
+10. **[math]** `em/sections/polarization/index.tsx:376` — Linear-state "Slope = ey/ex" is always positive; at δ=180°
+    the true slope is −ey/ex. Carry the sign via `sign(cos δ)·ey/ex`.
+11. **[concept]** `em/sections/polarization/index.tsx:49` — Q_CIRCULAR tier-2 hint uses `Ey=E0cos(ωt−δ)` vs the
+    panel's +δ convention; harmless (answer 90° unaffected) internal-convention inconsistency. *(Verifier corrected
+    the auditor's tier-3 characterization; the real mismatch is hints vs the equation panel at line 370.)*
+12. **[label]** `circuits/.../SDomainAnalysis.tsx:386` (s-domain) — H1 reads "S-Domain Theory" vs
+    curriculum/sidebar/nav "s-Domain Analysis" (`pages.test.tsx:123` pins the divergence). Unify the title (and the test).
+13. **[conceptcheck]** transformers / `shared/constants/curriculum.ts:75` — transformers `expectedChecks:0` but 3
+    ConceptChecks render. **Verifier note: this is the documented keep-0-for-non-EM design rule, not drift** — every
+    non-EM section uses 0, only EM-domain uses 3; all 3 checks are physically correct. Owner-decision metadata only,
+    not a physics defect.
+14. **[label]** `transmission/.../BounceDiagram.tsx:367` — canvas time-tick uses `U+1D30` (MODIFIER LETTER CAPITAL
+    D) → renders "Tᴰ" (raised) vs the subscript "T_D" used in prose/formulas/axis label everywhere else. Use a
+    subscript glyph.
+15. **[label]** `transmission/.../TransmissionLineSim.tsx:456-460` — frequency-slider centre tick labeled "1 GHz",
+    but the true log-midpoint of exp 6..10 is **100 MHz** (exp 8). Fix the centre label.
+16. **[concept]** `transmission/.../TransmissionLines.tsx:99` — "100 Ω — differential pair (Ethernet, USB)": USB
+    differential is **90 Ω**, not 100. Drop USB from the 100 Ω entry or note 90 Ω.
+17. **[label]** `transmission/.../TransmissionLineSim.tsx:466-469,492` — the same value (free-space λ, VF=1 assumed)
+    is labeled "Free-space wavelength λ₀" in one readout and "Wavelength λ" in another. Use one consistent label.
+
+### A.3 · Refuted (1) — kept for transparency
+
+- **antennas `Antennas.tsx:73`** — claim: GuidedChallenge step 5's single-lobe boundary is wrong. **REFUTED.** The
+  verifier numerically scanned `F(θ)=|cos(kL·cosθ)−cos(kL)|/sinθ`: the pattern is single-lobe up to and including
+  **1.00 λ**; side lobes **first appear at 1.05 λ** (interior null at θ≈25.2°). So step 5's "single-lobe to ~1.00 λ,
+  directivity largest there" is **correct on both counts**, and the auditor's proposed "fix" would itself introduce
+  an error. Excluded from the defect list. (Directivity/R_rad cross-checks: D(0.5λ)=1.641=2.15 dBi, R_rad=73.1 Ω — match.)
+
+### A.4 · Completeness-critic follow-ups (recorded; mostly resolved in-pass)
+
+- The critic caught that the lenz auditor **misattributed which ConceptCheck it checked** → the deeper look found the
+  Q_RING_DIR double-key (now A.1 #5). The antennas deeper look produced the refuted A.3 item (pattern re-verified clean).
+- **interactive-lab gate**: resetKey-vs-live-`classifyDamping` mismatch = the known **damping stale-verdict bug**
+  (already Track-A safe-win **#3**; the audit independently re-confirms it).
+- **Cross-cutting — ConceptCheck distractor independence** is the single highest-yield under-covered item type (the
+  lenz double-key proves one slipped through). Directional/sign CCs deserve a dedicated per-distractor pass:
+  **faraday** (5 CCs, motional-EMF sign), **ampere** (RHR/parallel-current — spot-confirmed unique), **lorentz**
+  (4 force-direction), **polarization** (handedness). → folds into #9's ConceptCheck-keying assertions.
+- **Cross-cutting — canvas-sim sign/direction conventions** for low-formula "qualitative" sections (lenz, antennas)
+  need from-scratch RHR re-derivation, not self-consistency arguments. → #9 should assert sim sign conventions.
+- **Methodology** — weight coverage by worked-example / ConceptCheck depth, not raw formula count (TimeDomain
+  reports 126 formulas but only 3 worked examples carry recomputable numbers).
+
+### A.5 · Simplification opportunities (deduped; each **net-first** per the directive)
+
+Each ships only after #9's correctness/units net covers the touched code (per the ultraplan "net before refactor"
+rule) and must stay green on the full unit suite + e2e. Tag = the test that must exist first.
+
+- **TimeDomain `index.tsx:275/:537`** — once the s-domain transcription errors are fixed, the 3-form chain is
+  redundant; keep `(V_s/s)/(R+1/sC)` + the final cover-up form. *(NET: pin the displayed `I(s)`/`V_C(s)` strings.)*
+- **`ResponseComparisons.tsx:32`** — align the RLC natural-response card with `componentMath.rlc.overdamped/
+  underdamped` (already imported) instead of a third hand-written form. *(NET: assert card matches componentMath.)*
+- **polarization `index.tsx:349-351` & `:356`** — deleting the `ex===ey` ψ special case fixes the orientation bug
+  **and** removes special-case code; fixing AR to `|cot χ|` lets Linear become a natural χ→0 limit, removing the
+  hard-coded `Linear ? Infinity` branch. *(NET: ψ tests for ex==ey/cos δ<0, AR tests for linear/elliptical/circular.)*
+- **lenz `index.tsx:354`** — the force-arrow fix is also simpler; reuse the existing `(v·dNorm)<0` value (computed at
+  `:315`) instead of recomputing `isRepulsion` at `:353`. *(NET: directional assertion F_mag opposes v on both halves.)*
+- **component-physics `InductorSection.tsx:92-98`** — the hardcoded Iron-Core preset duplicates the Iron entry in the
+  shared `materials` array (`componentMath.ts:79`); source it from `materials`. *(NET: assert every preset value lies
+  within / is explicitly handled by its slider range.)*
+- **s-domain `SDomainAnalysis.tsx:343`** — extract a `formatPole(p)` helper + a shared stability-label constant.
+  *(NET: fix the H1 title, keep the pole-label test green.)*
+- **coulomb** — the µC→C conversion (`Math.abs(q*1e-6)`) is duplicated across chart prep, the 2-charge label math,
+  and `getNetField`; one tiny helper removes it. Add a comment that the on-screen arrow length is display-only.
+- **transients `BounceDiagram.tsx`** — it reimplements `zsFromGamma`/`initialVoltage`/`steadyStateVoltage`/bounce
+  recursion locally, duplicating `calculateBounceVoltages`/`calculateSteadyStateVoltage` (currently test-only) in
+  `transmissionMath.ts`; consolidate and fix the `|Γ_L·Γ_S|≥1` guard once there. *(NET: marginal-stability test
+  Γ_L=+1/Γ_S=−1 ⇒ ∞ in transmissionMath.)*
+- **transmission `ReadoutCard`** — `TransmissionLineSim.tsx:504-524` and `SmithChartSim.tsx:548-568` are
+  byte-identical → hoist to one shared component; `SmithChartSim._gammaToZL` duplicates exported `gammaToImpedance`
+  (share a core, apply the 500-Ω click clamp at the call site). *(NET: keep transmissionMath tests + wave-dir fix.)*
+- **NodalMesh** — 3 copies of `verticalZigzag` / 2 of `horizontalZigzag` across Bridge/Mesh/Supernode diagrams →
+  one shared circuit-SVG util (page tests cover rendered values).
+- **em-wave `index.tsx:980-981`** — `kVal` is derived from the already-rounded λ string (double rounding); compute
+  from `(2πf·n)/300` directly (already at `:1219`); fold the duplicated sinusoid loops into one pass. *(Cosmetic;
+  30+ mediaMath tests cover it.)*
+- **lorentz** — harmonize the two cyclotron-radius ∞ guards (`Beff>0.01` vs `bMt===0`) to one threshold; standardize
+  on `r=mv/(|q|B)` throughout. *(Cosmetic; both safe today.)*
+- **interactive-lab** — overdamped auto-duration uses τ=2L/R (the envelope constant), which frames the response
+  before the slower real pole settles; consider the dominant pole for overdamped. Format L in mH / C in µF in the
+  displayed √(L/C). *(Informational; the envelope constant is genuinely 2L/R — not a defect.)*
+- **antennas `RadiationPatternSim.tsx:104-152`** — drop the stale contradictory angle-mapping comments and the unused
+  `const theta = phi`. *(NET: fix the inverted ring + add a label/orientation assertion first.)*
+- **line-impedance `LineImpedance.tsx`** — `STUB_BETA_PER_LAMBDA=calculatePhaseConstant(1)=2π` then ×l could call
+  `calculateStubReactance(1, 2πl, kind)` directly. *(Harmless indirection; no correctness impact.)*
+
+> **Out-of-scope metadata notes surfaced (not physics defects, owner-decision only):** several non-EM sections
+> render more ConceptChecks than their `expectedChecks` count (transformers 3 vs 0, nodal-mesh 3 vs 0, maxwell fires
+> 6 events vs 3, gauss/faraday gating) — this is the documented "EM sections target 3, everything else completes on
+> first visit (0)" rule, intentional, and physics-clean. Listed for owner awareness, not for #9.

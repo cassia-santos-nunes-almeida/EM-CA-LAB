@@ -37,8 +37,13 @@ These apply to **every** item below, including the safe-wins.
 > prerequisite for **all** of Track C (simplification).
 
 A comprehensive correctness audit — every formula / unit / ConceptCheck / gate / sim-math / prose claim across
-all 25 sections vs Ulaby/Ida/Nilsson, each reported defect independently recomputed — is **running now**
-(`wf_ad494dba-25b`). Its verified defect list will be appended here; confirmed defects fold into #9.
+all 25 sections vs Ulaby/Ida/Nilsson, each reported defect independently recomputed — is **COMPLETE** (2026-06-22,
+run `wf_b5656d27-cc1`, 39 agents). **Result: 30 raw → 29 confirmed (0 critical · 12 major · 17 minor), 1 refuted.**
+The full verified list (location → problem → recomputed correct value, each adversarially re-derived) is in
+[`2026-06-21-full-audit.md` Appendix A](./2026-06-21-full-audit.md#appendix-a--strict-correctness-audit-2026-06-22--verified-defect-list).
+The 12 majors are the must-fix core of #9 below; the deduped simplification opportunities (A.5) populate Track C.
+All pinned core solvers re-confirmed clean — every confirmed defect is in a call-site, displayed formula,
+ConceptCheck keying, default control state, sim sign/label, or prose claim.
 
 ## Track A — Safe wins (no owner decision; start on approval)
 
@@ -52,7 +57,7 @@ all 25 sections vs Ulaby/Ida/Nilsson, each reported defect independently recompu
 | 6 | **Add a `PlausibilityCallout` to lenz, polarization, maxwell** (the ILO-8 EM hole; grep count 0 each). ~6-line callout anchoring one computed quantity to a real magnitude + `getAllByText('Does this make sense?')` smoke assertion, mirroring ampere/gauss/magnetic-circuits. | M ~1.5d | **#1 content gap.** Highest-value pedagogical add; zero physics/curriculum change. |
 | 7 | **Resolve GuidedChallenge completion tracking** — wire `onComplete` (`:20,27,32-35`) to the store, or document it non-tracked, consistently across call sites. | S ~0.5d | Removes ambiguity; either resolution is internally consistent and reversible. |
 | 8 | **Audit + add a `PredictionGate` to laplace-theory** (zero gates today; the one circuits theory section missing the locked predict-first pattern). Confirm it isn't intentionally a pure-derivation chapter first. | S-M ~1d (dep: #1) | Honors "blocking predict-first everywhere." Any gate inside its Tabs must lift state above the tab (the #1 remount caveat). |
-| 9 | **Comprehensive correctness pass + permanent net (UPGRADED per directive).** (a) Fix every *confirmed* defect from the strict-correctness audit across all 25 sections — formulas, numeric examples, units, ConceptCheck answers+distractors, gate rules, sim math, prose claims. (b) Lock it in: golden-number assertions on every worked example, a dimensional/unit check, and a KaTeX literal-backslash lint over all `formula=` props. **Do NOT re-derive the clean solvers** — guard rendered output + everything else. | L ~3-5d (was M) | The directive's backbone safe-win and the **prerequisite for all of Track C**. Depends on the correctness audit (`wf_ad494dba-25b`). Closes premortem #1 (no test asserts physics correctness). |
+| 9 | **Comprehensive correctness pass + permanent net (UPGRADED per directive; audit now COMPLETE).** (a) Fix every confirmed defect in [Appendix A](./2026-06-21-full-audit.md#appendix-a--strict-correctness-audit-2026-06-22--verified-defect-list) — **12 major (A.1) + 17 minor (A.2)**. The 12 majors are the must-fix core: 3 s-domain transfer-function transcription errors (RC `I(s)` spurious-s, RLC `V_C(s)` missing-s, RL impulse off-by-R), the lenz force-arrow wrong-direction + Q_RING_DIR double-key, the polarization axial-ratio reciprocal + ψ 90° sign bug, the transmission-line reversed wave animation, the bounce-diagram marginal-stability guard, the antennas inverted polar ring, the capacitor default-area-outside-slider, and the transformers stale "next section" bridge. (b) Lock it in: golden-number assertions on every worked example, ConceptCheck answer+distractor-independence assertions (esp. directional CCs — A.4), sim sign/direction assertions for canvas sims (lenz/antennas), a dimensional/unit check, and a KaTeX literal-backslash lint over all `formula=` props. **Do NOT re-derive the clean solvers** — guard rendered output + everything else. | L ~3-5d | The directive's backbone safe-win and the **prerequisite for all of Track C**. Closes premortem #1 (no test asserts physics correctness). |
 
 **Track A total ≈ 7.5 days.** All independent except #8 (depends on #1).
 
@@ -94,9 +99,9 @@ it does not ship — that is the "no quick, unreliable fix" line.
 | Consolidate the 3 canvas-sizing strategies onto the one self-measuring hook | overlaps Track-B #14; retires a whole bug class |
 | De-duplicate the triplicated section chrome into the shared `SectionShell` | overlaps Track-B #10/#13 |
 | Remove dead code — the at-origin distractor (#4) and any unreachable branches the correctness audit flags | each test-guarded |
-| Per-section simplifications surfaced by the correctness audit (`wf_ad494dba-25b`) | folded in when it returns; each test-guarded, zero behavior change |
+| **~15 per-section simplifications from the correctness audit** ([Appendix A.5](./2026-06-21-full-audit.md#a5--simplification-opportunities-deduped-each-net-first-per-the-directive)) | each carries its own **net-first** tag (the specific test that must exist first); zero behavior change. Highlights: collapse the now-redundant 3-form s-domain chains; delete the polarization `ex===ey` special case + `Linear ? Infinity` branch (the fixes *are* the simplifications); consolidate the duplicated `BounceDiagram` math into `transmissionMath.ts` (single source + one guard fix); hoist the byte-identical `ReadoutCard` and `verticalZigzag`/`horizontalZigzag` SVG helpers; source the Iron-Core preset from the shared `materials` array; de-dup the coulomb µC→C conversion. |
 
-Effort: incremental, per item; sized once the correctness audit returns its `simplificationOpportunities`.
+Effort: incremental, per item; sizes are in Appendix A.5. **Several Track-C items and #9 fixes coincide** (e.g. polarization, lenz, transients) — fixing the defect and removing its special-case/duplication is one change, gated by the same new test.
 
 ## The 5 owner decisions (recap from the devil's-advocate panel)
 
