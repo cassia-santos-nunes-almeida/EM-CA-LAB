@@ -17,12 +17,25 @@ export interface GuidedChallengeData {
 
 interface GuidedChallengeProps {
   challenge: GuidedChallengeData;
+  /**
+   * Optional, NON-TRACKED hook fired when the student self-reports completion via
+   * "Mark Complete". Intentionally not wired to the progress store (see the
+   * component doc below); it is an extension point only. All call sites omit it.
+   */
   onComplete?: () => void;
 }
 
 /**
- * Guided challenge with step-by-step instructions, an optional hint, and manual
- * completion tracking (open-ended exploration — no auto-grading).
+ * Guided, open-ended exploration challenge: step-by-step instructions, an
+ * optional hint, and a self-reported "Mark Complete" (no auto-grading).
+ *
+ * Completion is intentionally NOT tracked toward section/module progress. The
+ * progress store's completion criterion is ConceptCheck-based (see
+ * isModuleComplete / getExpectedChecks), and a self-reported button must not be
+ * able to satisfy it. The `completed` state here is local-only; every one of the
+ * 24 call sites omits `onComplete`, which is the intended non-tracked usage. To
+ * make challenges count toward progress later, add an explicit store field —
+ * do not overload the ConceptCheck criterion.
  */
 export function GuidedChallenge({ challenge, onComplete }: GuidedChallengeProps) {
   const [currentStep, setCurrentStep] = useState(0);
