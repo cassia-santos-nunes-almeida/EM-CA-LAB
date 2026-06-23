@@ -29,7 +29,7 @@ export function ResponseComparisons() {
             <div className="bg-white dark:bg-slate-700/50 rounded p-3">
               <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">RLC Circuit</p>
               <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Depends on damping ratio <MathWrapper formula="\zeta" />:</p>
-              <MathWrapper formula="v(t) = e^{-\alpha t}(A_1 e^{s_1 t} + A_2 e^{s_2 t})" block />
+              <MathWrapper formula="v(t) = A_1 e^{s_1 t} + A_2 e^{s_2 t}" block />
             </div>
 
             <div className="bg-amber-100/60 dark:bg-amber-900/30 rounded p-3">
