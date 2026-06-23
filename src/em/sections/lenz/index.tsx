@@ -11,6 +11,8 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
+import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, QuizQuestion } from '@em/types/index';
@@ -450,6 +452,17 @@ export function LenzSection() {
           </ControlPanel>
         </div>
       </PredictionGate>
+
+      {/* Plausibility callout (ILO-8): put a real number on the induced EMF */}
+      <PlausibilityCallout>
+        Put a number on the induced EMF. Thrust a neodymium magnet (~0.1 T at its face)
+        through a 200-turn, 4 cm² coil in about 0.05 s and Faraday&apos;s law gives{' '}
+        <MathWrapper formula="\varepsilon = N\,\frac{\Delta\Phi}{\Delta t} = 200\cdot\frac{(0.1)(4\times10^{-4})}{0.05} \approx 0.16\ \text{V}" />
+        {' '}— about a tenth of an AA cell. That is why shake-to-charge flashlights use many
+        turns and a brisk shake: the EMF grows with N and with how fast the flux changes. If a
+        tabletop demo predicts hundreds of volts, you have dropped the turns count or the
+        timescale.
+      </PlausibilityCallout>
 
       {/* Check: opposition principle (repel on approach) */}
       <ConceptCheck data={toConceptCheck(Q_REPEL)} onComplete={onCheckComplete} onHint={onCheckHint} />

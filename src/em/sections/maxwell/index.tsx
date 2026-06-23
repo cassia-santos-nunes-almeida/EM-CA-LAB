@@ -7,6 +7,7 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { RadiatingChargeSim } from './RadiatingChargeSim';
@@ -384,6 +385,16 @@ export function MaxwellSection() {
           />
         </div>
       </PredictionGate>
+
+      {/* Plausibility callout (ILO-8): the wave equation's payoff is a checkable number */}
+      <PlausibilityCallout>
+        The wave equation&apos;s payoff is a number. Plug the constants into{' '}
+        <MathWrapper formula="c = \frac{1}{\sqrt{\mu_0\varepsilon_0}} = \frac{1}{\sqrt{(4\pi\times10^{-7})(8.85\times10^{-12})}} \approx 3.0\times10^{8}\ \text{m/s}" />
+        {' '}— the speed of light, falling out of two constants measured with capacitors and
+        coils, never with optics. That coincidence is the whole point: light <em>is</em> an
+        electromagnetic wave. If a wave-speed estimate lands 10× off, check the exponents on
+        μ₀ and ε₀ before anything else.
+      </PlausibilityCallout>
 
       {/* Check: which equation introduces displacement current (after the 4-card overview) */}
       <ConceptCheck data={toConceptCheck(Q_DISPLACEMENT)} onComplete={onCheckComplete} onHint={onCheckHint} />
