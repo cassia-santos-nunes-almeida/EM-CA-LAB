@@ -109,4 +109,33 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenCalledWith(1);
     expect(screen.getByText('tables content')).toBeInTheDocument();
   });
+
+  it('REMOUNTS panel content on tab switch (the caveat #8 lifts state to dodge)', async () => {
+    // The active panel renders with key={activeIndex}, so leaving a tab and
+    // returning mounts a FRESH instance of its content — any unlifted local
+    // state is lost. This is exactly why a PredictionGate inside a Tabs panel
+    // re-locks on tab switch unless its unlocked state is lifted to the parent
+    // (initialPassed/onPassed). Pin the remount so a future change to the panel
+    // key can't silently turn the gates back into one-shot re-lockers.
+    const user = userEvent.setup();
+    function Counter() {
+      const [n, setN] = useState(0);
+      return <button onClick={() => setN((x) => x + 1)}>count {n}</button>;
+    }
+    const remountTabs = [
+      { label: 'Stateful', content: <Counter /> },
+      { label: 'Other', content: <div>other content</div> },
+    ];
+    render(<Tabs tabs={remountTabs} />);
+
+    await user.click(screen.getByRole('button', { name: 'count 0' }));
+    await user.click(screen.getByRole('button', { name: 'count 1' }));
+    expect(screen.getByRole('button', { name: 'count 2' })).toBeInTheDocument();
+
+    // leave and return -> panel content remounts, local state resets to 0
+    await user.click(screen.getByRole('tab', { name: 'Other' }));
+    await user.click(screen.getByRole('tab', { name: 'Stateful' }));
+    expect(screen.getByRole('button', { name: 'count 0' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'count 2' })).not.toBeInTheDocument();
+  });
 });
