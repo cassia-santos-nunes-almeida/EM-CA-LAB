@@ -21,6 +21,23 @@ const EXPECT_CANVAS = new Set([
   'transformers', 'antennas', 'lumped-distributed', 'transmission-lines', 'transients',
 ]);
 
+// Per-route minimum painted-canvas height (px). distinctColors>2 alone passes a
+// canvas that draws into a COLLAPSED box (parent.clientHeight ~0 at draw time, or
+// a mis-sized sticky/overflow column after the #12/#14 sim migration) — this floor
+// closes that gap. Baselined on correct code 2026-06-23 (tip 1dc8f74), desktop AND
+// mobile viewports: floor = 0.6 × the smallest healthy canvas height observed for
+// the route, so every legitimate size (incl. maxwell's 158px multi-displays and
+// transmission-lines' 80px diagrams) passes while a collapse fails. EM single-canvas
+// sims (the migration targets) get the strongest floor. If a real layout change moves
+// a baseline, update the value deliberately — do NOT relax it to dodge a true regression.
+const MIN_CANVAS_H: Record<string, number> = {
+  coulomb: 238, gauss: 238, ampere: 238, lorentz: 238, faraday: 238,
+  lenz: 238, 'magnetic-circuits': 238, polarization: 238,
+  transients: 312, antennas: 300, 'em-wave': 189, transformers: 144,
+  'lumped-distributed': 132, maxwell: 94, 'transmission-lines': 48,
+};
+const DEFAULT_MIN_CANVAS_H = 40; // any canvas-bearing route not individually baselined
+
 interface CanvasPaint {
   cssW: number; cssH: number;
   bitmapW: number; bitmapH: number;
@@ -88,6 +105,27 @@ function expectPainted(canvases: CanvasPaint[], where: string) {
   }
 }
 
+// A canvas can PAINT (distinctColors>2) yet be collapsed/squished — the failure
+// mode the #12/#14 migration risks and the current net can't see. Pin both the
+// rendered CSS height and the backing bitmap height against the per-route floor.
+// They are equal today (sims set canvas.height = parent.clientHeight, no DPR
+// scaling); asserting both now locks the baseline before #14 makes them diverge.
+function expectHeights(canvases: CanvasPaint[], sectionId: string, where: string) {
+  const floor = MIN_CANVAS_H[sectionId] ?? DEFAULT_MIN_CANVAS_H;
+  for (const c of canvases) {
+    if (c.type !== '2d') continue;
+    const dims = `css ${c.cssW}x${c.cssH}, bitmap ${c.bitmapW}x${c.bitmapH}`;
+    expect(
+      c.cssH,
+      `${where}: canvas CSS height ${c.cssH}px below floor ${floor}px — collapsed/squished? (${dims})`,
+    ).toBeGreaterThanOrEqual(floor);
+    expect(
+      c.bitmapH,
+      `${where}: canvas bitmap height ${c.bitmapH}px below floor ${floor}px — collapsed/squished? (${dims})`,
+    ).toBeGreaterThanOrEqual(floor);
+  }
+}
+
 for (const s of ALL_SECTIONS) {
   test(`sims paint after reveal: ${s.id}`, async ({ page }) => {
     await page.goto(s.route);
@@ -99,6 +137,7 @@ for (const s of ALL_SECTIONS) {
     await page.waitForTimeout(SETTLE_MS);
     const defaultView = await measureCanvases(page);
     expectPainted(defaultView, `${s.id} (default view)`);
+    expectHeights(defaultView, s.id, `${s.id} (default view)`);
     let canvasesSeen = defaultView.length;
 
     // Walk every tab; a tab switch can remount panels and re-lock gates.
@@ -112,6 +151,7 @@ for (const s of ALL_SECTIONS) {
       const label = (await tabs.nth(t).textContent())?.trim() ?? `tab ${t}`;
       const inTab = await measureCanvases(page);
       expectPainted(inTab, `${s.id} (tab "${label}")`);
+      expectHeights(inTab, s.id, `${s.id} (tab "${label}")`);
       canvasesSeen += inTab.length;
     }
 
