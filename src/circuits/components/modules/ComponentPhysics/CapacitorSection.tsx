@@ -5,6 +5,7 @@ import {
   capacitanceFormula,
   materials,
 } from '@circuits/utils/componentMath';
+import { capacitorAreaNorm, plateHeightPx } from './capacitorViz';
 
 export function CapacitorSection({
   area,
@@ -27,11 +28,10 @@ export function CapacitorSection({
   onConceptCheckComplete?: () => void;
   onHint?: (tier: number) => void;
 }) {
-  // Normalized to slider ranges so SVG visibly changes
-  // area: 0.005–0.10 (slider 0.5–10 cm²), distance: 0.0001–0.005 (slider 0.1–5 mm)
-  const areaNorm = (area - 0.005) / (0.10 - 0.005);   // 0 → 1
-  const distNorm = (distance - 0.0001) / (0.005 - 0.0001); // 0 → 1
-  const plateH = 40 + areaNorm * 90;   // 40–130 px
+  // Normalized to slider ranges so the SVG visibly changes (areaNorm via ./capacitorViz).
+  const areaNorm = capacitorAreaNorm(area);
+  const distNorm = (distance - 0.0001) / (0.005 - 0.0001); // 0 → 1 (slider 0.1–5 mm)
+  const plateH = plateHeightPx(area);  // 40–130 px
   const gap = 25 + distNorm * 80;      // 25–105 px
   const plateFaceSize = 30 + areaNorm * 70; // 30–100 for cross-section
 

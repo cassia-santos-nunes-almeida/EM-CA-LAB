@@ -5,6 +5,7 @@ import {
   calculateCapacitance,
   calculateInductance,
 } from '@circuits/utils/componentMath';
+import { DEFAULT_CAPACITOR_AREA } from '@circuits/components/modules/ComponentPhysics/capacitorViz';
 import { ResistorSection } from '@circuits/components/modules/ComponentPhysics/ResistorSection';
 import { CapacitorSection } from '@circuits/components/modules/ComponentPhysics/CapacitorSection';
 import { InductorSection } from '@circuits/components/modules/ComponentPhysics/InductorSection';
@@ -44,7 +45,7 @@ export function ComponentPhysics() {
   const [resistorArea, setResistorArea] = useState(1e-6);
   const [resistorMaterial, setResistorMaterial] = useState(1.68e-8);
 
-  const [capacitorArea, setCapacitorArea] = useState(0.01);
+  const [capacitorArea, setCapacitorArea] = useState(DEFAULT_CAPACITOR_AREA);
   const [capacitorDistance, setCapacitorDistance] = useState(0.001);
   const [capacitorPermittivity, setCapacitorPermittivity] = useState(8.854e-12);
 
