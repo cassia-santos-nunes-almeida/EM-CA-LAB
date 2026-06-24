@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { fieldLineArrowAngle } from './physics';
 import { Plus, Trash2, MousePointer2 } from 'lucide-react';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
@@ -163,7 +164,7 @@ export function CoulombSection() {
         ctx.lineTo(cx, cy);
 
         if (steps % 20 === 0) {
-          arrowLocs.push({ x: cx, y: cy, angle: Math.atan2(dy, dx) });
+          arrowLocs.push({ x: cx, y: cy, angle: fieldLineArrowAngle(Ex, Ey, direction) });
         }
 
         if (cx < 0 || cx > width || cy < 0 || cy > height) active = false;

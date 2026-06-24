@@ -11,6 +11,7 @@ import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallo
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { RadiatingChargeSim } from './RadiatingChargeSim';
+import { faradayOrbitSign } from './physics';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 
 interface MaxwellCardProps {
@@ -293,7 +294,7 @@ export function MaxwellSection() {
     ctx.arc(cx, cy, 60, 0, Math.PI * 2);
     ctx.stroke();
     const dFlux = Math.cos(t * 0.05);
-    const angle = t * 0.1 * (dFlux > 0 ? -1 : 1);
+    const angle = t * 0.1 * faradayOrbitSign(dFlux);
     ctx.fillStyle = c.E_FIELD;
     ctx.beginPath();
     ctx.arc(cx + 60 * Math.cos(angle), cy + 60 * Math.sin(angle), 4, 0, Math.PI * 2);
