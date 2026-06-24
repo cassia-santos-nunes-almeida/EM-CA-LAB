@@ -114,10 +114,14 @@ export function SDomainPanel({
         // resetKey re-locks this gate on parameter changes; Skip is the designed one-click escape for a student who already predicted
         allowSkip
         question="Given this transfer function, where do you expect the poles to be?"
+        // Only real-axis and complex-conjugate are physically reachable: the
+        // denominator s^2 + (R/L)s + 1/(LC) always has a nonzero constant term
+        // (1/(LC) > 0), so a pole at the origin is impossible — getCorrectPoleAnswer
+        // can never return it. An option that can never be correct erodes gate trust,
+        // so it is intentionally absent (see SDomainPanel pole-prediction test).
         options={[
           { id: 'real-axis', label: 'Real axis only' },
           { id: 'complex-conjugate', label: 'Complex conjugate pairs' },
-          { id: 'at-origin', label: 'At the origin' },
         ]}
         getCorrectAnswer={getCorrectPoleAnswer}
         explanation={
