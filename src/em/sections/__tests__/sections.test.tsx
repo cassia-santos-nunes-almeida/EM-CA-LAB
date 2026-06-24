@@ -23,6 +23,8 @@ describe('Section smoke tests', () => {
     const { MaxwellSection } = await import('@em/sections/maxwell/index');
     renderSection(MaxwellSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // ILO-8: the plausibility callout (c = 1/√(μ₀ε₀)) sits OUTSIDE the gate.
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('GaussSection renders', async () => {
@@ -86,6 +88,8 @@ describe('Section smoke tests', () => {
     const { LenzSection } = await import('@em/sections/lenz/index');
     renderSection(LenzSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // ILO-8: the plausibility callout (induced EMF ≈ 0.16 V) sits OUTSIDE the gate.
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('EMWaveSection renders', async () => {
@@ -98,6 +102,8 @@ describe('Section smoke tests', () => {
     const { PolarizationSection } = await import('@em/sections/polarization/index');
     renderSection(PolarizationSection);
     expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+    // ILO-8: the plausibility callout (circular-polarization fragility) sits OUTSIDE the gate.
+    expect(screen.getAllByText('Does this make sense?').length).toBeGreaterThanOrEqual(1);
   });
 
   it('MagneticCircuitsSection renders', async () => {

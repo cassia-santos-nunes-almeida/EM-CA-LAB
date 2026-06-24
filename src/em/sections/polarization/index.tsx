@@ -15,6 +15,7 @@ import type { Challenge, Equation, QuizQuestion } from '@em/types/index';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 
@@ -498,6 +499,18 @@ export function PolarizationSection() {
         </ControlPanel>
         </div>
       </PredictionGate>
+
+      {/* Plausibility callout (ILO-8): sanity-check how special circular polarization is */}
+      <PlausibilityCallout>
+        Circular polarization is a knife-edge condition, not a default: it needs the two
+        components equal (Ex = Ey) <em>and</em> their phase difference at exactly ±90°. A GPS
+        L1 carrier (1575 MHz) is right-hand circular, its field vector completing one full turn
+        every{' '}
+        <MathWrapper formula="1/f = 1/(1575\times10^{6}\ \text{Hz}) \approx 0.64\ \text{ns}" />;
+        {' '}real receivers tolerate only a few degrees of phase error and a small amplitude
+        mismatch before the ellipse becomes obvious. So if you set Ex twice Ey and still expect
+        a circle, expect a fat ellipse instead — the State readout should already say so.
+      </PlausibilityCallout>
 
       {/* Check: linear as superposition of two circular waves */}
       <ConceptCheck data={toConceptCheck(Q_LINEAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
