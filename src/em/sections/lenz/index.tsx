@@ -16,6 +16,7 @@ import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import type { Challenge, QuizQuestion } from '@em/types/index';
+import { brakingForceArrowX } from './physics';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
 const Q_REPEL: QuizQuestion = {
@@ -37,11 +38,14 @@ const Q_REPEL: QuizQuestion = {
   ],
 };
 
-const Q_RING_DIR: QuizQuestion = {
+// Exported solely for the directional distractor-independence test (A.1#5); not a
+// shared component, so the fast-refresh constraint does not apply here.
+// eslint-disable-next-line react-refresh/only-export-components
+export const Q_RING_DIR: QuizQuestion = {
   question:
     'A conducting ring is being pulled out of a region of uniform magnetic field pointing into the page. As the ring exits, the induced current flows:',
   options: [
-    'Clockwise, to maintain the flux through the ring',
+    'Counter-clockwise, to oppose the decrease in flux through the ring',
     'Counter-clockwise, to reduce the flux through the ring',
     'Clockwise, to oppose the decrease in flux through the ring',
     'There is no induced current because the field is uniform',
@@ -353,7 +357,7 @@ export function LenzSection() {
           drawArrow(ctx, mx, cy - 40, v * 20, 0, '#10b981', 'v');
           if (Math.abs(intensity) > 0.3) {
             const isRepulsion = (v * dNorm) < 0;
-            const fLen = Math.sign(-intensity) * Math.min(Math.abs(intensity) * 10, 150);
+            const fLen = brakingForceArrowX(v, intensity);
             drawArrow(ctx, mx, cy + 40, fLen, 0, '#ea580c', 'F_mag');
             ctx.font = 'bold 18px sans-serif';
             ctx.fillStyle = '#ea580c';
