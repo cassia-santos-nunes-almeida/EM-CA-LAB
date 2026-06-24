@@ -105,7 +105,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
             </div>
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">S-Domain:</p>
-              <MathWrapper formula="H(s) = \frac{R/L}{s + R/L}" block />
+              <MathWrapper formula="H(s) = \frac{1/L}{s + R/L}" block />
             </div>
           </div>
         </div>
