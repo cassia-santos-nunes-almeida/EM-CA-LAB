@@ -478,8 +478,8 @@ export function Transformers() {
           </li>
           <li>
             They are simultaneous: the secondary's current talks <em>back</em> to the primary
-            through the same M. Solving the pair with Kirchhoff is how every transformer
-            problem in Part 5's distributed world starts.
+            through the same M. Solving the pair with Kirchhoff is the same coupled-circuit
+            reasoning the distributed lines of Part 5 are built on.
           </li>
         </ul>
 
@@ -846,8 +846,8 @@ export function Transformers() {
               Looking Ahead
             </p>
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              A transformer is two coupled inductors analyzed with Kirchhoff's laws. In the next
-              section, we'll apply the same Kirchhoff's laws to an infinitesimal segment of a
+              A transformer is two coupled inductors analyzed with Kirchhoff's laws. Later, in
+              Part 5, we'll apply these same Kirchhoff's laws to an infinitesimal segment of a
               conductor pair — with distributed self-inductance and self-capacitance along its
               length — and the wave equation will appear. That's the transmission line.
             </p>

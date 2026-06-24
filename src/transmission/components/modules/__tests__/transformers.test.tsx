@@ -128,4 +128,16 @@ describe('Transformers — section 3.4 page (mutual-inductance extension)', () =
     await user.click(screen.getByRole('tab', { name: /Simulations/i }));
     expect(screen.getByText(/double N₂ while keeping/i)).toBeInTheDocument();
   });
+
+  it('Practice tab: the "Looking Ahead" bridge points to Part 5, not "the next section" (A.1#12)', async () => {
+    const user = userEvent.setup();
+    renderTF();
+    await user.click(screen.getByRole('tab', { name: /Practice/i }));
+
+    // transformers is 3.4 (last of Part 3); the actual next section is Maxwell (4.1),
+    // and the transmission line is in Part 5 — so the bridge must not call it "next".
+    const block = screen.getByText('Looking Ahead').parentElement as HTMLElement;
+    expect(block.textContent).toMatch(/Later, in Part 5/i);
+    expect(block.textContent).not.toMatch(/the next section/i);
+  });
 });
