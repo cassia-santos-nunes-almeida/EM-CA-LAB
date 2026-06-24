@@ -94,13 +94,14 @@ const Q_LOSSTAN: QuizQuestion = {
   ],
 };
 
-const EPSR_PRESETS: { label: string; value: number; caption: string }[] = [
+// eslint-disable-next-line react-refresh/only-export-components
+export const EPSR_PRESETS: { label: string; value: number; caption: string }[] = [
   { label: 'Air (1)', value: 1, caption: 'No step, no echo — identical impedances reflect nothing.' },
   { label: 'Glass (2.25)', value: 2.25, caption: 'Γ = −0.200: 4% of the power reflects, 96% gets through.' },
   {
-    label: 'Seawater-RF (81)',
+    label: 'Water, low-freq (81)',
     value: 81,
-    caption: '64% of the power bounces — which is why radar pings bounce off the sea and fish-finders must live IN the water.',
+    caption: 'εr ≈ 81 is the LOW-frequency permittivity of water, where the lossless model holds: Γ = −0.80, so 64% of the power reflects. (At RF, seawater is a good CONDUCTOR — tan δ ≫ 1 — reflecting nearly all of it; see the loss-tangent check above.)',
   },
 ];
 
