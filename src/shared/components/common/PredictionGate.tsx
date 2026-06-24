@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { Eye, CheckCircle, XCircle, SkipForward } from 'lucide-react';
 import { cn } from '@shared/utils/cn';
 
@@ -101,9 +101,26 @@ function PredictionGateInner({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [passed, setPassed] = useState(initialPassed);
 
+  const revealRef = useRef<HTMLDivElement>(null);
+  // Only move focus on a real Continue/Skip click — NOT when the gate remounts
+  // already-passed (initialPassed, e.g. a Tabs panel restoring its unlocked
+  // state), which would silently steal focus to the revealed canvas.
+  const focusOnReveal = useRef(false);
+
   const correctId = getCorrectAnswer();
   const isCorrect = selectedId === correctId;
   const hasAnswered = selectedId !== null;
+
+  // After the reveal renders, move focus into it. Many reveals are <canvas> sims
+  // with no heading, so we focus a generic tabIndex=-1 wrapper rather than a
+  // heading that often does not exist — keeping keyboard / screen-reader users
+  // oriented to the content that just appeared.
+  useEffect(() => {
+    if (passed && !nonBlocking && focusOnReveal.current) {
+      focusOnReveal.current = false;
+      revealRef.current?.focus();
+    }
+  }, [passed, nonBlocking]);
 
   const handleSelect = (id: string) => {
     if (hasAnswered) return;
@@ -112,18 +129,25 @@ function PredictionGateInner({
   };
 
   const handleContinue = () => {
+    focusOnReveal.current = true;
     setPassed(true);
     onPassed?.();
   };
 
   const handleSkip = () => {
+    focusOnReveal.current = true;
     setPassed(true);
     onPassed?.();
   };
 
   // Blocking mode: once passed (or skipped), swap the prompt for the content.
+  // The tabIndex=-1 wrapper is the focus target for the reveal (see effect above).
   if (passed && !nonBlocking) {
-    return <>{children}</>;
+    return (
+      <div ref={revealRef} tabIndex={-1} className="outline-none">
+        {children}
+      </div>
+    );
   }
 
   const prompt = (
@@ -179,12 +203,16 @@ function PredictionGateInner({
       </div>
 
       {hasAnswered && (
-        <div className={cn(
-          'rounded-lg p-4 mb-4',
-          isCorrect
-            ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
-            : 'bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500',
-        )}>
+        <div
+          role="status"
+          aria-live="polite"
+          className={cn(
+            'rounded-lg p-4 mb-4',
+            isCorrect
+              ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500'
+              : 'bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500',
+          )}
+        >
           <p className={cn(
             'text-xs font-semibold uppercase tracking-wide mb-2',
             isCorrect ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400',
