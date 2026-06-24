@@ -412,11 +412,15 @@ export function InteractiveLab() {
     [circuitType, inputType, dR, dL, dC],
   );
 
-  // PredictionGate: quantize R/L/C to 20% buckets so the gate re-triggers on significant changes
-  const predictionResetKey = useMemo(() => {
-    const bucket = (v: number) => Math.round(Math.log(v) / Math.log(1.2));
-    return `${bucket(dR)}-${bucket(dL)}-${bucket(dC)}`;
-  }, [dR, dL, dC]);
+  // The damping gate grades against classifyDamping(response.zeta), so the gate
+  // must re-lock exactly when that classification changes — and only then. Keying
+  // on raw R/L/C buckets re-locked needlessly within a category AND, worse, could
+  // keep a stale "Correct!" when a parameter tweak crossed the ζ=1 boundary inside
+  // the same bucket. Key on the verdict itself, using the SAME ζ the gate reads.
+  const predictionResetKey = useMemo(
+    () => (response.zeta !== undefined ? classifyDamping(response.zeta) : 'n/a'),
+    [response.zeta],
+  );
 
   const handleReset = useCallback(() => {
     setR(100);
