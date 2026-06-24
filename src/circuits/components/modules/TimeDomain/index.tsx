@@ -272,7 +272,7 @@ function RCCircuitComparison() {
               Substitute and solve for <MathWrapper formula="I(s)" />:
             </p>
             <MathWrapper formula="\frac{V_s}{s} = I(s)\left(R + \frac{1}{sC}\right)" block />
-            <MathWrapper formula="I(s) = \frac{V_s/s}{R + \frac{1}{sC}} = \frac{V_s C}{s(RCs + 1)}" block />
+            <MathWrapper formula="I(s) = \frac{V_s/s}{R + \frac{1}{sC}} = \frac{V_s C}{RCs + 1}" block />
             <MathWrapper formula="I(s) = \frac{V_s}{R} \cdot \frac{1}{s + \frac{1}{RC}}" block />
           </div>
 
@@ -534,7 +534,7 @@ function RLCCircuitComparison() {
               Voltage across capacitor:
             </p>
             <MathWrapper formula="V_C(s) = I(s) \cdot \frac{1}{sC}" block />
-            <MathWrapper formula="V_C(s) = \frac{V_s}{s^2LC + sRC + 1}" block />
+            <MathWrapper formula="V_C(s) = \frac{V_s}{s(s^2LC + sRC + 1)}" block />
             <MathWrapper formula="V_C(s) = \frac{V_s/LC}{s(s^2 + \frac{R}{L}s + \frac{1}{LC})}" block />
           </div>
 
