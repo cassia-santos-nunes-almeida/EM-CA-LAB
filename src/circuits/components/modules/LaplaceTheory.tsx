@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { Tabs } from '@shared/components/common/Tabs';
@@ -13,7 +13,13 @@ import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { LaplaceMotivation } from '@circuits/components/modules/LaplaceMotivation';
 
-function TheoryTab() {
+interface TheoryTabProps {
+  /** Lifted gate state — persists the motivation gate's unlock across tab remounts. */
+  motivationPassed: boolean;
+  onMotivationPassed: () => void;
+}
+
+function TheoryTab({ motivationPassed, onMotivationPassed }: TheoryTabProps) {
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
 
@@ -28,7 +34,7 @@ function TheoryTab() {
         sourceUrl="https://commons.wikimedia.org/wiki/File:Pierre-Simon_Laplace.jpg"
       />
 
-      <LaplaceMotivation />
+      <LaplaceMotivation initialPassed={motivationPassed} onPassed={onMotivationPassed} />
 
       {/* Definition */}
       <section className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
@@ -374,6 +380,11 @@ export function LaplaceTheory() {
   const markVisited = useProgressStore((s) => s.markVisited);
   useEffect(() => { markVisited('laplace-theory'); }, [markVisited]);
 
+  // Lift the motivation gate's unlocked state ABOVE the Tabs. The active panel
+  // remounts on tab switch (key={activeIndex}), so holding this here keeps a
+  // committed gate from re-locking when the student returns to the Theory tab.
+  const [motivationPassed, setMotivationPassed] = useState(false);
+
   return (
     <div className="space-y-8">
       <SectionHook text="Oliver Heaviside developed the operational calculus that became Laplace transforms in the 1880s, largely to analyze telegraph lines. He was self-taught, often wrong in his methods, and completely right in his results. The transform tables you use today are his legacy." />
@@ -395,7 +406,7 @@ export function LaplaceTheory() {
           {
             label: 'Theory & Why Use',
             icon: <BookOpen className="w-4 h-4" />,
-            content: <TheoryTab />,
+            content: <TheoryTab motivationPassed={motivationPassed} onMotivationPassed={() => setMotivationPassed(true)} />,
           },
           {
             label: 'Tables & Properties',

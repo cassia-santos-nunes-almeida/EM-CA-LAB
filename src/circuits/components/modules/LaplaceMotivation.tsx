@@ -2,7 +2,18 @@ import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { useProgressStore } from '@shared/store/progressStore';
 
-export function LaplaceMotivation() {
+interface LaplaceMotivationProps {
+  /**
+   * Seeds the gate as already-passed on mount. The parent lifts this above the
+   * Tabs so a tab switch — which remounts this panel (key={activeIndex}) — does
+   * not re-lock the gate and demand a second prediction.
+   */
+  initialPassed?: boolean;
+  /** Fires when the gate is passed, so the parent above the Tabs can persist it. */
+  onPassed?: () => void;
+}
+
+export function LaplaceMotivation({ initialPassed, onPassed }: LaplaceMotivationProps = {}) {
   const markPredictionGate = useProgressStore((s) => s.markPredictionGate);
   return (
     <section className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
@@ -30,6 +41,8 @@ export function LaplaceMotivation() {
         ]}
         getCorrectAnswer={() => '4-6'}
         onPredict={(correct) => markPredictionGate('laplace-motivation', correct)}
+        initialPassed={initialPassed}
+        onPassed={onPassed}
         explanation={
           <p>
             The classical approach requires separation of variables, integration of both sides,
