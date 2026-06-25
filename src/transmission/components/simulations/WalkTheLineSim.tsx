@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 import { getSectionNumber } from '@shared/constants/curriculum';
+import { ReadoutCard } from './ReadoutCard';
 import {
   calculateComplexReflectionCoefficient,
   calculateInputImpedance,
@@ -366,24 +367,3 @@ export function WalkTheLineSim({ className }: WalkTheLineSimProps) {
 
 /* ── Helper sub-component (per-sim duplication is the house convention) ── */
 
-/** Props for the ReadoutCard helper. */
-interface ReadoutCardProps {
-  /** Label describing the quantity. */
-  label: string;
-  /** Formatted value string. */
-  value: string;
-}
-
-/** Small card displaying a computed quantity. */
-function ReadoutCard({ label, value }: ReadoutCardProps) {
-  return (
-    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2">
-      <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
-        {value}
-      </p>
-    </div>
-  );
-}
