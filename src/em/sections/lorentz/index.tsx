@@ -140,7 +140,7 @@ export function LorentzSection() {
         trail: [],
       };
     }
-  }, [velocity]);
+  }, [velocity, canvasRef]);
 
   const getCanvasPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -150,7 +150,7 @@ export function LorentzSection() {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const pt = getCanvasPoint(e);

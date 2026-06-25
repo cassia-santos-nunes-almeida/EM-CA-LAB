@@ -289,7 +289,7 @@ export function PolarizationSection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [ex, ey, phaseDelta, isPlaying, c, isDarkMode, prepareFrame]);
+  }, [ex, ey, phaseDelta, isPlaying, c, isDarkMode, prepareFrame, canvasRef]);
 
   // Vector drag handlers
   const getCanvasPos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -300,7 +300,7 @@ export function PolarizationSection() {
       x: (e.clientX - rect.left) * (canvas.width / rect.width),
       y: (e.clientY - rect.top) * (canvas.height / rect.height),
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleVectorMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCanvasPos(e);

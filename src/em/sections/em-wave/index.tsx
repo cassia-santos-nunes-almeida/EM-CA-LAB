@@ -907,7 +907,7 @@ export function EMWaveSection() {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handlePhasorMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (viewMode !== WaveViewMode.VIEW_VI) return;
