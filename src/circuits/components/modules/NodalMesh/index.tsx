@@ -12,6 +12,7 @@ import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { LabStation } from '@shared/components/common/LabStation';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { WorkedSteps } from '@shared/components/common/WorkedSteps';
+import { verticalZigzag } from './zigzag';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { BridgeDiagram } from './BridgeDiagram';
@@ -58,17 +59,6 @@ function SupernodeDiagram() {
   const markerId = useId();
   const wireColor = 'var(--circuit-wire)';
   const textColor = 'var(--circuit-text)';
-
-  const verticalZigzag = (x: number, y1: number, y2: number): string => {
-    const pts: string[] = [`${x},${y1}`];
-    const span = y2 - y1;
-    for (let i = 1; i <= 6; i++) {
-      const dx = i % 2 === 1 ? -10 : 10;
-      pts.push(`${x + dx},${y1 + (span * i) / 7}`);
-    }
-    pts.push(`${x},${y2}`);
-    return pts.join(' ');
-  };
 
   return (
     <svg
