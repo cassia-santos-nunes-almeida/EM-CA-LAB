@@ -12,6 +12,7 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { Tabs } from '@shared/components/common/Tabs';
 import { useProgressStore } from '@shared/store/progressStore';
 import { LadderAnimation } from '@transmission/components/simulations/LadderAnimation';
+import { Z0_YOUR_TURN_OPTIONS } from './lumpedDistributedChallenge';
 
 /**
  * Section 5.1 page: Lumped to Distributed.
@@ -330,28 +331,7 @@ export function LumpedDistributed() {
       <YourTurnPanel
         scenario="A coaxial cable has per-unit-length inductance L′ = 0.25 μH/m and per-unit-length capacitance C′ = 100 pF/m."
         question="What is the wave speed v and characteristic impedance Z₀?"
-        options={[
-          {
-            text: 'v = 2 \u00D7 10\u2078 m/s, Z\u2080 = 50 \u03A9',
-            correct: true,
-            explanation: 'v = 1/\u221A(L\u2032C\u2032) = 1/\u221A(0.25\u00D710\u207B\u2076 \u00D7 100\u00D710\u207B\u00B9\u00B2) = 2\u00D710\u2078 m/s. Z\u2080 = \u221A(L\u2032/C\u2032) = \u221A(0.25\u00D710\u207B\u2076 / 100\u00D710\u207B\u00B9\u00B2) = 50 \u03A9.',
-          },
-          {
-            text: 'v = 3 \u00D7 10\u2078 m/s, Z\u2080 = 50 \u03A9',
-            correct: false,
-            explanation: '3\u00D710\u2078 m/s is the speed of light in vacuum. The wave speed on this cable is slower due to the dielectric.',
-          },
-          {
-            text: 'v = 2 \u00D7 10\u2078 m/s, Z\u2080 = 25 \u03A9',
-            correct: false,
-            explanation: 'The wave speed is correct, but Z\u2080 = \u221A(L\u2032/C\u2032), not L\u2032/C\u2032.',
-          },
-          {
-            text: 'v = 1 \u00D7 10\u2078 m/s, Z\u2080 = 100 \u03A9',
-            correct: false,
-            explanation: 'Check the arithmetic: v = 1/\u221A(2.5\u00D710\u207B\u00B9\u2077) = 2\u00D710\u2078 m/s.',
-          },
-        ]}
+        options={Z0_YOUR_TURN_OPTIONS}
         correctReveal={
           <div className="space-y-1">
             <MathWrapper
