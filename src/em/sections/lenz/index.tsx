@@ -314,11 +314,13 @@ export function LenzSection() {
         const intensity = emfNorm;
         const currentDir = intensity > 0 ? 1 : -1;
         const alpha = Math.min(Math.abs(intensity) / 5, 1);
+        // (v·dNorm) < 0 ⇔ the magnet is approaching ⇔ repulsion — single source for both
+        // the live equation feedback and the canvas REPULSION/ATTRACTION label (A.5 #4).
+        const approaching = (v * dNorm) < 0;
 
         // Update live equation feedback
         const fluxVal = a2 / Math.pow(a2 + d2, 1.5); // Φ ∝ this
         if (Math.abs(v) > 0.1 && Math.abs(fluxVal) > 0.001) {
-          const approaching = (v * dNorm) < 0;
           setLiveFluxDir(approaching ? '\\nearrow \\text{ Increasing}' : '\\searrow \\text{ Decreasing}');
           setLiveResponse(approaching ? '\\text{Repulsion (opposes approach)}' : '\\text{Attraction (opposes removal)}');
         } else {
@@ -356,13 +358,12 @@ export function LenzSection() {
         if (Math.abs(v) > 0.1) {
           drawArrow(ctx, mx, cy - 40, v * 20, 0, '#10b981', 'v');
           if (Math.abs(intensity) > 0.3) {
-            const isRepulsion = (v * dNorm) < 0;
             const fLen = brakingForceArrowX(v, intensity);
             drawArrow(ctx, mx, cy + 40, fLen, 0, '#ea580c', 'F_mag');
             ctx.font = 'bold 18px sans-serif';
             ctx.fillStyle = '#ea580c';
             ctx.textAlign = 'center';
-            ctx.fillText(isRepulsion ? 'REPULSION' : 'ATTRACTION', w / 2, h - 50);
+            ctx.fillText(approaching ? 'REPULSION' : 'ATTRACTION', w / 2, h - 50);
           }
         }
       }
