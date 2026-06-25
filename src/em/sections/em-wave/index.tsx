@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK, WaveViewMode, type WaveViewModeType } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -106,9 +107,10 @@ export function EMWaveSection() {
     attenuation: 0,
   });
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phasorSyncTimeRef = useRef<HTMLCanvasElement>(null);
-  const phasorSyncPhasorRef = useRef<HTMLCanvasElement>(null);
+  // One self-measuring hook per canvas (DPR-correct, CSS-px draw space).
+  const { canvasRef, prepareFrame: prepareWave } = useSelfMeasuringCanvas();
+  const { canvasRef: phasorSyncTimeRef, prepareFrame: prepareTime } = useSelfMeasuringCanvas();
+  const { canvasRef: phasorSyncPhasorRef, prepareFrame: preparePhasor } = useSelfMeasuringCanvas();
   const timeRef = useRef(0);
   const animationRef = useRef(0);
   const phasorSyncAnimRef = useRef(0);
@@ -685,53 +687,40 @@ export function EMWaveSection() {
   useEffect(() => {
     if (viewMode === WaveViewMode.VIEW_PHASOR_SYNC) return;
     const render = () => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const parent = canvas.parentElement;
-          if (parent) {
-            canvas.width = parent.clientWidth;
-            canvas.height = parent.clientHeight;
-          }
-          drawWave(ctx, canvas.width, canvas.height);
-        }
+      const frame = prepareWave();
+      if (frame) {
+        const { ctx, width, height } = frame;
+        drawWave(ctx, width, height);
       }
       if (state.isPlaying) timeRef.current += 1;
       animationRef.current = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [drawWave, state.isPlaying, viewMode]);
+  }, [drawWave, state.isPlaying, viewMode, prepareWave]);
 
   // Phasor Sync view rendering
   useEffect(() => {
     if (viewMode !== WaveViewMode.VIEW_PHASOR_SYNC) return;
     const render = () => {
-      const timeCvs = phasorSyncTimeRef.current;
-      const phasorCvs = phasorSyncPhasorRef.current;
-      if (!timeCvs || !phasorCvs) return;
-
-      const timeCtx = timeCvs.getContext('2d');
-      const phasorCtx = phasorCvs.getContext('2d');
-      if (!timeCtx || !phasorCtx) return;
-
-      // Size canvases to parent
-      if (timeCvs.parentElement) {
-        timeCvs.width = timeCvs.parentElement.clientWidth;
-        timeCvs.height = timeCvs.parentElement.clientHeight;
+      // Each canvas self-measures via its own hook (DPR-correct, CSS-px draw).
+      // Both must be ready before drawing so the now-dot and rotating phasor —
+      // which share the same time/frequency phase — stay in lock-step; if either
+      // is not mounted yet, keep the loop alive and try again next frame.
+      const timeFrame = prepareTime();
+      const phasorFrame = preparePhasor();
+      if (!timeFrame || !phasorFrame) {
+        phasorSyncAnimRef.current = requestAnimationFrame(render);
+        return;
       }
-      if (phasorCvs.parentElement) {
-        phasorCvs.width = phasorCvs.parentElement.clientWidth;
-        phasorCvs.height = phasorCvs.parentElement.clientHeight;
-      }
+      const { ctx: timeCtx, width: tw, height: th } = timeFrame;
+      const { ctx: phasorCtx, width: pw, height: ph2 } = phasorFrame;
 
       const t = timeRef.current;
       const omega = 2 * Math.PI * state.frequency;
       const angle = omega * t * 0.02 * state.speed;
 
       // --- Time-domain canvas ---
-      const tw = timeCvs.width, th = timeCvs.height;
       timeCtx.clearRect(0, 0, tw, th);
       if (isDarkMode) { timeCtx.fillStyle = '#0f172a'; timeCtx.fillRect(0, 0, tw, th); }
 
@@ -802,7 +791,6 @@ export function EMWaveSection() {
       timeCtx.fillText('now', nowX, th - marginB + 14);
 
       // --- Phasor canvas ---
-      const pw = phasorCvs.width, ph2 = phasorCvs.height;
       phasorCtx.clearRect(0, 0, pw, ph2);
       if (isDarkMode) { phasorCtx.fillStyle = '#0f172a'; phasorCtx.fillRect(0, 0, pw, ph2); }
 
@@ -906,16 +894,18 @@ export function EMWaveSection() {
     };
     render();
     return () => cancelAnimationFrame(phasorSyncAnimRef.current);
-  }, [viewMode, state, c, isDarkMode]);
+  }, [viewMode, state, c, isDarkMode, prepareTime, preparePhasor]);
 
   // Phasor drag handlers
   const getCanvasPos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
+    // CSS-px coords: the ctx is dpr-scaled, so phasor geometry (center, the
+    // amplitude clamp to 100, the 20-px hit threshold) all live in CSS px.
     return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height),
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
   }, []);
 
