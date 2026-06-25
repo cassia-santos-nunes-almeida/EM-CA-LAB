@@ -366,7 +366,7 @@ export function BounceDiagram({ className = '' }: BounceDiagramProps) {
     ctx.font = '10px ui-monospace, monospace';
     for (let t = 0; t <= totalTime; t++) {
       ctx.fillStyle = axisColor;
-      ctx.fillText(`${t}T\u1D30`, marginLeft - 6, timeToY(t) + 4);
+      ctx.fillText(`${t}T_D`, marginLeft - 6, timeToY(t) + 4);
     }
 
     // Title

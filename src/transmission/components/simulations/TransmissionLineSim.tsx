@@ -455,7 +455,7 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
               />
               <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                 <span>1 MHz</span>
-                <span>1 GHz</span>
+                <span>100 MHz</span>
                 <span>10 GHz</span>
               </div>
             </label>
@@ -489,7 +489,7 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
               value={isFinite(vswr) ? vswr.toFixed(2) : '\u221E'}
             />
             <ReadoutCard
-              label="Wavelength λ"
+              label="Free-space wavelength λ₀"
               value={formatWavelength(wavelength)}
             />
           </div>
