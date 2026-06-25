@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -112,7 +113,7 @@ export function LenzSection() {
   const [liveResponse, setLiveResponse] = useState('');
 
   const [draggingMagnet, setDraggingMagnet] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
@@ -121,36 +122,38 @@ export function LenzSection() {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (autoPlay) return;
-    const pt = getCanvasPoint(e);
     const canvas = canvasRef.current;
-    if (!pt || !canvas) return;
-    const w = canvas.width, h = canvas.height, cy = h / 2;
+    if (!canvas) return;
+    const pt = getCanvasPoint(e);
+    if (!pt) return;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height, cy = h / 2;
     const mx = (magnetPos / 100) * w;
     // Hit test on magnet rectangle (mx-50 to mx+50, cy-20 to cy+20)
     if (pt.x >= mx - 50 && pt.x <= mx + 50 && pt.y >= cy - 20 && pt.y <= cy + 20) {
       setDraggingMagnet(true);
     }
-  }, [autoPlay, getCanvasPoint, magnetPos]);
+  }, [autoPlay, canvasRef, getCanvasPoint, magnetPos]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!draggingMagnet) return;
-    const pt = getCanvasPoint(e);
     const canvas = canvasRef.current;
-    if (!pt || !canvas) return;
-    const newPos = Math.max(0, Math.min(100, (pt.x / canvas.width) * 100));
+    if (!canvas) return;
+    const pt = getCanvasPoint(e);
+    if (!pt) return;
+    const rect = canvas.getBoundingClientRect();
+    const newPos = Math.max(0, Math.min(100, (pt.x / rect.width) * 100));
     setPrevPos(magnetPos);
     setMagnetPos(newPos);
-  }, [draggingMagnet, getCanvasPoint, magnetPos]);
+  }, [draggingMagnet, canvasRef, getCanvasPoint, magnetPos]);
 
   const handleMouseUp = useCallback(() => setDraggingMagnet(false), []);
 
@@ -232,16 +235,16 @@ export function LenzSection() {
   // soon as the canvas mounts (including after the PredictionGate reveals it).
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (canvas && ctx) {
-        const parent = canvas.parentElement;
-        if (parent) {
-          canvas.width = parent.clientWidth;
-          canvas.height = parent.clientHeight;
-        }
-        const w = canvas.width, h = canvas.height, cy = h / 2, coilX = w / 2;
-        ctx.clearRect(0, 0, w, h);
+      const frame = prepareFrame();
+      if (!frame) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
+      const { ctx, width: w, height: h } = frame;
+      const cy = h / 2, coilX = w / 2;
+      ctx.clearRect(0, 0, w, h);
 
         // Draw coil turns
         ctx.fillStyle = '#64748b';
@@ -366,13 +369,12 @@ export function LenzSection() {
             ctx.fillText(approaching ? 'REPULSION' : 'ATTRACTION', w / 2, h - 50);
           }
         }
-      }
 
       animationRef.current = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [magnetPos, prevPos, autoPlay, showField, numTurns, c, isDarkMode]);
+  }, [magnetPos, prevPos, autoPlay, showField, numTurns, c, isDarkMode, prepareFrame]);
 
   return (
     <SectionLayout
