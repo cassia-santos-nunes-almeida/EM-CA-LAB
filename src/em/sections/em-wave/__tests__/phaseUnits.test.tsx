@@ -53,4 +53,16 @@ describe('em-wave V/I phase sliders carry the degree unit', () => {
 
     expect(screen.getByText('45°')).toBeInTheDocument();
   });
+
+  it('marks the normalized Frequency/Amplitude/Speed readouts as (arb.)', async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter><EMWaveSection /></MemoryRouter>);
+    await user.click(screen.getByRole('button', { name: /Along y/i }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // Default (3D) view shows Frequency, Amplitude and Speed; each value readout now
+    // carries " (arb.)" to match the chart axes. The digit prefix excludes the
+    // "Attenuation α (arb.)" slider LABEL (its (arb.) follows a Greek letter, not a value).
+    expect(screen.getAllByText(/\d\s*\(arb\.\)/).length).toBeGreaterThanOrEqual(3);
+  });
 });

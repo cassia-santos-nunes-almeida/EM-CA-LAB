@@ -108,17 +108,9 @@ export function RadiationPatternSim({ className = '' }: RadiationPatternSimProps
     let maxE = 0;
 
     for (let i = 0; i <= numPoints; i++) {
-      // theta in the antenna coordinate system: 0 = along axis, pi/2 = broadside
-      // We map the polar plot angle phi to antenna theta
-      // In the polar plot: 0 deg (right) = theta=90 (broadside), 90 deg (up) = theta=0 (along axis)
+      // Plot angle = angle measured from the z-axis (antenna axis), fed directly as θ.
       const phi = (i / numPoints) * 2 * Math.PI;
-      // Convert plot angle to antenna theta: theta = pi/2 - phi for upper half
-      // Actually, for a standard antenna polar plot in E-plane:
-      // Plot angle measured from horizontal = theta measured from z-axis minus 90
-      // phi on plot corresponds to theta on antenna: theta = pi/2 - phi
-      // Simpler: just use the plot angle directly as the angle from the z-axis
-      const theta = phi; // We'll re-interpret below
-      const E = calculateRadiationPattern(dipoleFraction, theta);
+      const E = calculateRadiationPattern(dipoleFraction, phi);
       patternValues.push(E);
       if (E > maxE) maxE = E;
     }
@@ -129,19 +121,8 @@ export function RadiationPatternSim({ className = '' }: RadiationPatternSimProps
     ctx.beginPath();
     for (let i = 0; i <= numPoints; i++) {
       const phi = (i / numPoints) * 2 * Math.PI;
-      // Map: antenna theta=0 is along z-axis (up in plot), theta=pi/2 is broadside (right in plot)
-      // In the polar plot: angle measured CCW from right = pi/2 - theta
-      // So plot angle = pi/2 - theta => theta = pi/2 - plotAngle
-      // But we computed pattern for theta = phi, so we plot:
-      // The pattern at antenna-theta goes at plot-angle = (pi/2 - theta)
-      // Easier approach: compute E at each antenna theta, then place at plot angle = pi/2 - theta
-      // Let's re-do: iterate over antenna theta 0..2pi, plot at plotAngle = pi/2 - theta
       const r = (patternValues[i] / maxE) * maxRadius;
-      // theta=0 is along antenna axis (top of plot), theta=pi/2 is broadside (right)
-      // Standard polar: plotAngle=0 is right, plotAngle=pi/2 is up
-      // We want antenna axis pointing up => theta=0 at top => plotAngle = pi/2
-      // theta increases going CW from top in antenna coords
-      // plotX = r * sin(theta), plotY = -r * cos(theta)  [theta from top, CW]
+      // Antenna axis points up: θ=0 at the top, increasing clockwise (plotX=r·sinθ, plotY=−r·cosθ).
       const plotX = cx + r * Math.sin(phi);
       const plotY = cy - r * Math.cos(phi);
 

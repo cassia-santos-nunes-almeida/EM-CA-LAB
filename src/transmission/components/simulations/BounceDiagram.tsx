@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { steadyStateVoltageFromGamma } from '@transmission/utils/transmissionMath';
 
 /** Props for the BounceDiagram component. */
 interface BounceDiagramProps {
@@ -158,12 +159,9 @@ function computeVoltageData(segments: BounceSegment[]) {
  * This is equivalent to Vs * ZL / (Zs + ZL).
  */
 function steadyStateVoltage(gammaLoad: number, gammaSource: number): number {
-  // The bounce series converges to a steady state only when |Γ_L·Γ_S| < 1. At
-  // |Γ_L·Γ_S| = 1 the reflections never decay: Γ_L·Γ_S = +1 makes the closed form
-  // diverge (denom→0), while Γ_L·Γ_S = −1 (e.g. Γ_L=+1, Γ_S=−1) keeps a finite
-  // closed form (denom=2) yet the partial sums oscillate forever — both are unstable.
-  if (Math.abs(gammaLoad * gammaSource) >= 1 - 1e-9) return Infinity;
-  return initialVoltage(gammaSource) * (1 + gammaLoad) / (1 - gammaLoad * gammaSource);
+  // Delegates to the shared, marginal-stability-guarded gamma-domain form in
+  // transmissionMath (A.5 #8) — V0 is this sim's source-divider initial voltage.
+  return steadyStateVoltageFromGamma(initialVoltage(gammaSource), gammaLoad, gammaSource);
 }
 
 /**

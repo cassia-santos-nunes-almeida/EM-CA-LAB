@@ -383,10 +383,17 @@ ConceptCheck keying, default control state, sim sign/label, or prose claim**, ne
 Each ships only after #9's correctness/units net covers the touched code (per the ultraplan "net before refactor"
 rule) and must stay green on the full unit suite + e2e. Tag = the test that must exist first.
 
-- **TimeDomain `index.tsx:275/:537`** — once the s-domain transcription errors are fixed, the 3-form chain is
+- **❌ DROPPED 2026-06-25 (owner decision).** **TimeDomain `index.tsx:275/:537`** — once the s-domain transcription errors are fixed, the 3-form chain is
   redundant; keep `(V_s/s)/(R+1/sC)` + the final cover-up form. *(NET: pin the displayed `I(s)`/`V_C(s)` strings.)*
-- **`ResponseComparisons.tsx:32`** — align the RLC natural-response card with `componentMath.rlc.overdamped/
+  → **Not done.** Scope check (`wf_93e4ce35-038`) found NO clean redundant-middle to drop: every candidate
+  deletion removes a *student-visible* derivation step, and the named lines are test-pinned (`sDomainFormulas.test`
+  RC `:275`, RLC `:537`). Also conflicts with the "engaging, not over-simplified" preference. The "redundancy" is
+  pedagogically fine as-is.
+- **❌ DROPPED 2026-06-25 (owner decision).** **`ResponseComparisons.tsx:32`** — align the RLC natural-response card with `componentMath.rlc.overdamped/
   underdamped` (already imported) instead of a third hand-written form. *(NET: assert card matches componentMath.)*
+  → **Not done.** Premises don't hold: `ResponseComparisons` does NOT import `componentMath`, and the card LaTeX
+  differs from `rlc.overdamped` by whitespace (`A_1 e^{s_1 t}` vs `A_1e^{s_1t}`). A "clean" switch would edit a
+  *shared* constant + multiple call sites + the pinning test for zero visual gain — not a safe dedup.
 - **polarization `index.tsx:349-351` & `:356`** — deleting the `ex===ey` ψ special case fixes the orientation bug
   **and** removes special-case code; fixing AR to `|cot χ|` lets Linear become a natural χ→0 limit, removing the
   hard-coded `Linear ? Infinity` branch. *(NET: ψ tests for ex==ey/cos δ<0, AR tests for linear/elliptical/circular.)*

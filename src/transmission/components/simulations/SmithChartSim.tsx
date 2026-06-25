@@ -8,6 +8,7 @@ import {
 import { useCanvasSetup } from '@transmission/hooks/useCanvasSetup';
 import { useAnimationFrame } from '@transmission/hooks/useAnimationFrame';
 import { getSectionNumber } from '@shared/constants/curriculum';
+import { ReadoutCard } from './ReadoutCard';
 
 /** Props for the SmithChartSim component. */
 interface SmithChartSimProps {
@@ -35,19 +36,6 @@ function _gammaToPixel(gr: number, gi: number, cx: number, cy: number, radius: n
 /** Convert canvas pixel to Gamma coordinates. */
 function _pixelToGamma(px: number, py: number, cx: number, cy: number, radius: number) {
   return { real: (px - cx) / radius, imag: -(py - cy) / radius };
-}
-
-/** Convert Gamma to ZL. */
-function _gammaToZL(gr: number, gi: number, z0: number) {
-  const denR = 1 - gr;
-  const denI = -gi;
-  const numR = 1 + gr;
-  const numI = gi;
-  const denMagSq = denR * denR + denI * denI;
-  if (denMagSq < 1e-12) return { real: 500, imag: 0 };
-  const zlr = z0 * (numR * denR + numI * denI) / denMagSq;
-  const zli = z0 * (numI * denR - numR * denI) / denMagSq;
-  return { real: zlr, imag: zli };
 }
 
 /** Format a complex impedance as "26.9 + j11.9 Ω" (numerical dust snapped to 0). */
@@ -339,7 +327,9 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
     const angle = Math.atan2(g.imag, g.real);
     const gr = clampedMag * Math.cos(angle);
     const gi = clampedMag * Math.sin(angle);
-    const zl = _gammaToZL(gr, gi, Z0);
+    // gammaToImpedance returns {real: Infinity} at |Γ|→1; the setZLr clamp below
+    // (Math.min(500, …)) squeezes it to the 500 Ω click cap, matching the old local clamp.
+    const zl = gammaToImpedance(gr, gi, Z0);
     setZLr(Math.max(0, Math.min(500, Math.round(zl.real))));
     setZLi(Math.max(-500, Math.min(500, Math.round(zl.imag))));
   };
@@ -360,7 +350,9 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
     const constrainedMag = dragGammaMagRef.current;
     const gr = constrainedMag * Math.cos(angle);
     const gi = constrainedMag * Math.sin(angle);
-    const zl = _gammaToZL(gr, gi, Z0);
+    // gammaToImpedance returns {real: Infinity} at |Γ|→1; the setZLr clamp below
+    // (Math.min(500, …)) squeezes it to the 500 Ω click cap, matching the old local clamp.
+    const zl = gammaToImpedance(gr, gi, Z0);
     setZLr(Math.max(0, Math.min(500, Math.round(zl.real))));
     setZLi(Math.max(-500, Math.min(500, Math.round(zl.imag))));
   };
@@ -545,24 +537,3 @@ export function SmithChartSim({ className }: SmithChartSimProps) {
 
 /* ── Helper sub-component ───────────────────────────────────────── */
 
-/** Props for the ReadoutCard helper. */
-interface ReadoutCardProps {
-  /** Label describing the quantity. */
-  label: string;
-  /** Formatted value string. */
-  value: string;
-}
-
-/** Small card displaying a computed quantity. */
-function ReadoutCard({ label, value }: ReadoutCardProps) {
-  return (
-    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-3 py-2">
-      <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">
-        {value}
-      </p>
-    </div>
-  );
-}

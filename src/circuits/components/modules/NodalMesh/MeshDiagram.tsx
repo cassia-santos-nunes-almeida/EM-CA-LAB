@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { MESH_SOLUTION, type MeshElement } from './nodalMeshData';
+import { verticalZigzag, horizontalZigzag } from './zigzag';
 
 interface MeshDiagramProps {
   /** True = mesh-1 arrow drawn clockwise. */
@@ -20,28 +21,6 @@ const ELEMENT_SEGMENTS: Record<MeshElement, [number, number, number, number]> = 
   r2: [250, 40, 330, 40],
   vs2: [370, 40, 370, 180],
 };
-
-function verticalZigzag(x: number, y1: number, y2: number): string {
-  const pts: string[] = [`${x},${y1}`];
-  const span = y2 - y1;
-  for (let i = 1; i <= 6; i++) {
-    const dx = i % 2 === 1 ? -10 : 10;
-    pts.push(`${x + dx},${y1 + (span * i) / 7}`);
-  }
-  pts.push(`${x},${y2}`);
-  return pts.join(' ');
-}
-
-function horizontalZigzag(y: number, x1: number, x2: number): string {
-  const pts: string[] = [`${x1},${y}`];
-  const span = x2 - x1;
-  for (let i = 1; i <= 6; i++) {
-    const dy = i % 2 === 1 ? -10 : 10;
-    pts.push(`${x1 + (span * i) / 7},${y + dy}`);
-  }
-  pts.push(`${x2},${y}`);
-  return pts.join(' ');
-}
 
 /** Circulating-current arrow: a half-circle over the top with an arrowhead. */
 function MeshArrow({ cx, cy, cw, label, markerId }: { cx: number; cy: number; cw: boolean; label: string; markerId: string }) {

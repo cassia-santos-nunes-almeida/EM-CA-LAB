@@ -289,6 +289,12 @@ const readThePlotCases = [
 
 const poleChartColors = { grid: '#e2e8f0', text: '#475569' };
 
+/** Format a pole as "s{i+1} = {x}[±{y}j]" for the Read-the-Plot readout (A.5 #6). */
+// eslint-disable-next-line react-refresh/only-export-components
+export function formatPole(p: { x: number; y: number }, i: number): string {
+  return `s${i + 1} = ${p.x}${p.y !== 0 ? `${p.y > 0 ? '+' : ''}${p.y}j` : ''}`;
+}
+
 function ReadThePlotTab() {
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
@@ -340,7 +346,7 @@ function ReadThePlotTab() {
               </ScatterChart>
             </ResponsiveContainer>
             <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">
-              Poles: {caseData.poles.map((p, i) => `s${i + 1} = ${p.x}${p.y !== 0 ? `${p.y > 0 ? '+' : ''}${p.y}j` : ''}`).join(', ')}
+              Poles: {caseData.poles.map((p, i) => formatPole(p, i)).join(', ')}
             </p>
           </div>
 

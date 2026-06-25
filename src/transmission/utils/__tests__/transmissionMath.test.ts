@@ -14,6 +14,7 @@ import {
   calculateWavelength,
   calculateBounceVoltages,
   calculateSteadyStateVoltage,
+  steadyStateVoltageFromGamma,
   calculateRadiationPattern,
   calculateDirectivity,
   calculateRadiationResistance,
@@ -272,6 +273,23 @@ describe('calculateSteadyStateVoltage', () => {
 
   it('short circuit: Vss = 0', () => {
     expect(calculateSteadyStateVoltage(10, 50, 0)).toBe(0);
+  });
+});
+
+/**
+ * A.5 #8 — the gamma-domain steady state BounceDiagram renders. The impedance-domain
+ * calculateSteadyStateVoltage above cannot express the marginal/unstable case, so this
+ * is the form that must carry the |Γ_L·Γ_S| ≥ 1 ⇒ ∞ guard (the readout shows '∞ (unstable)').
+ */
+describe('steadyStateVoltageFromGamma', () => {
+  it('converges to V0·(1+Γ_L)/(1−Γ_L·Γ_S) when |Γ_L·Γ_S| < 1', () => {
+    // matched source (Γ_S=0): Vss = V0·(1+Γ_L)
+    expect(steadyStateVoltageFromGamma(5, 0.5, 0)).toBeCloseTo(7.5);
+  });
+
+  it('diverges to ∞ at the marginal/unstable boundary |Γ_L·Γ_S| ≥ 1', () => {
+    expect(steadyStateVoltageFromGamma(5, 1, -1)).toBe(Infinity); // Γ_L=+1, Γ_S=−1 — sustained oscillation
+    expect(steadyStateVoltageFromGamma(5, 1, 1)).toBe(Infinity); // Γ_L·Γ_S=+1 — denom→0
   });
 });
 

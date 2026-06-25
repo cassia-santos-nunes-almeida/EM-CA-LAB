@@ -358,7 +358,9 @@ export function LorentzSection() {
         if (hoverPos.current && dragMode === 'none') {
           const speed = Math.hypot(p.vx, p.vy);
           const Beff = Math.abs(bField / 20);
-          const rCyc = Beff > 0.01 && charge !== 0
+          // r = mv/(|q|B): ∞ only at exactly zero field/charge — matches the strict-zero
+          // guard of the tested cyclotronRadiusMm helper (was a loose Beff>0.01) (A.5 #12).
+          const rCyc = Beff > 0 && charge !== 0
             ? `${(mass * speed / (Math.abs(charge) * Beff)).toFixed(1)} mm`
             : '∞';
 

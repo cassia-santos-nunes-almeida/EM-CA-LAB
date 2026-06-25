@@ -180,6 +180,7 @@ export function RadiatingChargeSim() {
           min={0.5}
           max={3.0}
           step={0.1}
+          unit=" (arb.)"
           onChange={setFreq}
           color="bg-purple-600"
         />
