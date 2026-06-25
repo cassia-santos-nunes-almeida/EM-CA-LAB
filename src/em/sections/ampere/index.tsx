@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
@@ -100,7 +101,7 @@ export function AmpereSection() {
   const onCheckHint = () => incrementHints('ampere');
 
   const [current, setCurrent] = useState(50); // Amperes
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const timeRef = useRef(0);
   const animationRef = useRef(0);
 
@@ -127,24 +128,22 @@ export function AmpereSection() {
 
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (!canvas || !ctx) {
+      const frame = prepareFrame();
+      if (!frame) {
         // Canvas not mounted yet (it appears only once the PredictionGate is
         // passed): keep the loop alive so drawing starts the moment it mounts.
         animationRef.current = requestAnimationFrame(render);
         return;
       }
-      canvas.width = canvas.parentElement!.clientWidth;
-      canvas.height = canvas.parentElement!.clientHeight;
-      const cx = canvas.width / 2,
-        cy = canvas.height / 2;
+      const { ctx, width, height } = frame;
+      const cx = width / 2,
+        cy = height / 2;
       canvasCenterRef.current = { x: cx, y: cy };
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, width, height);
 
       if (isDarkMode) {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, width, height);
       }
 
       timeRef.current += 0.5 * (current / 50);
@@ -175,7 +174,7 @@ export function AmpereSection() {
 
       // B-field circles with arrows — line width ∝ 1/r to show field decay
       if (Math.abs(current) > 2) {
-        const maxR = Math.min(canvas.width, canvas.height) / 2 - 20;
+        const maxR = Math.min(width, height) / 2 - 20;
         const radii = [40, 70, 110, 160, 220].filter(r => r < maxR);
 
         for (const r of radii) {
@@ -283,14 +282,14 @@ export function AmpereSection() {
         ctx.font = '9px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText('Drag marker to measure B', cx, cy + Math.min(canvas.width, canvas.height) / 2 - 15);
+        ctx.fillText('Drag marker to measure B', cx, cy + Math.min(width, height) / 2 - 15);
       }
 
       animationRef.current = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [current, isDarkMode, col, markerRadius, markerAngle]);
+  }, [current, isDarkMode, col, markerRadius, markerAngle, prepareFrame]);
 
   // Marker drag handlers
   const getCanvasPos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -298,10 +297,10 @@ export function AmpereSection() {
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height),
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleMarkerMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCanvasPos(e);
