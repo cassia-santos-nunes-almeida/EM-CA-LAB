@@ -53,7 +53,7 @@ export const Q_CIRCULAR: QuizQuestion = {
   ],
 };
 
-const Q_JONES: QuizQuestion = {
+export const Q_JONES: QuizQuestion = {
   question: 'In the Jones vector formalism, which vector represents right-circularly polarized light?',
   options: ['(1/√2) [1, i]ᵀ', '(1/√2) [1, −i]ᵀ', '[1, 0]ᵀ', '[0, 1]ᵀ'],
   correctIndex: 1,
