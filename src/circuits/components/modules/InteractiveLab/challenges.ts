@@ -39,7 +39,7 @@ const makeItRing: ChallengeFactory = ({ circuitType, R, L, C }) => {
     id: 'make-it-ring',
     title: 'Make it Ring',
     description: 'Lower R until the circuit oscillates strongly (ζ < 0.3). Watch the ringing in the response!',
-    hint: 'Decrease R significantly — try values below 30 Ω for the default L and C.',
+    hint: 'Decrease R significantly — try values below ~19 Ω for the default L and C.',
     successMessage: `Strong oscillations! With ζ ≈ ${zeta.toFixed(2)}, the response rings multiple times before settling.`,
     check: () => zeta < 0.3,
   };
