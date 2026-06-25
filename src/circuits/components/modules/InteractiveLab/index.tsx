@@ -28,6 +28,8 @@ import { classifyDamping } from '@circuits/types/circuit';
  * impulse response h(t) = ds/dt carries an extra 1/time, so its axis is a rate
  * (V/s, mA/s) and must relabel accordingly (Appendix A.2#5).
  */
+// Exported (helper, not a component) for the impulse-label test; index already exports the section.
+// eslint-disable-next-line react-refresh/only-export-components
 export function responseYAxisLabel(inputType: InputType): string {
   return inputType === 'impulse'
     ? 'Voltage rate (V/s) / Current rate (mA/s)'

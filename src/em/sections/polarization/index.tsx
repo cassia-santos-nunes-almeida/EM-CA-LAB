@@ -39,6 +39,8 @@ const Q_LINEAR: QuizQuestion = {
   ],
 };
 
+// Exported for the +δ-convention pin (circularHintConvention.test); not a component.
+// eslint-disable-next-line react-refresh/only-export-components
 export const Q_CIRCULAR: QuizQuestion = {
   question:
     'Circularly polarized light is produced when two orthogonal linearly polarized components have equal amplitudes and a phase difference of:',
@@ -53,6 +55,8 @@ export const Q_CIRCULAR: QuizQuestion = {
   ],
 };
 
+// Exported for the directional distractor-independence net (concept-check-directions.test).
+// eslint-disable-next-line react-refresh/only-export-components
 export const Q_JONES: QuizQuestion = {
   question: 'In the Jones vector formalism, which vector represents right-circularly polarized light?',
   options: ['(1/√2) [1, i]ᵀ', '(1/√2) [1, −i]ᵀ', '[1, 0]ᵀ', '[0, 1]ᵀ'],

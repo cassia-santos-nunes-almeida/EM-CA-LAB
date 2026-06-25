@@ -9,7 +9,7 @@ import { Q_CIRCULAR } from '../index';
  * Align the hint to +δ and export Q_CIRCULAR so the convention is pinned.
  */
 describe('Q_CIRCULAR hints follow the panel +δ convention (A.2#11)', () => {
-  const hintText = Q_CIRCULAR.hints.map((h) => h.content).join('\n');
+  const hintText = (Q_CIRCULAR.hints ?? []).map((h) => h.content).join('\n');
 
   it('writes the y-component with +δ, matching E_y = …cos(kz − ωt + δ)', () => {
     expect(hintText).toContain('cos(ωt + δ)');
