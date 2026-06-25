@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { fieldLineArrowAngle } from './physics';
 import { Plus, Trash2, MousePointer2 } from 'lucide-react';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
@@ -104,7 +105,7 @@ export function CoulombSection() {
   ]);
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [showGrid, setShowGrid] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
@@ -237,17 +238,14 @@ export function CoulombSection() {
 
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (!canvas || !ctx) {
+      const frame = prepareFrame();
+      if (!frame) {
         // Canvas not mounted yet (it appears only once the PredictionGate is
         // passed): keep the loop alive so drawing starts the moment it mounts.
         animationRef.current = requestAnimationFrame(render);
         return;
       }
-      canvas.width = canvas.parentElement!.clientWidth;
-      canvas.height = canvas.parentElement!.clientHeight;
-      const { width, height } = canvas;
+      const { ctx, width, height } = frame;
       ctx.clearRect(0, 0, width, height);
 
       if (isDarkMode) {
@@ -400,7 +398,7 @@ export function CoulombSection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [charges, draggingId, showGrid, isDarkMode, col, getNetField, drawFieldLine, drawArrow]);
+  }, [charges, draggingId, showGrid, isDarkMode, col, getNetField, drawFieldLine, drawArrow, prepareFrame]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -408,7 +406,7 @@ export function CoulombSection() {
     const rect = canvas.getBoundingClientRect();
     const clicked = charges.find(
       (c) =>
-        Math.hypot(e.clientX - rect.left - c.x * canvas.width, e.clientY - rect.top - c.y * canvas.height) < 30
+        Math.hypot(e.clientX - rect.left - c.x * rect.width, e.clientY - rect.top - c.y * rect.height) < 30
     );
     if (clicked) setDraggingId(clicked.id);
   };
@@ -417,12 +415,12 @@ export function CoulombSection() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const px = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const py = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
     hoverPos.current = { x: px, y: py };
     if (draggingId === null) return;
-    const newX = (e.clientX - rect.left) / canvas.width;
-    const newY = (e.clientY - rect.top) / canvas.height;
+    const newX = (e.clientX - rect.left) / rect.width;
+    const newY = (e.clientY - rect.top) / rect.height;
     setCharges((prev) =>
       prev.map((c) =>
         c.id === draggingId
