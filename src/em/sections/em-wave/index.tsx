@@ -12,7 +12,7 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import type { Challenge, EMWaveState, QuizQuestion } from '@em/types/index';
-import { buildSnapshotData, buildPowerData } from './chartData';
+import { buildSnapshotData, buildPowerData, waveNumber } from './chartData';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
@@ -978,7 +978,7 @@ export function EMWaveSection() {
   // Computed values for equations
   const omega = (2 * Math.PI * state.frequency).toFixed(2);
   const lambda = (300 / (state.frequency * state.refractiveIndex)).toFixed(0);
-  const kVal = ((2 * Math.PI) / parseFloat(lambda)).toFixed(3);
+  const kVal = waveNumber(state.frequency, state.refractiveIndex).toFixed(3);
   const phaseDiff = state.vPhase - state.iPhase;
   const pAvg = (0.5 * state.vAmplitude * state.iAmplitude * Math.cos(phaseDiff * Math.PI / 180)).toFixed(0);
 
@@ -1218,7 +1218,7 @@ export function EMWaveSection() {
           }
         />
         {(() => {
-          const k = (2 * Math.PI * state.frequency * state.refractiveIndex) / 300;
+          const k = waveNumber(state.frequency, state.refractiveIndex);
           if (viewMode !== WaveViewMode.VIEW_VI) {
             const data = buildSnapshotData(state.amplitude, k, state.refractiveIndex);
             return (

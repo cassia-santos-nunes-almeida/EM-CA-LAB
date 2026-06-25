@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildForceData, magnitudeInCoulombs } from '@em/sections/coulomb/chartData';
 import { buildGaussData } from '@em/sections/gauss/chartData';
-import { buildSnapshotData, buildPowerData } from '@em/sections/em-wave/chartData';
+import { buildSnapshotData, buildPowerData, waveNumber } from '@em/sections/em-wave/chartData';
 
 const K_COULOMB = 8.988e9;
 const EPSILON_0 = 8.854e-12;
@@ -93,6 +93,22 @@ describe('chart data builders keep x numeric', () => {
  * Every expected value is independently hand-derived (not recomputed from the
  * builder's own expression) using the app's real constants.
  */
+describe('em-wave waveNumber helper (A.5 #11 — single k formula, no double-rounding)', () => {
+  it('computes k = 2π·f·n / 300 directly', () => {
+    expect(waveNumber(1, 1)).toBeCloseTo(0.020944, 6); // 2π/300
+    expect(Number(waveNumber(1, 1).toFixed(3))).toBe(0.021); // default displayed kVal unchanged
+    expect(waveNumber(3, 1.5)).toBeCloseTo(0.094248, 6);
+  });
+
+  it('avoids the old double-rounding (k from a λ pre-rounded to a whole number)', () => {
+    // old: lambda=(300/(f·n)).toFixed(0) then k=2π/lambda. Pick f·n where λ rounds heavily.
+    const f = 2.6, n = 1.33; // f·n = 3.458 → λ = 86.76, old rounds λ→87
+    const direct = waveNumber(f, n);
+    const doubleRounded = (2 * Math.PI) / parseFloat((300 / (f * n)).toFixed(0));
+    expect(direct).not.toBeCloseTo(doubleRounded, 4); // they diverge before the .toFixed(3) display
+  });
+});
+
 describe('coulomb µC→C magnitude helper (A.5 #7 dedup)', () => {
   it('converts microcoulombs to a coulomb magnitude', () => {
     expect(magnitudeInCoulombs(4)).toBeCloseTo(4e-6, 12);
