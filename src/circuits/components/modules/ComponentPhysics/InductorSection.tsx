@@ -1,10 +1,14 @@
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { ComponentSectionLayout } from '@circuits/components/modules/ComponentPhysics/ComponentSectionLayout';
+import { inductanceFormula } from '@circuits/utils/componentMath';
 import {
-  inductanceFormula,
-  materials,
-} from '@circuits/utils/componentMath';
+  inductorCores,
+  PERMEABILITY_SLIDER_MIN,
+  PERMEABILITY_SLIDER_MAX,
+  sliderToPermeability,
+  permeabilityToSlider,
+} from './inductorCores';
 
 export function InductorSection({
   turns,
@@ -77,25 +81,18 @@ export function InductorSection({
       materialsTitle="Core Materials"
       materials={
           <div className="space-y-2">
-            {materials.filter(m => m.permeability).slice(0, 3).map((material) => (
+            {inductorCores.map((core) => (
               <button
-                key={material.name}
-                onClick={() => onPermeabilityChange(material.permeability!)}
+                key={core.name}
+                onClick={() => onPermeabilityChange(core.permeability)}
                 className="w-full text-left px-4 py-2 rounded bg-slate-50 dark:bg-slate-700/50 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors text-sm"
               >
-                <span className="font-medium text-slate-800 dark:text-slate-200">{material.name}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200">{core.name}</span>
                 <span className="text-slate-600 dark:text-slate-400 ml-2">
-                  &mu; = {material.permeability?.toExponential(2)} H/m
+                  &mu; = {core.permeability.toExponential(2)} H/m
                 </span>
               </button>
             ))}
-            <button
-              onClick={() => onPermeabilityChange(6.3e-3)}
-              className="w-full text-left px-4 py-2 rounded bg-slate-50 dark:bg-slate-700/50 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors text-sm"
-            >
-              <span className="font-medium text-slate-800 dark:text-slate-200">Iron Core</span>
-              <span className="text-slate-600 dark:text-slate-400 ml-2">&mu; = 6.30e-3 H/m</span>
-            </button>
           </div>
       }
       interactive={<>
@@ -206,7 +203,18 @@ export function InductorSection({
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Permeability: <span className="text-purple-600 font-semibold">{permeability.toExponential(2)} H/m</span>
               </label>
-              <input type="range" min="1.257" max="10" step="0.1" value={permeability * 1e6} onChange={(e) => onPermeabilityChange(parseFloat(e.target.value) * 1e-6)} className="w-full accent-purple-500" />
+              {/* Log scale: μ spans ~3.7 decades from air (≈μ₀) to iron, so the iron
+                  preset is reachable instead of pegging a linear thumb (A.2#3). */}
+              <input
+                type="range"
+                aria-label="Core permeability"
+                min={PERMEABILITY_SLIDER_MIN}
+                max={PERMEABILITY_SLIDER_MAX}
+                step={(PERMEABILITY_SLIDER_MAX - PERMEABILITY_SLIDER_MIN) / 100}
+                value={permeabilityToSlider(permeability)}
+                onChange={(e) => onPermeabilityChange(sliderToPermeability(parseFloat(e.target.value)))}
+                className="w-full accent-purple-500"
+              />
             </div>
           </div>
 
