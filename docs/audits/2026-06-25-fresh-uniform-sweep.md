@@ -80,3 +80,29 @@ click the preset, assert the reflected-power decision (the readout currently rea
 
 *Full machine output (per-defect derivations, all 29 verdicts, full critic): workflow run
 `wf_8d2bb970-dca`. Pristine sweep worktree removed after extraction.*
+
+---
+
+## Units-on-labels punch-list (net scope-map, run `wf_8d4df3ee-736`, 2026-06-25)
+
+The dedicated math modules are exhaustively golden-pinned, and most readouts already carry SI
+units (transmission subtree especially). The genuine units gaps below were mapped by the #9-net
+scope workflow. **APPLIED in 09c:** the only true-SI omission — em-wave **V Phase / I Phase**
+sliders now pass `unit="°"` (`em-wave/index.tsx:1122/1138`), call-site-bound by
+`em-wave/__tests__/phaseUnits.test.tsx`.
+
+**Deferred to Track C (polish — each is a normalized/arbitrary quantity needing an honest
+`(arb.)` marker, not a fabricated SI unit, or a legend-consistency tweak):**
+
+| # | File | Current | Proposed |
+|---|------|---------|----------|
+| 1 | `em-wave/index.tsx:1082/1092/1148` | Frequency / Amplitude / Speed sliders unitless while the chart axes + EquationBox say `(arb.)` | add `unit=" (arb.)"` (NOT Hz / m/s — these are normalized) |
+| 2 | `polarization/index.tsx:442/443` | Ex / Ey amplitude sliders show a bare 0–100 | `unit=" (arb.)"` (canvas-normalized field, not V/m) |
+| 3 | `maxwell/RadiatingChargeSim.tsx:178` | Frequency slider unitless (sibling Amplitude is honestly ` px`) | `unit=" (arb.)"` (animation rate, not Hz) |
+| 4 | `lenz/index.tsx:442` | Magnet Position bare 0–100 | `unit=" %"` (normalized track position) |
+| 5 | `gauss/index.tsx:452` | Magnetic-mode legend name `Magnetic Flux` while its axis says `Flux (Wb)` | `Magnetic Flux (Wb)` (legend↔axis consistency) |
+
+Rationale for deferral: the codebase is already well-unit'd; these are honesty-of-labeling polish
+on *normalized* quantities (where the right answer is `(arb.)`, a judgment call best made with the
+owner during the Track C UI pass), not correctness defects. Each carries a precise file:line + fix
+so the Track C work is mechanical.
