@@ -1123,6 +1123,7 @@ export function EMWaveSection() {
                   value={state.vPhase}
                   min={-180}
                   max={180}
+                  unit="°"
                   onChange={(v) => setState((s) => ({ ...s, vPhase: v }))}
                   color="bg-red-600"
                 />
@@ -1139,6 +1140,7 @@ export function EMWaveSection() {
                   value={state.iPhase}
                   min={-180}
                   max={180}
+                  unit="°"
                   onChange={(v) => setState((s) => ({ ...s, iPhase: v }))}
                   color="bg-amber-600"
                 />

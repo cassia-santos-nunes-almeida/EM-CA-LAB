@@ -23,6 +23,19 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { classifyDamping } from '@circuits/types/circuit';
 
+/**
+ * Y-axis label for the response chart. A step response is plotted in V / mA; an
+ * impulse response h(t) = ds/dt carries an extra 1/time, so its axis is a rate
+ * (V/s, mA/s) and must relabel accordingly (Appendix A.2#5).
+ */
+// Exported (helper, not a component) for the impulse-label test; index already exports the section.
+// eslint-disable-next-line react-refresh/only-export-components
+export function responseYAxisLabel(inputType: InputType): string {
+  return inputType === 'impulse'
+    ? 'Voltage rate (V/s) / Current rate (mA/s)'
+    : 'Voltage (V) / Current (mA)';
+}
+
 /** Circuit equations panel showing formulas for the selected circuit/input type (F24). */
 function CircuitEquations({ circuitType, inputType, response }: {
   circuitType: CircuitType;
@@ -253,13 +266,17 @@ function RLCAnalysisPanel({ response, timeConstantMs }: {
 }
 
 /** First-order (RC/RL) analysis sidebar showing time constant info (F24). */
-function FirstOrderAnalysisPanel({ circuitType, response, R, L, C }: {
+export function FirstOrderAnalysisPanel({ circuitType, response, R, L, C, inputType }: {
   circuitType: CircuitType;
   response: CircuitResponse;
   R: number;
   L: number;
   C: number;
+  inputType: InputType;
 }) {
+  // A first-order impulse response decays to 0 (no final value); at t=τ it sits at
+  // e⁻¹ = 36.8% of its PEAK. Step language ("…% of final value") is wrong for it (A.2#6).
+  const isImpulse = inputType === 'impulse';
   return (
     <div className="space-y-3 flex-1">
       <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/20 rounded-lg p-4 border-l-4 border-engineering-blue-500">
@@ -267,7 +284,9 @@ function FirstOrderAnalysisPanel({ circuitType, response, R, L, C }: {
         <p className="text-xl font-bold text-engineering-blue-700 dark:text-engineering-blue-400 mt-0.5">
           {response.timeConstant ? (response.timeConstant * 1000).toFixed(3) : '—'} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">ms</span>
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">How many time constants until the response reaches 99% of its final value? Does the simulation confirm that?</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">{isImpulse
+          ? 'How many time constants until the response decays to under 1% of its peak value? Does the simulation confirm that?'
+          : 'How many time constants until the response reaches 99% of its final value? Does the simulation confirm that?'}</p>
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
@@ -283,14 +302,18 @@ function FirstOrderAnalysisPanel({ circuitType, response, R, L, C }: {
       <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">At t = &#964;</p>
         <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">
-          Response reaches <span className="font-semibold text-engineering-blue-700 dark:text-engineering-blue-400">63.2%</span> of final value
+          Response {isImpulse ? 'decays to ' : 'reaches '}
+          <span className="font-semibold text-engineering-blue-700 dark:text-engineering-blue-400">{isImpulse ? '36.8%' : '63.2%'}</span>
+          {isImpulse ? ' of peak value' : ' of final value'}
         </p>
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">At t = 5&#964;</p>
         <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">
-          Response reaches <span className="font-semibold text-engineering-blue-700 dark:text-engineering-blue-400">99.3%</span> of final value (steady state)
+          Response {isImpulse ? 'decays to ' : 'reaches '}
+          <span className="font-semibold text-engineering-blue-700 dark:text-engineering-blue-400">{isImpulse ? '0.7%' : '99.3%'}</span>
+          {isImpulse ? ' of peak (≈ fully decayed)' : ' of final value (steady state)'}
         </p>
       </div>
     </div>
@@ -517,7 +540,7 @@ export function InteractiveLab() {
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
             <XAxis dataKey="time" tick={{ fill: chartColors.text }} label={{ value: 'Time (ms)', position: 'insideBottom', offset: -5, fill: chartColors.text }} />
-            <YAxis tick={{ fill: chartColors.text }} label={{ value: 'Voltage (V) / Current (mA)', angle: -90, position: 'insideLeft', fill: chartColors.text }} />
+            <YAxis tick={{ fill: chartColors.text }} label={{ value: responseYAxisLabel(inputType), angle: -90, position: 'insideLeft', fill: chartColors.text }} />
             <Tooltip content={({ payload, label }) => <ResponseChartTooltip payload={payload as unknown as Array<{ color?: string; name?: string; value?: string | number }>} label={label} />} />
             <Legend wrapperStyle={{ color: chartColors.legend }} />
             {/* Time constant marker */}
@@ -560,7 +583,7 @@ export function InteractiveLab() {
         )}
 
         {(circuitType === 'RC' || circuitType === 'RL') && (
-          <FirstOrderAnalysisPanel circuitType={circuitType} response={response} R={R} L={L} C={C} />
+          <FirstOrderAnalysisPanel circuitType={circuitType} response={response} R={R} L={L} C={C} inputType={inputType} />
         )}
       </div>
     </div>
