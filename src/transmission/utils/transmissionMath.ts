@@ -140,6 +140,21 @@ export function calculateSteadyStateVoltage(Vs: number, Zs: number, ZL: number):
 }
 
 /**
+ * Steady-state line voltage in the reflection-coefficient (gamma) domain:
+ *   V_ss = V0 · (1 + Γ_L) / (1 − Γ_L·Γ_S).
+ * The bounce series converges only when |Γ_L·Γ_S| < 1; at |Γ_L·Γ_S| ≥ 1 the
+ * reflections never decay (Γ_L·Γ_S = +1 makes the denominator vanish, Γ_L·Γ_S = −1
+ * keeps a finite closed form but the partial sums oscillate forever) — both are
+ * marginal/unstable, so this returns Infinity. The impedance-domain
+ * calculateSteadyStateVoltage cannot express that case; this is the form
+ * BounceDiagram renders (the '∞ (unstable)' readout). (A.5 #8)
+ */
+export function steadyStateVoltageFromGamma(v0: number, gammaLoad: number, gammaSource: number): number {
+  if (Math.abs(gammaLoad * gammaSource) >= 1 - 1e-9) return Infinity;
+  return v0 * (1 + gammaLoad) / (1 - gammaLoad * gammaSource);
+}
+
+/**
  * Calculate the far-field radiation pattern of a thin dipole antenna.
  * Returns the normalized E-field magnitude at angle theta (radians from axis).
  * Uses the standard antenna pattern formula.
