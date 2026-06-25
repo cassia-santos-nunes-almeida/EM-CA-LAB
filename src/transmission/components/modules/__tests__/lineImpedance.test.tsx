@@ -105,3 +105,18 @@ describe('LineImpedance — section 5.3 page', () => {
     expect(screen.getByText(/What does it present at its input/i)).toBeInTheDocument();
   });
 });
+
+/**
+ * #9 batch 2 (09c) — A.2#7: the lossy-line aside quoted "~20 dB/100 m for thin
+ * RG-58" at 1 GHz, ~4× low (real ~70–100 dB/100 m; theoretical floor ~35). The
+ * point (loss is negligible across a 5 cm matching section) survives a correct
+ * figure, so fix the number to ~80 dB/100 m. CollapsibleSection always renders
+ * its children, so the aside is in the DOM on the default tab.
+ */
+describe('lossy-line aside quotes a physically real RG-58 figure (A.2#7)', () => {
+  it('states ~80 dB for thin RG-58, not the ~4× low 20 dB', () => {
+    renderLI();
+    expect(screen.getByText(/80 dB for thin RG-58/)).toBeInTheDocument();
+    expect(screen.queryByText(/20 dB for thin RG-58/)).not.toBeInTheDocument();
+  });
+});
