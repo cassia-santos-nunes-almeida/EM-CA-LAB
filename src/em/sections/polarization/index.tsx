@@ -443,8 +443,8 @@ export function PolarizationSection() {
         </div>
         <ControlPanel title="Polarization Controls">
           <div className="mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
-            <Slider label="Horizontal Amp (Ex)" value={ex} min={0} max={100} step={1} onChange={setEx} color="bg-red-600" />
-            <Slider label="Vertical Amp (Ey)" value={ey} min={0} max={100} step={1} onChange={setEy} color="bg-blue-600" />
+            <Slider label="Horizontal Amp (Ex)" value={ex} min={0} max={100} step={1} unit=" (arb.)" onChange={setEx} color="bg-red-600" />
+            <Slider label="Vertical Amp (Ey)" value={ey} min={0} max={100} step={1} unit=" (arb.)" onChange={setEy} color="bg-blue-600" />
           </div>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4 text-slate-400 dark:text-slate-500">

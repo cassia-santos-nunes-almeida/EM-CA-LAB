@@ -445,6 +445,7 @@ export function LenzSection() {
                 min={0}
                 max={100}
                 step={0.5}
+                unit=" %"
                 onChange={(v) => {
                   setPrevPos(magnetPos);
                   setMagnetPos(v);

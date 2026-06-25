@@ -449,7 +449,7 @@ export function GaussSection() {
                       { dataKey: 'E', color: '#dc2626', name: 'E-field (N/C)', axis: 'left' },
                       { dataKey: 'Flux', color: '#9333ea', name: 'Flux (N·m²/C)', axis: 'right' },
                     ]
-                  : [{ dataKey: 'Flux', color: '#2563eb', name: 'Magnetic Flux' }]
+                  : [{ dataKey: 'Flux', color: '#2563eb', name: 'Magnetic Flux (Wb)' }]
               }
             />
           );

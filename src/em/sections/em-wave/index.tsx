@@ -1084,6 +1084,7 @@ export function EMWaveSection() {
               min={0.5}
               max={3.0}
               step={0.1}
+              unit=" (arb.)"
               onChange={(v) => setState((s) => ({ ...s, frequency: v }))}
               color="bg-purple-600"
             />
@@ -1093,6 +1094,7 @@ export function EMWaveSection() {
                 value={state.amplitude}
                 min={10}
                 max={100}
+                unit=" (arb.)"
                 onChange={(v) => setState((s) => ({ ...s, amplitude: v }))}
                 color="bg-pink-600"
               />
@@ -1152,6 +1154,7 @@ export function EMWaveSection() {
               min={0}
               max={3}
               step={0.1}
+              unit=" (arb.)"
               onChange={(v) => setState((s) => ({ ...s, speed: v }))}
               color="bg-emerald-600"
             />
