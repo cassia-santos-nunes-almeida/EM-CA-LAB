@@ -17,6 +17,7 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { viewport: { width: 1280, height: 800 } } },
     { name: 'mobile',  use: { viewport: { width: 375,  height: 667 }, hasTouch: true } },
+    { name: 'desktop-hidpi', use: { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 } },
   ],
   webServer: {
     command: 'npx vite preview --port 4273 --strictPort',

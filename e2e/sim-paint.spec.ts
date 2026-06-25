@@ -12,6 +12,12 @@ import { ALL_SECTIONS } from '../src/shared/constants/curriculum';
 
 const SETTLE_MS = 1500; // recharts mount animation + canvas warm-up
 
+// Routes whose sims have been migrated to useSelfMeasuringCanvas (Track-B #14).
+// For these, the dpr=2 project additionally asserts the backing store actually
+// grew by devicePixelRatio — catching a migration that silently dropped ctx.scale.
+// Each #14 sim-migration PR adds its section id here.
+const DPR_MIGRATED = new Set<string>([]);
+
 // Routes that MUST surface at least one canvas once gates/tabs are walked —
 // guards against a vacuous pass when gate-unlocking silently fails and the
 // canvas never enters the DOM at all.
@@ -43,10 +49,12 @@ interface CanvasPaint {
   bitmapW: number; bitmapH: number;
   type: string;
   distinctColors: number;
+  dpr: number;
 }
 
 function measureCanvases(page: Page): Promise<CanvasPaint[]> {
   return page.evaluate(() => {
+    const dpr = window.devicePixelRatio || 1;
     return Array.from(document.querySelectorAll('#main-content canvas'))
       .filter((c) => {
         const r = c.getBoundingClientRect();
@@ -57,7 +65,7 @@ function measureCanvases(page: Page): Promise<CanvasPaint[]> {
         const rect = el.getBoundingClientRect();
         const base = {
           cssW: Math.round(rect.width), cssH: Math.round(rect.height),
-          bitmapW: el.width, bitmapH: el.height,
+          bitmapW: el.width, bitmapH: el.height, dpr,
         };
         try {
           const ctx = el.getContext('2d');
@@ -123,6 +131,18 @@ function expectHeights(canvases: CanvasPaint[], sectionId: string, where: string
       c.bitmapH,
       `${where}: canvas bitmap height ${c.bitmapH}px below floor ${floor}px — collapsed/squished? (${dims})`,
     ).toBeGreaterThanOrEqual(floor);
+    // DPR-applied relation: a migrated sim at dpr>1 must have a backing store of
+    // ~cssH*dpr. An un-migrated sim (canvas.height = parent.clientHeight) shows
+    // bitmapH == cssH and FAILS this at dpr=2 — which is why it is gated to
+    // DPR_MIGRATED so trunk stays green until each sim lands.
+    if (c.dpr > 1 && DPR_MIGRATED.has(sectionId)) {
+      const expected = Math.round(c.cssH * c.dpr);
+      expect(
+        Math.abs(c.bitmapH - expected),
+        `${where}: bitmap height ${c.bitmapH}px is not ~cssH*dpr (${expected}px) — ` +
+        `migration dropped DPR scaling? (${dims})`,
+      ).toBeLessThanOrEqual(c.dpr + 1); // ±rounding tolerance
+    }
   }
 }
 
