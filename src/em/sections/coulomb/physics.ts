@@ -12,6 +12,6 @@
 // old form used the trace step ∝ direction·E, so negative-seeded lines pointed outward.)
 // Keeping the param documents that invariant and powers the direction-independence test.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function fieldLineArrowAngle(Ex: number, Ey: number, traceDirection: number): number {
+export function fieldLineArrowAngle(Ex: number, Ey: number, _traceDirection: number): number {
   return Math.atan2(Ey, Ex);
 }

@@ -13,8 +13,8 @@ const ring = (R: number) =>
 
 describe('"Make it Ring" hint names an R that actually wins (A.2#4)', () => {
   it('rings below ~19 Ω but not at the old hinted 30 Ω', () => {
-    expect(ring(18).check()).toBe(true); // ζ ≈ 0.285 < 0.3
-    expect(ring(30).check()).toBe(false); // ζ ≈ 0.474 — never wins
+    expect(ring(18).check!()).toBe(true); // ζ ≈ 0.285 < 0.3
+    expect(ring(30).check!()).toBe(false); // ζ ≈ 0.474 — never wins
   });
 
   it('points the student at ~19 Ω, not the unwinnable 30 Ω', () => {
