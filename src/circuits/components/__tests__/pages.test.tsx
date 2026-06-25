@@ -120,7 +120,7 @@ describe('SDomainAnalysis page', () => {
     const user = userEvent.setup();
     renderWithRouter(<SDomainAnalysis />, '/s-domain');
     await passPredictionGate(user, 'Unstable — the response grows without bound');
-    expect(screen.getByRole('heading', { level: 1, name: /S-Domain Theory/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /s-Domain Analysis/ })).toBeInTheDocument();
     expect(screen.getByText('Transfer Function Fundamentals')).toBeInTheDocument();
   });
 

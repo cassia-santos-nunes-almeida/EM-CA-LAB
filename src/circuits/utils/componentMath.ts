@@ -78,8 +78,8 @@ export const materials: MaterialProperty[] = [
   { name: 'Gold', resistivity: 2.44e-8, permeability: 1.256629e-6 },
   { name: 'Iron', resistivity: 9.71e-8, permeability: 6.3e-3, note: 'Typical value at moderate flux density. Iron is nonlinear: \u03BCr varies from ~100 (saturation) to ~10,000 (low flux). A full model requires the B-H curve.' },
   { name: 'Air', permittivity: 8.854e-12, permeability: 1.257e-6 },
-  { name: 'Paper', permittivity: 3.7e-11 },
-  { name: 'Teflon', permittivity: 2.1e-11 },
+  { name: 'Paper', permittivity: 3.276e-11 },
+  { name: 'Teflon', permittivity: 1.859e-11 },
   { name: 'Glass', permittivity: 4.0e-11 },
 ];
 

@@ -473,9 +473,11 @@ export function CircuitTheorems() {
 
       <p className="text-slate-700 dark:text-slate-300">
         Everything here assumed resistors — pure algebra. Add capacitors and inductors and the
-        same KVL/KCL produce differential equations. The next section builds the transform that
-        turns those back into algebra — and once it has, every tool on this page (superposition,
-        Thevenin, Norton) works verbatim on impedances Z(s).
+        same KVL/KCL produce differential equations. The next section handles the instant a switch
+        flips — charged capacitors, energized inductors — with continuity rules and no differential
+        equations; a few sections on, the Laplace transform turns those differential equations back
+        into algebra, and every tool on this page (superposition, Thevenin, Norton) works verbatim
+        on impedances Z(s).
       </p>
 
       <div id="challenge" className="scroll-mt-4">

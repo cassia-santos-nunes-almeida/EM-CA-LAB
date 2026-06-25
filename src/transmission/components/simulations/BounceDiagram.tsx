@@ -158,10 +158,12 @@ function computeVoltageData(segments: BounceSegment[]) {
  * This is equivalent to Vs * ZL / (Zs + ZL).
  */
 function steadyStateVoltage(gammaLoad: number, gammaSource: number): number {
-  const V0 = initialVoltage(gammaSource);
-  const denom = 1 - gammaLoad * gammaSource;
-  if (Math.abs(denom) < 1e-12) return Infinity;
-  return V0 * (1 + gammaLoad) / denom;
+  // The bounce series converges to a steady state only when |Γ_L·Γ_S| < 1. At
+  // |Γ_L·Γ_S| = 1 the reflections never decay: Γ_L·Γ_S = +1 makes the closed form
+  // diverge (denom→0), while Γ_L·Γ_S = −1 (e.g. Γ_L=+1, Γ_S=−1) keeps a finite
+  // closed form (denom=2) yet the partial sums oscillate forever — both are unstable.
+  if (Math.abs(gammaLoad * gammaSource) >= 1 - 1e-9) return Infinity;
+  return initialVoltage(gammaSource) * (1 + gammaLoad) / (1 - gammaLoad * gammaSource);
 }
 
 /**
@@ -364,7 +366,7 @@ export function BounceDiagram({ className = '' }: BounceDiagramProps) {
     ctx.font = '10px ui-monospace, monospace';
     for (let t = 0; t <= totalTime; t++) {
       ctx.fillStyle = axisColor;
-      ctx.fillText(`${t}T\u1D30`, marginLeft - 6, timeToY(t) + 4);
+      ctx.fillText(`${t}T_D`, marginLeft - 6, timeToY(t) + 4);
     }
 
     // Title

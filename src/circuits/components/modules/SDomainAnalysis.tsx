@@ -383,7 +383,7 @@ export function SDomainAnalysis() {
           <span className="font-mono text-3xl text-engineering-blue-600 dark:text-engineering-blue-400 mr-2">
             {getSectionNumber('s-domain')}
           </span>
-          S-Domain Theory
+          s-Domain Analysis
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-400">
           Transfer functions, poles, zeros, and stability analysis

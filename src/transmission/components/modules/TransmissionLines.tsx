@@ -96,7 +96,7 @@ export function TransmissionLines() {
         <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
           <li><strong>50 &Omega;</strong> &mdash; standard coaxial cable (RF, instrumentation)</li>
           <li><strong>75 &Omega;</strong> &mdash; television / video coax (RG-6)</li>
-          <li><strong>100 &Omega;</strong> &mdash; differential pair (Ethernet, USB)</li>
+          <li><strong>100 &Omega;</strong> &mdash; differential pair (Ethernet); USB is 90&nbsp;&Omega;</li>
         </ul>
       </div>
 

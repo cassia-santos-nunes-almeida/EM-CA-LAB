@@ -433,7 +433,7 @@ export function NodalMesh() {
           <p className="text-sm text-slate-700 dark:text-slate-300">
             In the{' '}
             <Link to="/s-domain" className="underline text-engineering-blue-700 dark:text-engineering-blue-400 hover:text-engineering-blue-800 dark:hover:text-engineering-blue-300">
-              S-Domain Theory section
+              s-Domain Analysis section
             </Link>{' '}
             you will write these exact equations with <MathWrapper formula="Z_R = R" />,{' '}
             <MathWrapper formula="Z_L = sL" /> and <MathWrapper formula="Z_C = \frac{1}{sC}" /> —

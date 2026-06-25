@@ -57,7 +57,9 @@ const Q_RADIUS: QuizQuestion = {
   ],
 };
 
-const Q_FORCE_DIR: QuizQuestion = {
+// Exported for the directional distractor-independence net (concept-check-directions.test).
+// eslint-disable-next-line react-refresh/only-export-components
+export const Q_FORCE_DIR: QuizQuestion = {
   question:
     'A negative charge moves in the +x direction through a magnetic field pointing in the +z direction. What is the direction of the magnetic force on the charge?',
   options: ['+y direction', '−y direction', '+z direction', '−x direction'],

@@ -6,6 +6,7 @@ import {
 } from '@transmission/utils/transmissionMath';
 import { useCanvasSetup } from '@transmission/hooks/useCanvasSetup';
 import { useAnimationFrame } from '@transmission/hooks/useAnimationFrame';
+import { incidentWave, reflectedWave } from './transmissionWaves';
 
 /** Props for the TransmissionLineSim component. */
 interface TransmissionLineSimProps {
@@ -162,11 +163,10 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
       const pos = frac * lineLength;
 
       if (signalType === 'sinusoidal') {
-        // Incident wave: travels source -> load (positive x direction)
-        const inc = Math.sin(k * pos + animOmega * t);
-
-        // Reflected wave: travels load -> source, reflected at load with coefficient gamma
-        const ref = gamma * Math.sin(k * (2 * lineLength - pos) + animOmega * t);
+        // Incident travels source→load (+x), reflected load→source (−x), continuous
+        // at the load (ref = γ·inc). See ./transmissionWaves for the sign convention.
+        const inc = incidentWave(k, pos, animOmega, t);
+        const ref = reflectedWave(gamma, k, pos, lineLength, animOmega, t);
 
         incidentY.push(inc);
         reflectedY.push(ref);
@@ -455,7 +455,7 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
               />
               <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                 <span>1 MHz</span>
-                <span>1 GHz</span>
+                <span>100 MHz</span>
                 <span>10 GHz</span>
               </div>
             </label>
@@ -489,7 +489,7 @@ export function TransmissionLineSim({ className }: TransmissionLineSimProps) {
               value={isFinite(vswr) ? vswr.toFixed(2) : '\u221E'}
             />
             <ReadoutCard
-              label="Wavelength λ"
+              label="Free-space wavelength λ₀"
               value={formatWavelength(wavelength)}
             />
           </div>

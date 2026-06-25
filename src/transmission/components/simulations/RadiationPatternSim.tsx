@@ -5,6 +5,7 @@ import {
   calculateRadiationResistance,
   calculateHPBW,
 } from '@transmission/utils/transmissionMath';
+import { antennaRingLabelDeg } from './radiationPatternRing';
 
 /** Props for the RadiationPatternSim component. */
 interface RadiationPatternSimProps {
@@ -98,7 +99,7 @@ export function RadiationPatternSim({ className = '' }: RadiationPatternSimProps
       const rad = (deg * Math.PI) / 180;
       const lx = cx + angleLabelRadius * Math.cos(rad);
       const ly = cy - angleLabelRadius * Math.sin(rad);
-      ctx.fillText(`${deg}\u00B0`, lx, ly);
+      ctx.fillText(`${antennaRingLabelDeg(deg)}\u00B0`, lx, ly);
     }
 
     // --- Compute radiation pattern ---
