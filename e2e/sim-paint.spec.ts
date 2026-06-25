@@ -16,7 +16,7 @@ const SETTLE_MS = 1500; // recharts mount animation + canvas warm-up
 // For these, the dpr=2 project additionally asserts the backing store actually
 // grew by devicePixelRatio — catching a migration that silently dropped ctx.scale.
 // Each #14 sim-migration PR adds its section id here.
-const DPR_MIGRATED = new Set<string>(['magnetic-circuits', 'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'polarization']);
+const DPR_MIGRATED = new Set<string>(['magnetic-circuits', 'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'polarization', 'maxwell']);
 
 // Routes that MUST surface at least one canvas once gates/tabs are walked —
 // guards against a vacuous pass when gate-unlocking silently fails and the

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
@@ -24,26 +25,29 @@ interface MaxwellCardProps {
 }
 
 function MaxwellCard({ title, formula, description, draw, expanded, onToggleExpand }: MaxwellCardProps) {
-  const cvsRef = useRef<HTMLCanvasElement>(null);
+  // One hook instance per card; its single canvasRef attaches to whichever of the
+  // two <canvas> elements (inline or expanded-modal) is mounted — only one renders
+  // at a time, so prepareFrame() always measures the visible one.
+  const { canvasRef: cvsRef, prepareFrame } = useSelfMeasuringCanvas();
   const tRef = useRef(0);
 
   useEffect(() => {
     let req: number;
     const animate = () => {
-      if (cvsRef.current) {
-        const c = cvsRef.current;
-        const ctx = c.getContext('2d');
-        if (ctx) {
-          c.width = c.clientWidth;
-          c.height = c.clientHeight;
-          draw(ctx, c.width, c.height, tRef.current++);
-        }
+      const frame = prepareFrame();
+      if (frame) {
+        const { ctx, width: w, height: h } = frame;
+        // MaxwellCard had no clearRect — it relied on the per-frame backing-store
+        // reset to wipe. Now the wipe is explicit and CSS-px-correct, so trails
+        // (ghosting) can never accumulate.
+        ctx.clearRect(0, 0, w, h);
+        draw(ctx, w, h, tRef.current++);
       }
       req = requestAnimationFrame(animate);
     };
     animate();
     return () => cancelAnimationFrame(req);
-  }, [draw]);
+  }, [draw, prepareFrame]);
 
   if (expanded) {
     return (
