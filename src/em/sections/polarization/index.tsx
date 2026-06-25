@@ -39,7 +39,7 @@ const Q_LINEAR: QuizQuestion = {
   ],
 };
 
-const Q_CIRCULAR: QuizQuestion = {
+export const Q_CIRCULAR: QuizQuestion = {
   question:
     'Circularly polarized light is produced when two orthogonal linearly polarized components have equal amplitudes and a phase difference of:',
   options: ['0°', '45°', '90°', '180°'],
@@ -48,8 +48,8 @@ const Q_CIRCULAR: QuizQuestion = {
     'When two equal-amplitude orthogonal components are 90° (π/2) out of phase, the resultant electric field vector traces a circle. A 0° phase difference gives linear polarization, and 180° gives linear polarization in a rotated direction.',
   hints: [
     { tier: 1, label: 'Conceptual hint', content: 'For the tip of the E-field vector to trace a circle, the x and y components must reach their peaks at different times. What phase shift makes sin and cos?' },
-    { tier: 2, label: 'Procedural hint', content: 'Ex = E₀cos(ωt), Ey = E₀cos(ωt − δ). For circular polarization: Ex² + Ey² = constant. This requires δ = 90°, making Ey = E₀sin(ωt).' },
-    { tier: 3, label: 'Show worked step', content: 'With δ = 90°: Ex = E₀cos(ωt), Ey = E₀sin(ωt). Then Ex² + Ey² = E₀² = constant → circle. With δ = 0° or 180°, you get a line. The answer is 90° — option C.' },
+    { tier: 2, label: 'Procedural hint', content: 'Ex = E₀cos(ωt), Ey = E₀cos(ωt + δ). For circular polarization: Ex² + Ey² = constant. This requires δ = 90°, making Ey = E₀cos(ωt + 90°) = −E₀sin(ωt).' },
+    { tier: 3, label: 'Show worked step', content: 'With δ = 90°: Ex = E₀cos(ωt), Ey = E₀cos(ωt + 90°) = −E₀sin(ωt). Then Ex² + Ey² = E₀² = constant → circle. With δ = 0° or 180°, you get a line. The answer is 90° — option C.' },
   ],
 };
 
