@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildForceData } from '@em/sections/coulomb/chartData';
+import { buildForceData, magnitudeInCoulombs } from '@em/sections/coulomb/chartData';
 import { buildGaussData } from '@em/sections/gauss/chartData';
 import { buildSnapshotData, buildPowerData } from '@em/sections/em-wave/chartData';
 
@@ -93,6 +93,14 @@ describe('chart data builders keep x numeric', () => {
  * Every expected value is independently hand-derived (not recomputed from the
  * builder's own expression) using the app's real constants.
  */
+describe('coulomb µC→C magnitude helper (A.5 #7 dedup)', () => {
+  it('converts microcoulombs to a coulomb magnitude', () => {
+    expect(magnitudeInCoulombs(4)).toBeCloseTo(4e-6, 12);
+    expect(magnitudeInCoulombs(-2)).toBeCloseTo(2e-6, 12); // magnitude (|q|)
+    expect(magnitudeInCoulombs(0)).toBe(0);
+  });
+});
+
 describe('golden worked-numbers: chart builders plot the correct physics values', () => {
   it('Coulomb F = k·q₁·q₂/r² (4 µC, 2 µC)', () => {
     const d = buildForceData(4e-6, 2e-6, K_COULOMB);

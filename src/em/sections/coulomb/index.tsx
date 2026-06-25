@@ -18,7 +18,7 @@ import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, Charge, QuizQuestion } from '@em/types/index';
-import { buildForceData } from './chartData';
+import { buildForceData, magnitudeInCoulombs } from './chartData';
 
 const K_COULOMB = 8.988e9;
 
@@ -306,13 +306,15 @@ export function CoulombSection() {
           const other = otherCharges[0];
           const distPx = Math.hypot((charge.x - other.x) * width, (charge.y - other.y) * height);
           const distM = distPx * SCALE_M_PER_PX;
-          const q1 = Math.abs(charge.q * 1e-6); // convert μC to C
-          const q2 = Math.abs(other.q * 1e-6);
+          const q1 = magnitudeInCoulombs(charge.q);
+          const q2 = magnitudeInCoulombs(other.q);
           if (distM > 0.001) {
             const Fphys = K_COULOMB * q1 * q2 / (distM * distM);
             forceLabel = Fphys >= 1 ? `F=${Fphys.toFixed(1)} N` : `F=${(Fphys * 1e3).toFixed(1)} mN`;
           }
         }
+        // Note: the arrow's LENGTH (forceX/forceY) is a display-only visual scale; the
+        // physical magnitude is the labelled Fphys above, not the rendered vector length.
         if (Math.hypot(forceX, forceY) > 5) drawArrow(ctx, cx, cy, forceX, forceY, '#ea580c', forceLabel);
 
         ctx.beginPath();
@@ -629,8 +631,8 @@ export function CoulombSection() {
         <ConceptCheck data={toConceptCheck(Q_SUPERPOSITION)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
         {charges.length >= 2 && (() => {
-          const q1 = Math.abs(charges[0].q * 1e-6);
-          const q2 = Math.abs(charges[1].q * 1e-6);
+          const q1 = magnitudeInCoulombs(charges[0].q);
+          const q2 = magnitudeInCoulombs(charges[1].q);
           const forceData = buildForceData(q1, q2, K_COULOMB);
           return (
             <PhysicsChart
