@@ -3,8 +3,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { TableOfContents } from '@shared/components/common/TableOfContents';
 import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { useProgressStore } from '@shared/store/progressStore';
-import { MODULES } from '@em/constants/physics';
-import { getSectionNumber } from '@shared/constants/curriculum';
+import { SECTIONS, getSectionNumber } from '@shared/constants/curriculum';
 
 interface TocEntry {
   id: string;
@@ -48,9 +47,9 @@ export function SectionLayout({
     markVisited(sectionId);
   }, [markVisited, sectionId]);
 
-  const moduleDef = MODULES.find((m) => m.id === sectionId);
-  const heading = title ?? moduleDef?.label ?? '';
-  const sub = subtitle ?? moduleDef?.description;
+  const section = SECTIONS[sectionId];
+  const heading = title ?? section?.title ?? '';
+  const sub = subtitle ?? section?.subtitle;
 
   return (
     <div className="space-y-6">
