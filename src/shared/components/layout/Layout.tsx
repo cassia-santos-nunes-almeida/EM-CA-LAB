@@ -22,7 +22,7 @@ export function Layout({ children }: LayoutProps) {
   }, [pathname]);
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-screen bg-chassis">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-engineering-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
