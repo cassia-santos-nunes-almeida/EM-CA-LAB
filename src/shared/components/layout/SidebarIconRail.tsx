@@ -11,6 +11,7 @@ import {
 } from '@shared/constants/curriculum';
 import { useProgressStore, isModuleComplete } from '@shared/store/progressStore';
 import { TraceScreen } from '@shared/components/common/TraceScreen';
+import type { UseSidebarCollapseResult } from '@shared/components/layout/useSidebarCollapse';
 
 /**
  * SidebarIconRail — the 58 px collapsed variant of the course sidebar (spec §2.4).
@@ -26,10 +27,16 @@ import { TraceScreen } from '@shared/components/common/TraceScreen';
  * tabbing into the chip reveals the section list and tabbing on through the links
  * keeps it visible. This is intentionally NOT hover-only CSS.
  */
-export function SidebarIconRail({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarIconRail({
+  onNavigate,
+  onExpand,
+}: {
+  onNavigate?: () => void;
+  /** Expand action from `useSidebarCollapse`. Pins the section on sim-heavy routes. */
+  onExpand?: UseSidebarCollapseResult['expandWithPin'];
+}) {
   const sections = useProgressStore((s) => s.sections);
   const setSidebarCollapsed = useProgressStore((s) => s.setSidebarCollapsed);
-  const toggleSidebarCollapsed = useProgressStore((s) => s.toggleSidebarCollapsed);
   const { pathname } = useLocation();
 
   const activePart = PARTS.find((part) =>
@@ -64,11 +71,13 @@ export function SidebarIconRail({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   const expand = () => {
-    // Defensive: write the explicit value AND honor the toggle contract from
-    // the task spec so either persistence path lands on "expanded".
-    setSidebarCollapsed(false);
-    if (useProgressStore.getState().sidebarCollapsed) {
-      toggleSidebarCollapsed();
+    if (onExpand) {
+      // Goes through the §5 pin-setting path: on a sim-heavy section this also
+      // sets pinnedSection = currentSection so the auto-rule yields collapsed=false.
+      onExpand();
+    } else {
+      // Fallback (rail rendered standalone without Sidebar context): plain expand.
+      setSidebarCollapsed(false);
     }
   };
 
@@ -131,7 +140,6 @@ export function SidebarIconRail({ onNavigate }: { onNavigate?: () => void }) {
                     traceKind={PART_TRACES[part.number]}
                     accentVar={`--color-part-${part.number}`}
                     size="spark"
-                    className="!w-7"
                   />
                   {isCurrent && (
                     <span

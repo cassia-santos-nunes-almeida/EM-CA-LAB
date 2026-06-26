@@ -41,11 +41,11 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const sections = useProgressStore((s) => s.sections);
   const { pathname } = useLocation();
   const { anchors, activeId, scrollToAnchor } = useScrollSpy();
-  const { collapsed, isAutoCollapsed, toggleCollapse } = useSidebarCollapse();
+  const { collapsed, isAutoCollapsed, toggleCollapse, expandWithPin } = useSidebarCollapse();
 
   // When collapsed (manual or auto), render the narrow icon-rail instead.
   if (collapsed) {
-    return <SidebarIconRail onNavigate={onNavigate} />;
+    return <SidebarIconRail onNavigate={onNavigate} onExpand={expandWithPin} />;
   }
 
   // The section id of the active route (drives level-2 highlight + level-3 host).
@@ -140,7 +140,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           return (
             <details
               key={part.id}
-              open={partHasActive}
+              open={partHasActive ? true : undefined}
               className="mb-2 group"
             >
               <summary

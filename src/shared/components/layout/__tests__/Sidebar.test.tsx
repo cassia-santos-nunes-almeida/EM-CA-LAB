@@ -190,6 +190,69 @@ describe('useSidebarCollapse — §5 precedence truth table', () => {
 });
 
 // ───────────────────────────────────────────────────────────────────────────
+// Fix 1 regression: icon-rail Expand pins sim-heavy section.
+// ───────────────────────────────────────────────────────────────────────────
+
+describe('SidebarIconRail — Expand button pins sim-heavy section', () => {
+  it('clicking Expand on a sim-heavy route shows the full accordion (not the rail)', () => {
+    // On /coulomb (sim-heavy, pref=false) the sidebar auto-collapses to the rail.
+    // Clicking Expand MUST produce the full accordion — not a no-op re-collapse.
+    render(
+      <MemoryRouter initialEntries={['/coulomb']}>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+
+    // Starts as the icon-rail (no "Course progress" text).
+    expect(screen.queryByText('Course progress')).toBeNull();
+
+    // Click the Expand button in the icon-rail.
+    const expandBtn = screen.getByRole('button', { name: /Expand sidebar/ });
+    act(() => {
+      fireEvent.click(expandBtn);
+    });
+
+    // Full accordion must now be visible — "Course progress" is in the top band.
+    expect(screen.getByText('Course progress')).toBeInTheDocument();
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Fix 3 regression: non-active Part stays open after re-render.
+// ───────────────────────────────────────────────────────────────────────────
+
+describe('Sidebar — non-active Part stays open after re-render (look-ahead)', () => {
+  it('a non-active Part opened by the user remains open after a sidebar re-render', () => {
+    // Start on /circuit-analysis (Part 1 active). Open Part 5 for look-ahead.
+    const { rerender } = render(
+      <MemoryRouter initialEntries={['/circuit-analysis']}>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+
+    // Find a Part-5 <details> (the last one) — it should be closed initially.
+    const allDetails = document.querySelectorAll('details');
+    // Part 5 is the last Part details element in the accordion nav.
+    const part5Details = allDetails[allDetails.length - 1] as HTMLDetailsElement;
+    expect(part5Details.open).toBe(false);
+
+    // Simulate the user clicking to open Part 5 (fire toggle natively).
+    fireEvent.click(part5Details.querySelector('summary') as Element);
+    expect(part5Details.open).toBe(true);
+
+    // Re-render (simulate a state change that causes a Sidebar re-render).
+    rerender(
+      <MemoryRouter initialEntries={['/circuit-analysis']}>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+
+    // Part 5 must still be open — uncontrolled details are not forcibly reclosed.
+    expect(part5Details.open).toBe(true);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
 // (c) Manual-toggle persistence.
 // ───────────────────────────────────────────────────────────────────────────
 

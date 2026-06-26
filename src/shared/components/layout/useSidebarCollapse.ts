@@ -35,6 +35,13 @@ export interface UseSidebarCollapseResult {
   isAutoCollapsed: boolean;
   /** Manual toggle. Persists `pref`; expanding on a sim-heavy section pins it. */
   toggleCollapse: () => void;
+  /**
+   * Expand action suitable for the icon-rail Expand button. Unlike a raw
+   * `setSidebarCollapsed(false)`, this goes through the same pin-setting path
+   * as `toggleCollapse` — so clicking Expand on a sim-heavy section sets
+   * `pinnedSection = currentSection` and the auto-rule yields `collapsed=false`.
+   */
+  expandWithPin: () => void;
   /** Same as `isAutoCollapsed` — drives the "auto-collapsed for the bench" badge. */
   autoCollapseBadgeVisible: boolean;
 }
@@ -86,25 +93,30 @@ export function useSidebarCollapse(): UseSidebarCollapseResult {
   // Auto path only: collapsed BUT not because the user chose it (pref=false).
   const isAutoCollapsed = !pref && simActive && pinnedSection !== currentSectionId;
 
+  // Shared "expand with pin" logic: persist pref=false and, if on a sim-heavy
+  // section, set the ephemeral pin so the auto-rule yields collapsed=false.
+  const expandWithPin = useCallback(() => {
+    setSidebarCollapsed(false);
+    if (simActive && currentSectionId) {
+      setPinnedSection(currentSectionId);
+    }
+  }, [simActive, currentSectionId, setSidebarCollapsed]);
+
   const toggleCollapse = useCallback(() => {
     // `collapsed` is the current effective state; the toggle flips it.
     if (collapsed) {
-      // → expanding. Persist the expand. If we're expanding ON a sim-heavy
-      //   section, pin it so the auto-rule doesn't immediately re-collapse it.
-      setSidebarCollapsed(false);
-      if (simActive && currentSectionId) {
-        setPinnedSection(currentSectionId);
-      }
+      expandWithPin();
     } else {
       // → collapsing. A deliberate manual collapse: persist the preference.
       setSidebarCollapsed(true);
     }
-  }, [collapsed, simActive, currentSectionId, setSidebarCollapsed]);
+  }, [collapsed, expandWithPin, setSidebarCollapsed]);
 
   return {
     collapsed,
     isAutoCollapsed,
     toggleCollapse,
+    expandWithPin,
     autoCollapseBadgeVisible: isAutoCollapsed,
   };
 }
