@@ -4,6 +4,7 @@ import { MessageSquare, Menu, WifiOff } from 'lucide-react';
 import { Sidebar } from '@shared/components/layout/Sidebar';
 import { AiTutor, type TutorMode } from '@shared/components/common/AiTutor';
 import { useOnlineStatus } from '@shared/hooks/useOnlineStatus';
+import { ScrollSpyProvider } from '@shared/components/scrollspy/ScrollSpyProvider';
 
 interface LayoutProps {
   children: ReactNode;
@@ -65,9 +66,11 @@ export function Layout({ children }: LayoutProps) {
           </div>
         )}
         <main id="main-content" ref={mainRef} className="flex-1 overflow-auto relative">
-          <div key={pathname} className="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in">
-            {children}
-          </div>
+          <ScrollSpyProvider rootRef={mainRef}>
+            <div key={pathname} className="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in">
+              {children}
+            </div>
+          </ScrollSpyProvider>
         </main>
       </div>
 
