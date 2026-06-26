@@ -211,3 +211,26 @@ for (const part of PARTS) {
     throw new Error(`curriculum: PART_QUANTITIES is missing a word for Part ${part.number}`);
   }
 }
+
+/**
+ * One-line summary for each Part, shown in the landing accordion open state.
+ * Additive — no change to PARTS/SECTIONS shape. Keyed by Part number.
+ * Owner: tune the copy at review.
+ */
+export const PART_SUMMARIES: Record<number, string> = {
+  1: 'Build the algebraic toolkit: Laplace transforms, s-domain impedance, and the transient response of RLC networks.',
+  2: 'Map electric and magnetic fields from point charges to continuous distributions — Coulomb, Gauss, Ampère, and the Lorentz force.',
+  3: 'Close the circuit between changing flux and induced EMF: Faraday, Lenz, magnetic circuits, and transformers.',
+  4: 'Unify the field equations, launch a wave, polarize it, and radiate it from an antenna.',
+  5: 'Step from lumped to distributed: characteristic impedance, standing waves, impedance matching, and bounce diagrams.',
+};
+
+/** The waveform identity for each Part's TraceScreen. Keyed by Part number.
+ *  Maps to the `TraceKind` accepted by <TraceScreen>. */
+export const PART_TRACES: Record<number, 'rlc' | 'radial' | 'flux' | 'sinusoid' | 'pulse'> = {
+  1: 'rlc',
+  2: 'radial',
+  3: 'flux',
+  4: 'sinusoid',
+  5: 'pulse',
+};

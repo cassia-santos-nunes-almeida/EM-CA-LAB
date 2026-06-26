@@ -247,3 +247,15 @@ main {
   background-color: rgba(37, 99, 235, 0.15);
   color: inherit;
 }
+
+/* Part accordion — hide the native disclosure marker on <summary> */
+summary.part-summary::-webkit-details-marker {
+  display: none;
+}
+summary.part-summary {
+  list-style: none;
+}
+summary.part-summary:focus-visible {
+  outline: 2px solid var(--color-cta);
+  outline-offset: -2px;
+}
