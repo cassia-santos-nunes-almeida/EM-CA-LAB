@@ -1,6 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useAnimationFrame } from '@em/hooks/useAnimationFrame';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -44,7 +45,7 @@ export function RadiatingChargeSim() {
   const [amp, setAmp] = useState(25);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
 
   // Drawing only — the rAF loop inside useAnimationFrame reschedules
@@ -52,16 +53,9 @@ export function RadiatingChargeSim() {
   // remounted) starts painting on its first available frame.
   const drawFrame = useCallback(
     (t: number) => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (!canvas || !ctx) return;
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-      }
-      const w = canvas.width;
-      const h = canvas.height;
+      const frame = prepareFrame();
+      if (!frame) return;
+      const { ctx, width: w, height: h } = frame;
       const cx = w / 2;
       const cy = h / 2;
       ctx.clearRect(0, 0, w, h);
@@ -129,7 +123,7 @@ export function RadiatingChargeSim() {
       ctx.font = 'bold 16px sans';
       ctx.fillText('+', cx, chargePy + 1);
     },
-    [mode, freq, amp, c],
+    [mode, freq, amp, c, prepareFrame],
   );
 
   const { reset } = useAnimationFrame({ isPlaying, onFrame: drawFrame });

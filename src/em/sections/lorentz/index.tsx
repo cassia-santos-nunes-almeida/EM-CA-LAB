@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { Move } from 'lucide-react';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
@@ -121,7 +122,7 @@ export function LorentzSection() {
   const [charge, setCharge] = useState(1);
   const [mass, setMass] = useState(2);
   const [dragMode, setDragMode] = useState<'none' | 'particle' | 'velocity'>('none');
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const physicsRef = useRef<ParticleState | null>(null);
   const animationRef = useRef(0);
@@ -129,27 +130,27 @@ export function LorentzSection() {
 
   const handleReset = useCallback(() => {
     if (canvasRef.current) {
+      const cssW = canvasRef.current.clientWidth;
+      const cssH = canvasRef.current.clientHeight;
       physicsRef.current = {
-        x: velocity >= 0 ? 50 : canvasRef.current.width - 50,
-        y: canvasRef.current.height / 2,
+        x: velocity >= 0 ? 50 : cssW - 50,
+        y: cssH / 2,
         vx: velocity * 2.5,
         vy: 0,
         trail: [],
       };
     }
-  }, [velocity]);
+  }, [velocity, canvasRef]);
 
   const getCanvasPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const pt = getCanvasPoint(e);
@@ -237,22 +238,24 @@ export function LorentzSection() {
 
   useEffect(() => {
     const loop = () => {
-      const cvs = canvasRef.current;
-      if (cvs) {
-        // The canvas mounts only after the PredictionGate reveals it, so the
-        // mount-time reset effect may have found no canvas and skipped the
-        // physics init. Size first, then init the first time the canvas exists.
-        cvs.width = cvs.parentElement!.clientWidth;
-        cvs.height = cvs.parentElement!.clientHeight;
-        if (!physicsRef.current) handleReset();
+      const frame = prepareFrame();
+      if (!frame) {
+        // Canvas not mounted yet (it appears only once the PredictionGate is
+        // passed): keep the loop alive so drawing starts the moment it mounts.
+        animationRef.current = requestAnimationFrame(loop);
+        return;
       }
-      if (cvs && physicsRef.current) {
-        const ctx = cvs.getContext('2d')!;
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
+      const { ctx, width, height } = frame;
+      // The canvas mounts only after the PredictionGate reveals it, so the
+      // mount-time reset effect may have found no canvas and skipped the
+      // physics init. Init the first time the canvas exists.
+      if (!physicsRef.current) handleReset();
+      if (physicsRef.current) {
+        ctx.clearRect(0, 0, width, height);
 
         if (isDarkMode) {
           ctx.fillStyle = '#0f172a';
-          ctx.fillRect(0, 0, cvs.width, cvs.height);
+          ctx.fillRect(0, 0, width, height);
         }
 
         // B-field symbols
@@ -262,8 +265,8 @@ export function LorentzSection() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.globalAlpha = Math.min(Math.abs(bField) / 30, 0.3);
-        for (let x = 25; x < cvs.width; x += 50)
-          for (let y = 25; y < cvs.height; y += 50) ctx.fillText(symbol, x, y);
+        for (let x = 25; x < width; x += 50)
+          for (let y = 25; y < height; y += 50) ctx.fillText(symbol, x, y);
         ctx.globalAlpha = 1;
 
         ctx.textAlign = 'right';
@@ -271,7 +274,7 @@ export function LorentzSection() {
         ctx.font = 'bold 14px sans-serif';
         ctx.fillText(
           `External B: ${bField > 0 ? 'Into Page' : bField < 0 ? 'Out of Page' : 'Off'}`,
-          cvs.width - 20,
+          width - 20,
           30
         );
 
@@ -349,8 +352,8 @@ export function LorentzSection() {
         ctx.fillStyle = col.TEXT_MUTED;
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, cvs.height - 24);
-        ctx.fillText('Scale: 1 px = 1 mm · ion (q in e, m in u) · ~100,000× slow motion', 10, cvs.height - 10);
+        ctx.fillText('Drag particle to move · Drag arrow tip to aim', 10, height - 24);
+        ctx.fillText('Scale: 1 px = 1 mm · ion (q in e, m in u) · ~100,000× slow motion', 10, height - 10);
 
         // Hover readout: speed, |F|, cyclotron radius — in real SI (unit 2G).
         // r in px IS r in mm by construction (1 px = 1 mm), so the px arithmetic
@@ -373,7 +376,7 @@ export function LorentzSection() {
           ctx.font = '10px monospace';
           const tw = 130;
           const th = 46;
-          const tx = 10, ty = cvs.height - 80;
+          const tx = 10, ty = height - 80;
           ctx.fillStyle = isDarkMode ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)';
           ctx.beginPath();
           ctx.roundRect(tx, ty, tw, th, 4);
@@ -393,7 +396,7 @@ export function LorentzSection() {
     };
     loop();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [velocity, bField, charge, mass, isDarkMode, col, dragMode, handleReset]);
+  }, [velocity, bField, charge, mass, isDarkMode, col, dragMode, handleReset, prepareFrame]);
 
   return (
     <SectionLayout

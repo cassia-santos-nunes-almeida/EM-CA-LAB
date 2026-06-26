@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
@@ -130,7 +131,7 @@ export function FaradaySection() {
   const [liveB, setLiveB] = useState(0);
   const [liveEmf, setLiveEmf] = useState(0);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
@@ -141,16 +142,15 @@ export function FaradaySection() {
     // Schedule the loop unconditionally so the simulation starts drawing as soon
     // as the canvas mounts — including after the PredictionGate reveals it.
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (canvas && ctx) {
-        const parent = canvas.parentElement;
-        if (parent) {
-          canvas.width = parent.clientWidth;
-          canvas.height = parent.clientHeight;
-        }
-        const cx = canvas.width / 2, cy = canvas.height / 2;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const frame = prepareFrame();
+      if (!frame) {
+        animationRef.current = requestAnimationFrame(render);
+        return;
+      }
+      const { ctx, width, height } = frame;
+      {
+        const cx = width / 2, cy = height / 2;
+        ctx.clearRect(0, 0, width, height);
         if (isPlaying) timeRef.current += 0.02 * rate;
         const t = timeRef.current;
         const B = Math.sin(t);
@@ -217,7 +217,7 @@ export function FaradaySection() {
 
         // Rate drag indicator at bottom
         const barW = 200, barH = 6;
-        const barX = cx - barW / 2, barY = canvas.height - 30;
+        const barX = cx - barW / 2, barY = height - 30;
         ctx.fillStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
         ctx.beginPath();
         ctx.roundRect(barX - 4, barY - 4, barW + 8, barH + 8, 4);
@@ -250,7 +250,7 @@ export function FaradaySection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [isPlaying, rate, loops, c, isDarkMode]);
+  }, [isPlaying, rate, loops, c, isDarkMode, prepareFrame]);
 
   // Canvas drag handlers for rate control
   const getCanvasPos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -258,35 +258,37 @@ export function FaradaySection() {
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height),
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleRateDragDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCanvasPos(e);
     const canvas = canvasRef.current;
     if (!canvas) return;
-    // Check if click is near the rate bar area (bottom 60px)
-    if (y > canvas.height - 50) {
+    const rect = canvas.getBoundingClientRect();
+    // Check if click is near the rate bar area (bottom 60px, CSS px)
+    if (y > rect.height - 50) {
       dragStartX.current = x;
       dragStartRate.current = rate;
     }
-  }, [rate, getCanvasPos]);
+  }, [rate, getCanvasPos, canvasRef]);
 
   const handleRateDragMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (dragStartX.current === null) return;
     const { x } = getCanvasPos(e);
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const cx = canvas.width / 2;
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2;
     const barW = 200;
     const barX = cx - barW / 2;
-    // Map mouse x to rate value
+    // Map mouse x to rate value (CSS px)
     const frac = Math.max(0, Math.min(1, (x - barX) / barW));
     const newRate = Math.round((0.1 + frac * 2.9) * 10) / 10;
     setRate(newRate);
-  }, [getCanvasPos]);
+  }, [getCanvasPos, canvasRef]);
 
   const handleRateDragUp = useCallback(() => {
     dragStartX.current = null;

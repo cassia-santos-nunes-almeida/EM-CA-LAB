@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -99,12 +100,11 @@ export function PolarizationSection() {
   const [phaseDelta, setPhaseDelta] = useState(90);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas({ scaled: false });
+  const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
   const traceRef = useRef<Array<{ x: number; y: number }>>([]);
-
-  const canvasTouchRef = useCanvasTouch(canvasRef);
 
   // Drag state for E-field vector tip
   const draggingVector = useRef(false);
@@ -118,19 +118,18 @@ export function PolarizationSection() {
   // Main render effect
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (!canvas || !ctx) {
+      const frame = prepareFrame();
+      if (!frame) {
         // Canvas not mounted yet (it appears only once the PredictionGate is
         // passed): keep the loop alive so drawing starts the moment it mounts.
         animationRef.current = requestAnimationFrame(render);
         return;
       }
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-      }
+      const canvas = canvasRef.current!;
+      const ctx = frame.ctx;
+      // scaled:false — backing store is rect*dpr, no ctx.scale; geometry stays in
+      // backing-store pixels (canvas.width / canvas.height), consistent with
+      // getCanvasPos (which also divides by rect to convert to backing-store px).
       const w = canvas.width, h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
@@ -290,7 +289,7 @@ export function PolarizationSection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [ex, ey, phaseDelta, isPlaying, c, isDarkMode]);
+  }, [ex, ey, phaseDelta, isPlaying, c, isDarkMode, prepareFrame, canvasRef]);
 
   // Vector drag handlers
   const getCanvasPos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -301,7 +300,7 @@ export function PolarizationSection() {
       x: (e.clientX - rect.left) * (canvas.width / rect.width),
       y: (e.clientY - rect.top) * (canvas.height / rect.height),
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleVectorMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getCanvasPos(e);

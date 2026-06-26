@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -98,7 +99,7 @@ export function GaussSection() {
   const [charge, setCharge] = useState(5);
   const [radius, setRadius] = useState(100);
   const [dragging, setDragging] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
@@ -107,25 +108,24 @@ export function GaussSection() {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
     };
-  }, []);
+  }, [canvasRef]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const pt = getCanvasPoint(e);
     const canvas = canvasRef.current;
     if (!pt || !canvas) return;
-    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2, cy = rect.height / 2;
     const dist = Math.sqrt((pt.x - cx) ** 2 + (pt.y - cy) ** 2);
     // Click near the dashed circle edge (within 12px)
     if (Math.abs(dist - radius) < 12) {
       setDragging(true);
     }
-  }, [getCanvasPoint, radius]);
+  }, [canvasRef, getCanvasPoint, radius]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const pt = getCanvasPoint(e);
@@ -133,10 +133,11 @@ export function GaussSection() {
     if (!dragging) return;
     const canvas = canvasRef.current;
     if (!pt || !canvas) return;
-    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2, cy = rect.height / 2;
     const dist = Math.sqrt((pt.x - cx) ** 2 + (pt.y - cy) ** 2);
     setRadius(Math.round(Math.max(50, Math.min(200, dist))));
-  }, [dragging, getCanvasPoint]);
+  }, [canvasRef, dragging, getCanvasPoint]);
 
   const handleMouseUp = useCallback(() => setDragging(false), []);
   const handleMouseLeaveGauss = useCallback(() => {
@@ -147,23 +148,21 @@ export function GaussSection() {
 
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (!canvas || !ctx) {
+      const frame = prepareFrame();
+      if (!frame) {
         // Canvas not mounted yet (it appears only once the PredictionGate is
         // passed): keep the loop alive so drawing starts the moment it mounts.
         animationRef.current = requestAnimationFrame(render);
         return;
       }
-      canvas.width = canvas.parentElement!.clientWidth;
-      canvas.height = canvas.parentElement!.clientHeight;
-      const cx = canvas.width / 2,
-        cy = canvas.height / 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const { ctx, width, height } = frame;
+      const cx = width / 2,
+        cy = height / 2;
+      ctx.clearRect(0, 0, width, height);
 
       if (isDarkMode) {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, width, height);
       }
 
       // Gaussian surface
@@ -286,7 +285,7 @@ export function GaussSection() {
           ctx.font = '11px sans-serif';
           const tw = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width) + 14;
           const th = 34;
-          const tx = Math.min(hx + 12, canvas.width - tw - 4);
+          const tx = Math.min(hx + 12, width - tw - 4);
           const ty = Math.max(hy - 36, 4);
           ctx.fillStyle = isDarkMode ? 'rgba(30, 41, 59, 0.92)' : 'rgba(255, 255, 255, 0.92)';
           ctx.beginPath();
@@ -308,7 +307,7 @@ export function GaussSection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [mode, charge, radius, isDarkMode, col, dragging]);
+  }, [mode, charge, radius, isDarkMode, col, dragging, prepareFrame]);
 
   const equations =
     mode === 'ELECTRIC'

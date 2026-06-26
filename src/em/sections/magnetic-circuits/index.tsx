@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
+import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
 import { ControlPanel } from '@em/components/common/ControlPanel';
@@ -117,7 +118,7 @@ export function MagneticCircuitsSection() {
   const [current, setCurrent] = useState(1);
   const [gapPercent, setGapPercent] = useState(0); // 0 to 20
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { canvasRef, prepareFrame } = useSelfMeasuringCanvas();
   const animationRef = useRef(0);
   const canvasTouchRef = useCanvasTouch(canvasRef);
 
@@ -147,14 +148,9 @@ export function MagneticCircuitsSection() {
   // as the canvas mounts (including after the PredictionGate reveals it).
   useEffect(() => {
     const render = () => {
-      const canvas = canvasRef.current;
-      const ctx = canvas ? canvas.getContext('2d') : null;
-      if (canvas && ctx) {
-        if (canvas.parentElement) {
-          canvas.width = canvas.parentElement.clientWidth;
-          canvas.height = canvas.parentElement.clientHeight;
-        }
-        const w = canvas.width, h = canvas.height;
+      const frame = prepareFrame();
+      if (frame) {
+        const { ctx, width: w, height: h } = frame;
         const d = derivedRef.current;
         ctx.clearRect(0, 0, w, h);
         if (isDarkMode) { ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, w, h); }
@@ -298,7 +294,7 @@ export function MagneticCircuitsSection() {
     };
     render();
     return () => cancelAnimationFrame(animationRef.current);
-  }, [current, turns, gapPercent, materialIndex, isDarkMode]);
+  }, [current, turns, gapPercent, materialIndex, isDarkMode, prepareFrame]);
 
   return (
     <SectionLayout
