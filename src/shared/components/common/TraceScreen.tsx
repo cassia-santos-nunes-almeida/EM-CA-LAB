@@ -149,9 +149,6 @@ const SIZE_MAP = {
   screen: { width: 160, height: 64 },
 } as const;
 
-// Radial traces use fill:none + stroke; others fill:none + stroke only too.
-const FILL_NONE: TraceKind[] = ['rlc', 'sinusoid', 'pulse', 'radial', 'flux'];
-
 export function TraceScreen({
   traceKind,
   accentVar,
@@ -168,7 +165,6 @@ export function TraceScreen({
     flexShrink: 0,
   } as CSSProperties;
 
-  const isFill = !FILL_NONE.includes(traceKind);
   const pathData = getPathData(traceKind);
 
   // For radial / flux, use multiple paths; for others, a single continuous path.
@@ -200,7 +196,7 @@ export function TraceScreen({
         {/* The waveform trace */}
         <path
           d={pathData}
-          fill={isFill ? 'var(--trace-accent)' : 'none'}
+          fill="none"
           stroke="var(--trace-accent)"
           strokeWidth={strokeW}
           strokeLinecap="round"

@@ -85,9 +85,7 @@ export function SectionLayout({
               <span>/</span>
               <span>{sectionNum}</span>
               {heading && (
-                <>
-                  <span>{heading}</span>
-                </>
+                <span>{heading}</span>
               )}
             </>
           )}

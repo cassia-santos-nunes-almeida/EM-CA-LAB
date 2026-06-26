@@ -13,7 +13,7 @@
  *  (h) Sheet closes on navigation (route change)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { MobileTabBar } from '@shared/components/layout/MobileTabBar';
@@ -52,7 +52,7 @@ describe('MobileTabBar — chip rendering', () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe('MobileTabBar — active Part highlight', () => {
-  it('marks the chip for the Part containing the active route as current (aria-pressed=false, aria-expanded=false on inactive chips)', () => {
+  it('marks the chip for the Part containing the active route as current (aria-expanded=false on inactive chips)', () => {
     // /circuit-analysis is in Part 1.
     renderTabBar('/circuit-analysis');
 
@@ -60,9 +60,7 @@ describe('MobileTabBar — active Part highlight', () => {
     const part2Chip = screen.getByRole('button', { name: /Part 2:/ });
 
     // All chips start with the sheet closed.
-    expect(part1Chip).toHaveAttribute('aria-pressed', 'false');
     expect(part1Chip).toHaveAttribute('aria-expanded', 'false');
-    expect(part2Chip).toHaveAttribute('aria-pressed', 'false');
     expect(part2Chip).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -323,6 +321,3 @@ describe('MobileTabBar — close button', () => {
   });
 });
 
-beforeEach(() => {
-  // Clean up any lingering keydown listeners between tests.
-});

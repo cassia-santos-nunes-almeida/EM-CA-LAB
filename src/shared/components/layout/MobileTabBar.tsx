@@ -261,7 +261,6 @@ export function MobileTabBar({ onNavigate }: MobileTabBarProps) {
               onClick={() => handleChipClick(part.id)}
               aria-label={`Part ${part.number}: ${part.title}`}
               aria-expanded={isSheetOpen}
-              aria-pressed={isSheetOpen}
               title={`PART ${String(part.number).padStart(2, '0')} · ${PART_QUANTITIES[part.number]}`}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center gap-1 py-1 transition-colors',

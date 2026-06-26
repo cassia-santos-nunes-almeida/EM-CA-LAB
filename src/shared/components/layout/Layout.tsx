@@ -66,7 +66,7 @@ export function Layout({ children }: LayoutProps) {
             You are offline — some features may be unavailable.
           </div>
         )}
-        {/* pb-14 on mobile so content isn't hidden behind the 56px tab-bar */}
+        {/* pb-20 on mobile (56px bar + buffer) so content clears the tab-bar */}
         <main id="main-content" ref={mainRef} className="flex-1 overflow-auto relative">
           <ScrollSpyProvider rootRef={mainRef}>
             <div key={pathname} className="max-w-7xl mx-auto p-4 pb-20 md:p-8 md:pb-8 animate-fade-in">
