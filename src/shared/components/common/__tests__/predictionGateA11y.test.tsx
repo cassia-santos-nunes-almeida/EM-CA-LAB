@@ -46,7 +46,7 @@ describe('PredictionGate — accessibility', () => {
       </PredictionGate>,
     );
     await user.click(screen.getByText('Option A'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     const wrapper = screen.getByTestId('sim').parentElement!;
     expect(wrapper).toHaveAttribute('tabindex', '-1');
@@ -76,5 +76,46 @@ describe('PredictionGate — accessibility', () => {
     const wrapper = screen.getByTestId('sim').parentElement!;
     expect(wrapper).not.toBe(document.activeElement);
     expect(document.body).toBe(document.activeElement);
+  });
+});
+
+describe('PredictionGate — instrument panel reskin (T7)', () => {
+  it('has data-gate="true" on the outer container', () => {
+    const { container } = render(
+      <PredictionGate {...base}>
+        <div>sim</div>
+      </PredictionGate>,
+    );
+    expect(container.querySelector('[data-gate="true"]')).toBeInTheDocument();
+  });
+
+  it('renders the default instrument header when no label prop is given', () => {
+    render(
+      <PredictionGate {...base}>
+        <div>sim</div>
+      </PredictionGate>,
+    );
+    expect(screen.getByText(/BENCH · PREDICT FIRST · ARMED/i)).toBeInTheDocument();
+  });
+
+  it('renders "BENCH · {LABEL} · ARMED" when label prop is provided', () => {
+    render(
+      <PredictionGate {...base} label="Faraday">
+        <div>sim</div>
+      </PredictionGate>,
+    );
+    expect(screen.getByText(/BENCH · FARADAY · ARMED/i)).toBeInTheDocument();
+  });
+
+  it('shows COMMIT PREDICTION button after answering (not Continue)', async () => {
+    const user = userEvent.setup();
+    render(
+      <PredictionGate {...base}>
+        <div>sim</div>
+      </PredictionGate>,
+    );
+    await user.click(screen.getByText('Option A'));
+    expect(screen.getByText(/COMMIT PREDICTION/i)).toBeInTheDocument();
+    expect(screen.queryByText('Continue')).not.toBeInTheDocument();
   });
 });

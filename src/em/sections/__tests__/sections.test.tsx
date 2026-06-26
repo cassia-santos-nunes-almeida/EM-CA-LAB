@@ -157,7 +157,7 @@ describe('Section smoke tests', () => {
     fireEvent.click(screen.getByRole('button', { name: /only the oscillating one/i }));
     // Pin the answer key: the gate must judge this option correct, not merely answered.
     expect(screen.getByText('Correct!')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByRole('img', { name: /radiating charge/i })).toBeInTheDocument();
   });
 
@@ -185,7 +185,7 @@ describe('Section smoke tests', () => {
     fireEvent.click(screen.getByRole('button', { name: '4%' }));
     // Pin the answer key: the gate must judge this option correct, not merely answered.
     expect(screen.getByText('Correct!')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByLabelText('ε_r of medium 2')).toBeInTheDocument();
     // The slider's own readout shows the full 2-decimal default, not a 1-dp rounding.
     expect(screen.getByText('2.25')).toBeInTheDocument();
@@ -207,7 +207,7 @@ describe('Section smoke tests', () => {
     // Hidden while the wave-sim gate is locked (separately unlocked from the interface gate).
     expect(screen.queryByLabelText('Attenuation α (arb.)')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Along y' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByLabelText('Attenuation α (arb.)')).toBeInTheDocument();
   });
 

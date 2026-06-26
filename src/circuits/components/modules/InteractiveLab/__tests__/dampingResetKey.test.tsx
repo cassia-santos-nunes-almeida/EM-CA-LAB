@@ -40,14 +40,14 @@ describe('InteractiveLab damping gate — reset tracks the verdict, not raw buck
 
     // Predict correctly → the gate enters its answered state (Continue appears).
     await user.click(screen.getByRole('button', { name: /Underdamped/i }));
-    expect(await screen.findByRole('button', { name: 'Continue' })).toBeInTheDocument();
+    expect(await screen.findByText(/COMMIT PREDICTION/i)).toBeInTheDocument();
 
     // Cross zeta=1 into overdamped — same old log(1.2) bucket as R=61.
     fireEvent.change(rSlider(), { target: { value: '70' } });
 
     // The gate MUST re-lock: the answered-state Continue is gone (no stale verdict).
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: 'Continue' })).not.toBeInTheDocument();
+      expect(screen.queryByText(/COMMIT PREDICTION/i)).not.toBeInTheDocument();
     });
     expect(screen.getByText(GATE_Q)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Overdamped/i })).toBeEnabled();
@@ -58,7 +58,7 @@ describe('InteractiveLab damping gate — reset tracks the verdict, not raw buck
     renderLab('?R=61'); // underdamped
 
     await user.click(screen.getByRole('button', { name: /Underdamped/i }));
-    expect(await screen.findByRole('button', { name: 'Continue' })).toBeInTheDocument();
+    expect(await screen.findByText(/COMMIT PREDICTION/i)).toBeInTheDocument();
 
     // Still underdamped (zeta≈0.87). Old bucketing (61→bucket 23, 55→bucket 22)
     // would needlessly re-lock; verdict-keying must not.
@@ -67,6 +67,6 @@ describe('InteractiveLab damping gate — reset tracks the verdict, not raw buck
     // Let the deferred recompute and any re-lock flush, THEN assert the answered
     // state held (a positive assertion alone would pass before the re-lock fires).
     await new Promise((r) => setTimeout(r, 250));
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+    expect(screen.getByText(/COMMIT PREDICTION/i)).toBeInTheDocument();
   });
 });

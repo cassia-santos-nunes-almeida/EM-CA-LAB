@@ -55,7 +55,7 @@ describe('Transients — tab strip gate unlock survives tab round-trips', () => 
 
     // Commit a prediction → the sim is revealed.
     await user.click(screen.getByText('Vₛ'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByLabelText(simLabel)).toBeInTheDocument();
     expect(screen.queryByText(predictQ)).not.toBeInTheDocument();
 

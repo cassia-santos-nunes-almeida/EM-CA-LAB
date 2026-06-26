@@ -55,7 +55,7 @@ describe('TransmissionLines — chaptered split-pane labs', () => {
 
     // Commit a prediction → the sim is revealed.
     await user.click(screen.getByText('No reflection'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByLabelText(simLabel)).toBeInTheDocument();
     expect(screen.queryByText(predictQ)).not.toBeInTheDocument();
 
@@ -79,7 +79,7 @@ describe('TransmissionLines — chaptered split-pane labs', () => {
 
     // Pass the smith gate (existing flow).
     await user.click(screen.getByText('Far-left point (Γ = −1)'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     // The observation-distance slider defaults to l = 0; drive it to λ/4 and
     // read Z_in = Z₀²/Z_L = 2500/100 = 25 Ω (sim defaults ZLr = 100, Z0 = 50).

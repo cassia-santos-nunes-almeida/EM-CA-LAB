@@ -85,14 +85,17 @@ function measureCanvases(page: Page): Promise<CanvasPaint[]> {
 }
 
 async function unlockGates(page: Page) {
+  // Reskin (T7): instrument panel uses data-gate="true" + "COMMIT PREDICTION ▸" button.
+  // Keep /continue/i in the regex for any non-reskinned gate still on the page.
   for (let i = 0; i < 30; i++) {
-    const cont = page.locator('div.border-dashed').getByRole('button', { name: 'Continue' });
+    const cont = page.locator('[data-gate]').getByRole('button', { name: /commit prediction|continue/i });
     if (await cont.count() > 0) {
       await cont.first().click({ timeout: 3000 }).catch(() => {});
       await page.waitForTimeout(300);
       continue;
     }
-    const opt = page.locator('div.border-dashed:has-text("Predict First") button:enabled').first();
+    // Pick the first enabled option button inside any visible locked gate.
+    const opt = page.locator('[data-gate] button:enabled').first();
     if (await opt.count() === 0) break;
     await opt.click({ timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(300);

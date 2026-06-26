@@ -35,7 +35,7 @@ function hasFormula(sub: string): boolean {
 describe('TimeDomain s-domain transfer functions are algebraically correct', () => {
   async function passGate(user: ReturnType<typeof userEvent.setup>) {
     await user.click(screen.getByRole('button', { name: 'τ doubles; pole moves toward the origin (slower)' }));
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
   }
 
   it('RC step current I(s) has no spurious factor of s (A.1#1)', async () => {

@@ -17,7 +17,7 @@ function renderWithRouter(ui: React.ReactElement, route = '/') {
 /** Click a prediction option, then Continue, to reveal a blocking gate's children. */
 async function passPredictionGate(user: UserEvent, optionLabel: string) {
   await user.click(screen.getByRole('button', { name: optionLabel }));
-  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  await user.click(screen.getByText(/COMMIT PREDICTION/i));
 }
 
 const GATE_CORRECT = 's = −8';
