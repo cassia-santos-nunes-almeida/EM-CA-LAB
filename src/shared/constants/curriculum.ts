@@ -42,6 +42,13 @@ export interface CourseSection {
    * else completes on first visit (0). See `isModuleComplete` in the store.
    */
   expectedChecks: number;
+  /**
+   * True when this section's primary content is a wide-canvas simulator that
+   * benefits from the sidebar being auto-collapsed. The nav-shell (§3.4) uses
+   * this to trigger the sim-heavy auto-collapse rule (spec §5). Absent (or
+   * false) for the 9 text-heavy sections. Added in PR #11.
+   */
+  simHeavy?: boolean;
 }
 
 export interface CoursePart {
@@ -66,31 +73,31 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'laplace-theory', title: 'Laplace Theory', route: '/laplace-theory', domain: 'circuits', expectedChecks: 0 },
   { id: 'partial-fractions', title: 'Partial Fractions & Heaviside', route: '/partial-fractions', domain: 'circuits', expectedChecks: 0 },
   { id: 's-domain', title: 's-Domain Analysis', route: '/s-domain', domain: 'circuits', expectedChecks: 0 },
-  { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0 },
+  { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0, simHeavy: true },
 
   // ── Part 2 · Electric & Magnetic Fields (em) ────────────────────────────
-  { id: 'coulomb', title: "Coulomb's Law", subtitle: 'Electrostatic force between point charges', route: '/coulomb', domain: 'em', expectedChecks: 3 },
-  { id: 'gauss', title: "Gauss's Law", subtitle: 'Electric flux and closed surface integrals', route: '/gauss', domain: 'em', expectedChecks: 3 },
-  { id: 'ampere', title: "Ampère's Law", subtitle: 'Magnetic fields from steady currents', route: '/ampere', domain: 'em', expectedChecks: 3 },
-  { id: 'lorentz', title: 'Lorentz Force', subtitle: 'Force on charged particles in EM fields', route: '/lorentz', domain: 'em', expectedChecks: 3 },
+  { id: 'coulomb', title: "Coulomb's Law", subtitle: 'Electrostatic force between point charges', route: '/coulomb', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'gauss', title: "Gauss's Law", subtitle: 'Electric flux and closed surface integrals', route: '/gauss', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'ampere', title: "Ampère's Law", subtitle: 'Magnetic fields from steady currents', route: '/ampere', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'lorentz', title: 'Lorentz Force', subtitle: 'Force on charged particles in EM fields', route: '/lorentz', domain: 'em', expectedChecks: 3, simHeavy: true },
 
   // ── Part 3 · Induction, Magnetics & Inductance (em + transformers code) ──
-  { id: 'faraday', title: "Faraday's Law", subtitle: 'Electromagnetic induction and changing flux', route: '/faraday', domain: 'em', expectedChecks: 3 },
-  { id: 'lenz', title: "Lenz's Law", subtitle: 'Direction of induced EMF opposes change', route: '/lenz', domain: 'em', expectedChecks: 3 },
-  { id: 'magnetic-circuits', title: 'Magnetic Circuits', subtitle: 'From fields to devices — flux, reluctance, and inductance', route: '/magnetic-circuits', domain: 'em', expectedChecks: 3 },
+  { id: 'faraday', title: "Faraday's Law", subtitle: 'Electromagnetic induction and changing flux', route: '/faraday', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'lenz', title: "Lenz's Law", subtitle: 'Direction of induced EMF opposes change', route: '/lenz', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'magnetic-circuits', title: 'Magnetic Circuits', subtitle: 'From fields to devices — flux, reluctance, and inductance', route: '/magnetic-circuits', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'transformers', title: 'Transformers', route: '/transformers', domain: 'transmission', expectedChecks: 0 },
 
   // ── Part 4 · Maxwell, Waves, Radiation & Antennas (em + antennas code) ───
-  { id: 'maxwell', title: "Maxwell's Equations", subtitle: 'The four fundamental laws unifying electricity and magnetism', route: '/maxwell', domain: 'em', expectedChecks: 3 },
-  { id: 'em-wave', title: 'EM Waves', subtitle: 'Electromagnetic wave propagation and AC phasors', route: '/em-wave', domain: 'em', expectedChecks: 3 },
-  { id: 'polarization', title: 'Polarization', subtitle: 'Linear, circular, and elliptical polarization states', route: '/polarization', domain: 'em', expectedChecks: 3 },
-  { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0 },
+  { id: 'maxwell', title: "Maxwell's Equations", subtitle: 'The four fundamental laws unifying electricity and magnetism', route: '/maxwell', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'em-wave', title: 'EM Waves', subtitle: 'Electromagnetic wave propagation and AC phasors', route: '/em-wave', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'polarization', title: 'Polarization', subtitle: 'Linear, circular, and elliptical polarization states', route: '/polarization', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0, simHeavy: true },
 
   // ── Part 5 · Transmission Lines & Distributed Systems (transmission) ─────
-  { id: 'lumped-distributed', title: 'Lumped to Distributed', route: '/lumped-distributed', domain: 'transmission', expectedChecks: 0 },
-  { id: 'transmission-lines', title: 'Transmission Lines', route: '/transmission-lines', domain: 'transmission', expectedChecks: 0 },
-  { id: 'line-impedance', title: 'Line Impedance & Matching', route: '/line-impedance', domain: 'transmission', expectedChecks: 0 },
-  { id: 'transients', title: 'Transients', route: '/transients', domain: 'transmission', expectedChecks: 0 },
+  { id: 'lumped-distributed', title: 'Lumped to Distributed', route: '/lumped-distributed', domain: 'transmission', expectedChecks: 0, simHeavy: true },
+  { id: 'transmission-lines', title: 'Transmission Lines', route: '/transmission-lines', domain: 'transmission', expectedChecks: 0, simHeavy: true },
+  { id: 'line-impedance', title: 'Line Impedance & Matching', route: '/line-impedance', domain: 'transmission', expectedChecks: 0, simHeavy: true },
+  { id: 'transients', title: 'Transients', route: '/transients', domain: 'transmission', expectedChecks: 0, simHeavy: true },
 ];
 
 /** The 5-Part circuits-first spine: lead with the algorithmic toolkit, ground it

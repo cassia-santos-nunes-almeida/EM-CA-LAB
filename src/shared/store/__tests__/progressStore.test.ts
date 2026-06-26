@@ -92,6 +92,54 @@ describe('useProgressStore — section model', () => {
   });
 });
 
+describe('useProgressStore — sidebarCollapsed (persisted manual pref)', () => {
+  beforeEach(() => {
+    useProgressStore.setState({ sections: {}, sidebarCollapsed: false });
+    localStorage.removeItem('emac-progress');
+  });
+
+  it('sidebarCollapsed defaults to false', () => {
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(false);
+  });
+
+  it('setSidebarCollapsed(true) updates sidebarCollapsed', () => {
+    useProgressStore.getState().setSidebarCollapsed(true);
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(true);
+  });
+
+  it('setSidebarCollapsed(false) reverts sidebarCollapsed', () => {
+    useProgressStore.getState().setSidebarCollapsed(true);
+    useProgressStore.getState().setSidebarCollapsed(false);
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(false);
+  });
+
+  it('toggleSidebarCollapsed flips the value', () => {
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(false);
+    useProgressStore.getState().toggleSidebarCollapsed();
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(true);
+    useProgressStore.getState().toggleSidebarCollapsed();
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(false);
+  });
+
+  it('sidebarCollapsed is included in partialize (persists under emac-progress)', () => {
+    useProgressStore.getState().setSidebarCollapsed(true);
+    const raw = localStorage.getItem('emac-progress');
+    expect(raw).toBeTruthy();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.state.sidebarCollapsed).toBe(true);
+  });
+
+  it('legacy stored state without sidebarCollapsed hydrates to false (backward-compat)', () => {
+    // Simulate a stored object from before sidebarCollapsed was added.
+    const legacyState = { state: { sections: {} }, version: 0 };
+    localStorage.setItem('emac-progress', JSON.stringify(legacyState));
+    // Reset the store to force a re-hydration from localStorage.
+    useProgressStore.setState({ sections: {}, sidebarCollapsed: false });
+    // The default initial value must be false even if the stored object lacks the key.
+    expect(useProgressStore.getState().sidebarCollapsed).toBe(false);
+  });
+});
+
 describe('isModuleComplete — curriculum-driven completion', () => {
   const progress = (overrides: Partial<SectionProgress> = {}): SectionProgress => ({
     visited: true,

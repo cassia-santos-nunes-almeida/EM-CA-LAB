@@ -77,6 +77,10 @@ export function isModuleComplete(progress: SectionProgress | undefined, id: stri
 
 interface ProgressState {
   sections: Record<string, SectionProgress>;
+  /** Persisted manual collapse preference (true = user chose to collapse). */
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapsed: () => void;
   markVisited: (sectionId: string) => void;
   markPredictionGate: (sectionId: string, correct: boolean) => void;
   incrementConceptChecks: (sectionId: string) => void;
@@ -87,6 +91,12 @@ export const useProgressStore = create<ProgressState>()(
   persist(
     (set) => ({
       sections: {},
+      sidebarCollapsed: false,
+
+      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+      toggleSidebarCollapsed: () =>
+        set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
       markVisited: (sectionId) =>
         set((s) => ({
@@ -135,7 +145,7 @@ export const useProgressStore = create<ProgressState>()(
     }),
     {
       name: 'emac-progress',
-      partialize: (state) => ({ sections: state.sections }),
+      partialize: (state) => ({ sections: state.sections, sidebarCollapsed: state.sidebarCollapsed }),
     },
   ),
 );
