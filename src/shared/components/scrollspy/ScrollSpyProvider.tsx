@@ -100,8 +100,6 @@ export function ScrollSpyProvider({ rootRef, children }: ScrollSpyProviderProps)
           // Update the intersecting set based on the incoming entries
           const intersectingSet = new Set<string>();
 
-          // Seed with the previously-active id if it was intersecting
-          // (observer only fires deltas, so we must maintain state here)
           // We rebuild from entries only — simpler and avoids stale sets.
           // Entries whose isIntersecting=false are not included.
           for (const entry of entries) {
