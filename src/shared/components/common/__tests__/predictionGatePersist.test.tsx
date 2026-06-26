@@ -51,7 +51,7 @@ describe('PredictionGate — persistence', () => {
     expect(onPassed).not.toHaveBeenCalled();
 
     await user.click(screen.getByText('Option A'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     expect(onPassed).toHaveBeenCalledTimes(1);
     expect(screen.getByText('the simulation')).toBeInTheDocument();

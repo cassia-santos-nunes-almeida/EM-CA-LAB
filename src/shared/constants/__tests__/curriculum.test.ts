@@ -120,4 +120,49 @@ describe('curriculum — 5-part circuits-first spine', () => {
       expect(PART_QUANTITIES[part.number], `Part ${part.number}`).toBeTruthy();
     }
   });
+
+  it('simHeavy: exactly 16 sections carry simHeavy===true', () => {
+    const simHeavyIds = Object.values(SECTIONS)
+      .filter((s) => s.simHeavy === true)
+      .map((s) => s.id)
+      .sort();
+    expect(simHeavyIds).toHaveLength(16);
+    expect(simHeavyIds).toEqual(
+      [
+        'ampere',
+        'antennas',
+        'coulomb',
+        'em-wave',
+        'faraday',
+        'gauss',
+        'interactive-lab',
+        'lenz',
+        'line-impedance',
+        'lorentz',
+        'lumped-distributed',
+        'magnetic-circuits',
+        'maxwell',
+        'polarization',
+        'transmission-lines',
+        'transients',
+      ].sort(),
+    );
+  });
+
+  it('simHeavy: the 9 non-sim sections are falsy (field absent or false)', () => {
+    const nonSimIds = [
+      'component-physics',
+      'circuit-analysis',
+      'nodal-mesh-analysis',
+      'circuit-theorems',
+      'switched-circuits',
+      'laplace-theory',
+      'partial-fractions',
+      's-domain',
+      'transformers',
+    ];
+    for (const id of nonSimIds) {
+      expect(SECTIONS[id].simHeavy, `${id} should be falsy`).toBeFalsy();
+    }
+  });
 });

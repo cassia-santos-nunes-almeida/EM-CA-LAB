@@ -34,7 +34,7 @@ describe('LaplaceTheory motivation gate — remount persistence', () => {
 
     // Predict + continue -> comparison revealed.
     await user.click(screen.getByRole('button', { name: '4-6 steps' }));
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByText(REVEALED)).toBeInTheDocument();
 
     // Leave to another tab and come back — the panel remounts.

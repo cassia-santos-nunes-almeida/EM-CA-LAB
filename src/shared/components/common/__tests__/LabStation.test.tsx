@@ -51,8 +51,8 @@ describe('PredictionGate — non-blocking mode', () => {
 
     // The "gated" content is visible before any answer (no burial).
     expect(screen.getByText('always-visible sim')).toBeInTheDocument();
-    // No Continue/Skip controls in non-blocking mode.
-    expect(screen.queryByText('Continue')).not.toBeInTheDocument();
+    // No COMMIT PREDICTION/Skip controls in non-blocking mode.
+    expect(screen.queryByText(/COMMIT PREDICTION/i)).not.toBeInTheDocument();
     expect(screen.queryByText('Skip')).not.toBeInTheDocument();
 
     await user.click(screen.getByText('Option A'));

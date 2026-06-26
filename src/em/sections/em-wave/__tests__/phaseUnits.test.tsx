@@ -43,7 +43,7 @@ describe('em-wave V/I phase sliders carry the degree unit', () => {
 
     // Pass the blocking prediction gate (B ⟂ E along y), then reveal the sim.
     await user.click(screen.getByRole('button', { name: /Along y/i }));
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     // Switch to the AC Phasors view where the V/I Phase sliders live.
     await user.click(screen.getByRole('button', { name: 'AC Phasors' }));
@@ -58,7 +58,7 @@ describe('em-wave V/I phase sliders carry the degree unit', () => {
     const user = userEvent.setup();
     render(<MemoryRouter><EMWaveSection /></MemoryRouter>);
     await user.click(screen.getByRole('button', { name: /Along y/i }));
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     // Default (3D) view shows Frequency, Amplitude and Speed; each value readout now
     // carries " (arb.)" to match the chart axes. The digit prefix excludes the

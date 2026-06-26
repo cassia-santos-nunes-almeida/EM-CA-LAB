@@ -61,7 +61,7 @@ describe('LineImpedance — section 5.3 page', () => {
 
     // Commit the prediction → the bench is revealed.
     await user.click(screen.getByText('25 Ω — less than Z₀'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
     expect(screen.getByRole('slider', { name: distSlider })).toBeInTheDocument();
 
     // Switch away and back — the lifted unlock state must survive the remount.
@@ -77,7 +77,7 @@ describe('LineImpedance — section 5.3 page', () => {
 
     await user.click(screen.getByRole('tab', { name: /Z_in Lab/i }));
     await user.click(screen.getByText('25 Ω — less than Z₀'));
-    await user.click(screen.getByText('Continue'));
+    await user.click(screen.getByText(/COMMIT PREDICTION/i));
 
     // Default exam load (100 Ω) at l = 0.25λ → Z_in = Z₀²/Z_L = 25 Ω exactly.
     const slider = screen.getByRole('slider', { name: distSlider });

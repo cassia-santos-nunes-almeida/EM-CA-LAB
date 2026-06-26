@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MessageSquare, Menu, WifiOff } from 'lucide-react';
 import { Sidebar } from '@shared/components/layout/Sidebar';
+import { MobileTabBar } from '@shared/components/layout/MobileTabBar';
 import { AiTutor, type TutorMode } from '@shared/components/common/AiTutor';
 import { useOnlineStatus } from '@shared/hooks/useOnlineStatus';
+import { ScrollSpyProvider } from '@shared/components/scrollspy/ScrollSpyProvider';
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,7 +23,7 @@ export function Layout({ children }: LayoutProps) {
   }, [pathname]);
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-screen bg-chassis">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-engineering-blue-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium"
@@ -64,12 +66,18 @@ export function Layout({ children }: LayoutProps) {
             You are offline — some features may be unavailable.
           </div>
         )}
+        {/* pb-20 on mobile (56px bar + buffer) so content clears the tab-bar */}
         <main id="main-content" ref={mainRef} className="flex-1 overflow-auto relative">
-          <div key={pathname} className="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in">
-            {children}
-          </div>
+          <ScrollSpyProvider rootRef={mainRef}>
+            <div key={pathname} className="max-w-7xl mx-auto p-4 pb-20 md:p-8 md:pb-8 animate-fade-in">
+              {children}
+            </div>
+          </ScrollSpyProvider>
         </main>
       </div>
+
+      {/* Mobile bottom tab-bar + Part bottom-sheet (md:hidden inside the component) */}
+      <MobileTabBar onNavigate={() => setSidebarOpen(false)} />
 
       {tutorMode === 'closed' && (
         <>
@@ -83,10 +91,10 @@ export function Layout({ children }: LayoutProps) {
             <MessageSquare className="w-5 h-5 text-engineering-blue-600 dark:text-engineering-blue-400" />
             <span className="text-sm font-semibold tracking-wide">Think it Through</span>
           </button>
-          {/* Mobile: floating action button */}
+          {/* Mobile: floating action button — raised above the 56px tab-bar */}
           <button
             onClick={() => setTutorMode('floating')}
-            className="md:hidden fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-engineering-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-engineering-blue-700 active:scale-95 transition-all"
+            className="md:hidden fixed bottom-[72px] right-5 z-50 w-14 h-14 rounded-full bg-engineering-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-engineering-blue-700 active:scale-95 transition-all"
             aria-label="Open Think it Through"
           >
             <MessageSquare className="w-6 h-6" />

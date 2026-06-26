@@ -27,7 +27,7 @@ function renderPage() {
 /** Click a prediction option, then Continue, to reveal a blocking gate's children. */
 async function passPredictionGate(user: UserEvent, optionLabel: string) {
   await user.click(screen.getByRole('button', { name: optionLabel }));
-  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  await user.click(screen.getByText(/COMMIT PREDICTION/i));
 }
 
 const GAP_GATE_CORRECT = 'Collapses about 50× — the 1% gap out-resists the 99% core';

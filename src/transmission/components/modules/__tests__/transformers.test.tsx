@@ -53,7 +53,7 @@ async function passFlybackGate(user: ReturnType<typeof userEvent.setup>) {
   // a drifted option id would mark every right prediction "Not quite" and
   // corrupt predictionGatesCorrect stats with the suite still green.
   expect(await screen.findByText('Correct!')).toBeInTheDocument();
-  await user.click(screen.getByText('Continue'));
+  await user.click(screen.getByText(/COMMIT PREDICTION/i));
 }
 
 describe('Transformers — section 3.4 page (mutual-inductance extension)', () => {

@@ -18,6 +18,7 @@ import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { RodOnRailsFigure } from './RodOnRailsFigure';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 import { rateToHz, emfArbToMillivolts } from './unitMapping';
@@ -294,12 +295,20 @@ export function FaradaySection() {
     dragStartX.current = null;
   }, []);
 
+  const TOC = [
+    { id: 'faraday-induction-sim', label: 'Induction Simulation' },
+    { id: 'faraday-theory', label: "Faraday's Law" },
+    { id: 'faraday-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="faraday"
       hook="Every electrical transformer relies on Faraday's Law: a changing current in one coil creates a changing magnetic flux that induces a voltage in a neighboring coil — the principle behind the entire power grid."
+      toc={TOC}
     >
       {/* ── Predict-first gate around the simulation ── */}
+      <SectionAnchor id="faraday-induction-sim" label="Induction Simulation">
       <PredictionGate
         question="A bar magnet's north pole approaches a coil from the left. In which direction does the induced current flow when viewed from the left?"
         options={[
@@ -351,8 +360,10 @@ export function FaradaySection() {
 
       {/* Check: what produces a changing flux (after the induction demo) */}
       <ConceptCheck data={toConceptCheck(Q_NO_EMF)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="faraday-theory" label="Faraday's Law">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -577,7 +588,11 @@ export function FaradaySection() {
           </p>
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+
+      <SectionAnchor id="faraday-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

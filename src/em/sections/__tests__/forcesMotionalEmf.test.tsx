@@ -28,7 +28,7 @@ function renderSection(Section: React.ComponentType) {
 /** Click a prediction option, then Continue, to reveal a blocking gate's children. */
 async function passPredictionGate(user: UserEvent, optionLabel: string | RegExp) {
   await user.click(screen.getByRole('button', { name: optionLabel }));
-  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  await user.click(screen.getByText(/COMMIT PREDICTION/i));
 }
 
 describe('AmpereSection — forces between parallel wires (unit 2D)', () => {
