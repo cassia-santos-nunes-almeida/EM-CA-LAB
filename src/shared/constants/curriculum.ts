@@ -26,6 +26,12 @@ export interface CourseSection {
   id: string;
   /** Human-readable title for sidebar, nav, and page heading. */
   title: string;
+  /**
+   * Optional sub-heading shown below the section title. Populated for the 10
+   * EM-domain sections so SectionLayout can source its default subtitle from
+   * shared curriculum rather than importing from @em/constants/physics.
+   */
+  subtitle?: string;
   /** Flat route path, always `/<id>`. */
   route: string;
   /** Engineering domain the section's CODE lives in (src/<domain>/…). */
@@ -63,21 +69,21 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0 },
 
   // ── Part 2 · Electric & Magnetic Fields (em) ────────────────────────────
-  { id: 'coulomb', title: "Coulomb's Law", route: '/coulomb', domain: 'em', expectedChecks: 3 },
-  { id: 'gauss', title: "Gauss's Law", route: '/gauss', domain: 'em', expectedChecks: 3 },
-  { id: 'ampere', title: "Ampère's Law", route: '/ampere', domain: 'em', expectedChecks: 3 },
-  { id: 'lorentz', title: 'Lorentz Force', route: '/lorentz', domain: 'em', expectedChecks: 3 },
+  { id: 'coulomb', title: "Coulomb's Law", subtitle: 'Electrostatic force between point charges', route: '/coulomb', domain: 'em', expectedChecks: 3 },
+  { id: 'gauss', title: "Gauss's Law", subtitle: 'Electric flux and closed surface integrals', route: '/gauss', domain: 'em', expectedChecks: 3 },
+  { id: 'ampere', title: "Ampère's Law", subtitle: 'Magnetic fields from steady currents', route: '/ampere', domain: 'em', expectedChecks: 3 },
+  { id: 'lorentz', title: 'Lorentz Force', subtitle: 'Force on charged particles in EM fields', route: '/lorentz', domain: 'em', expectedChecks: 3 },
 
   // ── Part 3 · Induction, Magnetics & Inductance (em + transformers code) ──
-  { id: 'faraday', title: "Faraday's Law", route: '/faraday', domain: 'em', expectedChecks: 3 },
-  { id: 'lenz', title: "Lenz's Law", route: '/lenz', domain: 'em', expectedChecks: 3 },
-  { id: 'magnetic-circuits', title: 'Magnetic Circuits', route: '/magnetic-circuits', domain: 'em', expectedChecks: 3 },
+  { id: 'faraday', title: "Faraday's Law", subtitle: 'Electromagnetic induction and changing flux', route: '/faraday', domain: 'em', expectedChecks: 3 },
+  { id: 'lenz', title: "Lenz's Law", subtitle: 'Direction of induced EMF opposes change', route: '/lenz', domain: 'em', expectedChecks: 3 },
+  { id: 'magnetic-circuits', title: 'Magnetic Circuits', subtitle: 'From fields to devices — flux, reluctance, and inductance', route: '/magnetic-circuits', domain: 'em', expectedChecks: 3 },
   { id: 'transformers', title: 'Transformers', route: '/transformers', domain: 'transmission', expectedChecks: 0 },
 
   // ── Part 4 · Maxwell, Waves, Radiation & Antennas (em + antennas code) ───
-  { id: 'maxwell', title: "Maxwell's Equations", route: '/maxwell', domain: 'em', expectedChecks: 3 },
-  { id: 'em-wave', title: 'EM Waves', route: '/em-wave', domain: 'em', expectedChecks: 3 },
-  { id: 'polarization', title: 'Polarization', route: '/polarization', domain: 'em', expectedChecks: 3 },
+  { id: 'maxwell', title: "Maxwell's Equations", subtitle: 'The four fundamental laws unifying electricity and magnetism', route: '/maxwell', domain: 'em', expectedChecks: 3 },
+  { id: 'em-wave', title: 'EM Waves', subtitle: 'Electromagnetic wave propagation and AC phasors', route: '/em-wave', domain: 'em', expectedChecks: 3 },
+  { id: 'polarization', title: 'Polarization', subtitle: 'Linear, circular, and elliptical polarization states', route: '/polarization', domain: 'em', expectedChecks: 3 },
   { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0 },
 
   // ── Part 5 · Transmission Lines & Distributed Systems (transmission) ─────
