@@ -1,12 +1,13 @@
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap");
 
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 
   /* Engineering Blue — primary brand (M1 canonical + 950 shade) */
   --color-engineering-blue-50: #eff6ff;
@@ -33,20 +34,33 @@
  * inline var() (the Part accents). Plain @theme (NOT inline) so utilities like
  * bg-card keep referencing var(--color-*); the unlayered `.dark` block re-points them. */
 @theme static {
-  --color-chassis: #f1f5f9;
-  --color-card: #ffffff;
-  --color-card-border: #e2e8f0;
-  --color-title: #0f172a;
-  --color-muted: #64748b;
-  --color-led: #10b981;
-  --color-cta: #2563eb;
+  /* ── Warm Lab-Instrument chrome (light mode) ─────────────────────────────── */
+  --color-chassis:     #f4f1ea;   /* warm paper ground (was cool #f1f5f9) — load-bearing */
+  --color-card:        #ffffff;   /* unchanged */
+  --color-card-border: #e7e2d6;   /* warmer hairline (was #e2e8f0) */
+  --color-title:       #1c1814;   /* warm near-black (was #0f172a) */
+  --color-muted:       #7a7263;   /* warm grey (was #64748b) */
+  --color-led:         #10b981;   /* unchanged — identical in both modes */
+  --color-cta:         #2563eb;   /* unchanged — identical in both modes */
 
-  /* Per-Part physics-quantity accents (deepened for light surfaces) */
-  --color-part-1: #d97706;
-  --color-part-2: #dc2626;
-  --color-part-3: #2563eb;
-  --color-part-4: #7c3aed;
-  --color-part-5: #059669;
+  /* ── New chrome tokens ─────────────────────────────────────────────────── */
+  --color-ink:    #33302a;   /* warm body text (lighter than title) */
+  --color-rail:   #fbf9f4;   /* sidebar surface */
+  --color-screen: #0f172a;   /* instrument hero + trace screens — intentionally cool */
+
+  /* ── Per-Part bg washes (new) ──────────────────────────────────────────── */
+  --color-part-1-bg: #fdf6ec;
+  --color-part-2-bg: #fdeeee;
+  --color-part-3-bg: #eef3fd;
+  --color-part-4-bg: #f4eefe;
+  --color-part-5-bg: #eafaf3;
+
+  /* ── Per-Part physics-quantity accents (deepened for light surfaces, unchanged) */
+  --color-part-1:       #d97706;
+  --color-part-2:       #dc2626;
+  --color-part-3:       #2563eb;
+  --color-part-4:       #7c3aed;
+  --color-part-5:       #059669;
   --color-part-1-label: #b45309;
   --color-part-2-label: #b91c1c;
   --color-part-3-label: #1d4ed8;
@@ -64,22 +78,41 @@ body {
   margin: 0;
 }
 
+/* Display font — Space Grotesk for all headings app-wide */
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
+
 /* Dark mode re-points the chrome tokens (chassis→slate-900, card→slate-800, …)
  * and lightens the Part accents one step (E4). led + cta are intentionally NOT
  * re-pointed — they read identically in both modes by design. `.dark` lives on
  * <html> (progressStore.applyTheme), so these custom properties inherit everywhere. */
 .dark {
-  --color-chassis: #0f172a;
-  --color-card: #1e293b;
-  --color-card-border: #334155;
-  --color-title: #f1f5f9;
-  --color-muted: #94a3b8;
+  /* ── Warm-dark chrome (mirrors warm-light intent) ───────────────────────── */
+  --color-chassis:     #1a1714;   /* warm near-black (was cool #0f172a) */
+  --color-card:        #242019;   /* warm dark card (was cool #1e293b) */
+  --color-card-border: #3a352c;   /* warm dark hairline (was cool #334155) */
+  --color-title:       #f5f0e8;   /* warm off-white (was cool #f1f5f9) */
+  --color-muted:       #9e9485;   /* warm grey (was cool #94a3b8) */
 
-  --color-part-1: #f59e0b;
-  --color-part-2: #ef4444;
-  --color-part-3: #3b82f6;
-  --color-part-4: #a855f7;
-  --color-part-5: #10b981;
+  /* ── New chrome tokens — dark equivalents ──────────────────────────────── */
+  --color-ink:    #d4c9b8;   /* warm body text over dark */
+  --color-rail:   #1e1b16;   /* warm dark sidebar surface */
+  --color-screen: #0f172a;   /* instrument screen — STAYS cool (intentional) */
+
+  /* ── Per-Part bg washes — dark (owner to do visual swatch pass at review) */
+  --color-part-1-bg: #2a1f0a;   /* warm amber wash */
+  --color-part-2-bg: #2a0f0f;   /* warm red wash */
+  --color-part-3-bg: #0f1a2a;   /* cool blue wash — acceptable, it's EM */
+  --color-part-4-bg: #1a0f2a;   /* warm purple wash */
+  --color-part-5-bg: #0f2a1a;   /* warm green wash */
+
+  /* ── Part accents — lightened one step (unchanged from before) ─────────── */
+  --color-part-1:       #f59e0b;
+  --color-part-2:       #ef4444;
+  --color-part-3:       #3b82f6;
+  --color-part-4:       #a855f7;
+  --color-part-5:       #10b981;
   --color-part-1-label: #fbbf24;
   --color-part-2-label: #f87171;
   --color-part-3-label: #60a5fa;
@@ -130,15 +163,15 @@ canvas {
 code {
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  background-color: rgb(241 245 249);
+  background-color: var(--color-chassis);   /* was hardcoded rgb(241 245 249) = old cool chassis */
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  color: rgb(29 78 216);
+  color: var(--color-cta);                  /* was hardcoded rgb(29 78 216) */
 }
 
 .dark code {
-  background-color: rgb(30 41 59);
-  color: rgb(147 197 253);
+  background-color: var(--color-card);      /* was rgb(30 41 59) — now tracks warm dark card */
+  color: rgb(147 197 253);                  /* sky-300; leave as-is (no dark-cta token yet) */
 }
 
 /* Fade-in animation for tab/page content transitions */
