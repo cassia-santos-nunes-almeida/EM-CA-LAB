@@ -19,6 +19,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { RealMedia } from './RealMedia';
 
 const POINTS = 200;
@@ -972,12 +973,21 @@ export function EMWaveSection() {
   const phaseDiff = state.vPhase - state.iPhase;
   const pAvg = (0.5 * state.vAmplitude * state.iAmplitude * Math.cos(phaseDiff * Math.PI / 180)).toFixed(0);
 
+  const TOC = [
+    { id: 'em-wave-sim', label: 'Wave & Phasor Simulation' },
+    { id: 'em-wave-concept-checks', label: 'Concept Checks' },
+    { id: 'em-wave-theory', label: 'Theory' },
+    { id: 'em-wave-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="em-wave"
       hook="The 2.4 GHz signal from your WiFi router has a wavelength of 12.5 cm — roughly the width of a laptop. When the wavelength matches physical dimensions, wave behavior dominates. That is exactly what this section is about."
+      toc={TOC}
     >
       {/* ── Interactive simulation with internal view selector (genuine sim state) ── */}
+      <SectionAnchor id="em-wave-sim" label="Wave & Phasor Simulation">
       <PredictionGate
         question="A plane EM wave travels in +z with its E field along x. Along which axis does the B field oscillate?"
         options={[
@@ -1162,15 +1172,19 @@ export function EMWaveSection() {
         </div>
         </div>
       </PredictionGate>
+      </SectionAnchor>
 
       {/* ── Inline concept checks (distributed across the wave/medium/phasor views) ── */}
+      <SectionAnchor id="em-wave-concept-checks" label="Concept Checks">
       <div className="space-y-4">
         <ConceptCheck data={toConceptCheck(Q_TRIAD)} onComplete={onCheckComplete} onHint={onCheckHint} />
         <ConceptCheck data={toConceptCheck(Q_MEDIUM_SPEED)} onComplete={onCheckComplete} onHint={onCheckHint} />
         <ConceptCheck data={toConceptCheck(Q_PHASOR)} onComplete={onCheckComplete} onHint={onCheckHint} />
       </div>
+      </SectionAnchor>
 
-      {/* ── Theory ── */}
+      {/* ── Theory (contains the existing em-wave-refractive-index select + RealMedia gate) ── */}
+      <SectionAnchor id="em-wave-theory" label="Theory">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -1282,7 +1296,10 @@ export function EMWaveSection() {
           onGatePredict={(correct) => markPredictionGate('em-wave', correct)}
         />
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="em-wave-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

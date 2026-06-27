@@ -19,6 +19,7 @@ import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { orientationPsi, ellipticityChi, axialRatio, linearSlope } from './physics';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
@@ -382,12 +383,20 @@ export function PolarizationSection() {
     { label: 'Stokes', math: `[S_0,S_1,S_2,S_3] = [${S0},\\,${S1},\\,${S2.toFixed(0)},\\,${S3.toFixed(0)}]` },
   );
 
+  const TOC = [
+    { id: 'polarization-state-sim', label: 'Polarization Simulation' },
+    { id: 'polarization-theory', label: 'Theory' },
+    { id: 'polarization-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="polarization"
       hook="LCD screens work by rotating the polarization of light between two crossed polarizers. Without the physics in this section, there are no flat screens, no sunglasses, and no glare-reducing camera filters."
+      toc={TOC}
     >
       {/* ── Interactive simulation ── */}
+      <SectionAnchor id="polarization-state-sim" label="Polarization Simulation">
       <PredictionGate
         question="Two orthogonal E-field components of EQUAL amplitude are combined with a 90° phase difference. What polarization state results?"
         options={[
@@ -516,8 +525,10 @@ export function PolarizationSection() {
 
       {/* Check: circular polarization phase condition */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="polarization-theory" label="Theory">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -560,7 +571,10 @@ export function PolarizationSection() {
         {/* Check: Jones vector for RCP (after the handedness/Stokes discussion) */}
         <ConceptCheck data={toConceptCheck(Q_JONES)} onComplete={onCheckComplete} onHint={onCheckHint} />
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="polarization-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }
