@@ -10,6 +10,7 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { LabStation } from '@shared/components/common/LabStation';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { WorkedSteps } from '@shared/components/common/WorkedSteps';
@@ -83,7 +84,8 @@ export function PartialFractions() {
       <TableOfContents items={tocEntries} />
 
       {/* ── The puzzle ── */}
-      <section id="puzzle" className="scroll-mt-4 bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-4">
+      <SectionAnchor id="puzzle" label="Not in the Table" className="scroll-mt-4">
+      <section className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Not in the Table</h2>
         <p className="text-slate-700 dark:text-slate-300">
           An s-domain nodal analysis of a two-stage RC filter's step response (you will build these
@@ -126,9 +128,11 @@ export function PartialFractions() {
           "A&nbsp;=&nbsp;2.5, B&nbsp;=&nbsp;−2.5". This page pays that debt — twice over.
         </p>
       </section>
+      </SectionAnchor>
 
       {/* ── Method 1: identification, shown in full pain ── */}
-      <section id="identification" className="scroll-mt-4 bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-4">
+      <SectionAnchor id="identification" label="Method 1: Identification" className="scroll-mt-4">
+      <section className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Method 1: Identification</h2>
         <p className="text-slate-700 dark:text-slate-300">
           The course-named "identification method": expand, match coefficients, solve the system.
@@ -177,11 +181,11 @@ export function PartialFractions() {
           repeated and complex cases. But for distinct poles there is a ten-second shortcut.
         </p>
       </section>
+      </SectionAnchor>
 
       {/* ── LabStation: The Cover-Up ── */}
+      <SectionAnchor id="cover-up" label="Lab: The Cover-Up" className="scroll-mt-4">
       <LabStation
-        id="cover-up"
-        className="scroll-mt-4"
         number={getSectionNumber('partial-fractions')}
         title="The Cover-Up"
         objective="Cover each factor with your thumb, harvest the residues in any order, then assemble f(t) term by term."
@@ -207,6 +211,7 @@ export function PartialFractions() {
           <CoverUpStepper />
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       <ConceptCheck
         data={{
@@ -220,7 +225,8 @@ export function PartialFractions() {
       />
 
       {/* ── Repeated poles ── */}
-      <CollapsibleSection title="Repeated Poles" defaultOpen={true} className="scroll-mt-4" id="repeated-poles">
+      <SectionAnchor id="repeated-poles" label="Repeated Poles" className="scroll-mt-4">
+      <CollapsibleSection title="Repeated Poles" defaultOpen={true}>
         <div className="space-y-4">
           <p className="text-slate-700 dark:text-slate-300">
             A squared factor needs one slot per power:
@@ -291,9 +297,11 @@ export function PartialFractions() {
           />
         </div>
       </CollapsibleSection>
+      </SectionAnchor>
 
       {/* ── Complex poles (stretch) ── */}
-      <CollapsibleSection title="Complex Poles" defaultOpen={false} className="scroll-mt-4" id="complex-poles">
+      <SectionAnchor id="complex-poles" label="Complex Poles" className="scroll-mt-4">
+      <CollapsibleSection title="Complex Poles" defaultOpen={false}>
         <div className="space-y-4">
           <p className="text-slate-700 dark:text-slate-300">
             A complex-conjugate pole pair never factors over the reals — keep the quadratic whole:
@@ -337,6 +345,7 @@ export function PartialFractions() {
           </p>
         </div>
       </CollapsibleSection>
+      </SectionAnchor>
 
       {/* ── Improper-fraction guard ── */}
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-5 space-y-3">
@@ -392,9 +401,9 @@ export function PartialFractions() {
         a single residue.
       </p>
 
-      <div id="challenge" className="scroll-mt-4">
+      <SectionAnchor id="challenge" label="Guided Challenge" className="scroll-mt-4">
         <GuidedChallenge challenge={CHALLENGE} />
-      </div>
+      </SectionAnchor>
 
       <CourseNavigation />
     </div>

@@ -156,6 +156,21 @@ describe('SectionAnchor', () => {
     unmount();
   });
 
+  it('applies an optional className to the rendered anchor div (scroll-margin migration)', () => {
+    const { container, unmount } = render(
+      <TestWrapper>
+        <SectionAnchor id="with-margin" label="With margin" className="scroll-mt-4">
+          <h2>Body</h2>
+        </SectionAnchor>
+      </TestWrapper>,
+    );
+
+    const anchorEl = container.querySelector('#with-margin');
+    expect(anchorEl).not.toBeNull();
+    expect(anchorEl).toHaveClass('scroll-mt-4');
+    unmount();
+  });
+
   it('keeps multiple anchors in document order', () => {
     const Spy = () => {
       const { anchors } = useScrollSpy();
