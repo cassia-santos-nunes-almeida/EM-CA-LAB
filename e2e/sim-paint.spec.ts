@@ -44,6 +44,22 @@ const MIN_CANVAS_H: Record<string, number> = {
 };
 const DEFAULT_MIN_CANVAS_H = 40; // any canvas-bearing route not individually baselined
 
+// Per-route minimum painted-canvas WIDTH (px) — opt-in, like DPR_MIGRATED. A canvas
+// can pass the height floor + distinctColors yet be squished/collapsed HORIZONTALLY
+// when a sim moves into a narrow column (e.g. gauss's flux sim relocating into the
+// LabLayout sticky `minmax(420px,48%)` bench in #13/PR4). The height net is blind to
+// that. Only routes listed here assert a width floor, so unrelated sims are untouched;
+// each LabLayout-migrated sim adds its calibrated entry (0.6 × smallest healthy width,
+// desktop AND mobile). Baselined on the migrated bench, both viewports.
+const MIN_CANVAS_W: Record<string, number> = {
+  // ≈0.6 × 299px (smallest healthy: mobile 299, desktop 482), rounded up to 180.
+  // A collapse detector (not a fine squish detector) — matching the height-floor
+  // convention. The tighter desktop guard against a narrow-column squish actually
+  // comes from the grid's 420px bench min-width + the symmetric bitmapW≈cssW*dpr
+  // relation below; this floor catches a hard horizontal collapse on either viewport.
+  gauss: 180,
+};
+
 interface CanvasPaint {
   cssW: number; cssH: number;
   bitmapW: number; bitmapH: number;
@@ -121,19 +137,20 @@ function expectPainted(canvases: CanvasPaint[], where: string) {
 // rendered CSS height and the backing bitmap height against the per-route floor.
 // They are equal today (sims set canvas.height = parent.clientHeight, no DPR
 // scaling); asserting both now locks the baseline before #14 makes them diverge.
-function expectHeights(canvases: CanvasPaint[], sectionId: string, where: string) {
-  const floor = MIN_CANVAS_H[sectionId] ?? DEFAULT_MIN_CANVAS_H;
+function expectDimensions(canvases: CanvasPaint[], sectionId: string, where: string) {
+  const hFloor = MIN_CANVAS_H[sectionId] ?? DEFAULT_MIN_CANVAS_H;
+  const wFloor = MIN_CANVAS_W[sectionId]; // opt-in: only routes with a width baseline
   for (const c of canvases) {
     if (c.type !== '2d') continue;
     const dims = `css ${c.cssW}x${c.cssH}, bitmap ${c.bitmapW}x${c.bitmapH}`;
     expect(
       c.cssH,
-      `${where}: canvas CSS height ${c.cssH}px below floor ${floor}px — collapsed/squished? (${dims})`,
-    ).toBeGreaterThanOrEqual(floor);
+      `${where}: canvas CSS height ${c.cssH}px below floor ${hFloor}px — collapsed/squished? (${dims})`,
+    ).toBeGreaterThanOrEqual(hFloor);
     expect(
       c.bitmapH,
-      `${where}: canvas bitmap height ${c.bitmapH}px below floor ${floor}px — collapsed/squished? (${dims})`,
-    ).toBeGreaterThanOrEqual(floor);
+      `${where}: canvas bitmap height ${c.bitmapH}px below floor ${hFloor}px — collapsed/squished? (${dims})`,
+    ).toBeGreaterThanOrEqual(hFloor);
     // DPR-applied relation: a migrated sim at dpr>1 must have a backing store of
     // ~cssH*dpr. An un-migrated sim (canvas.height = parent.clientHeight) shows
     // bitmapH == cssH and FAILS this at dpr=2 — which is why it is gated to
@@ -145,6 +162,29 @@ function expectHeights(canvases: CanvasPaint[], sectionId: string, where: string
         `${where}: bitmap height ${c.bitmapH}px is not ~cssH*dpr (${expected}px) — ` +
         `migration dropped DPR scaling? (${dims})`,
       ).toBeLessThanOrEqual(c.dpr + 1); // ±rounding tolerance
+    }
+    // WIDTH floor (opt-in via MIN_CANVAS_W): a canvas can clear the height floor
+    // and still be squished into a too-narrow / collapsed column. This is the
+    // gap the height net can't see for a sim that moved into a narrow LabLayout
+    // bench. Plus the symmetric DPR-width relation so a migration that drops
+    // horizontal scaling can't pass on height alone.
+    if (wFloor !== undefined) {
+      expect(
+        c.cssW,
+        `${where}: canvas CSS width ${c.cssW}px below floor ${wFloor}px — squished in a narrow column? (${dims})`,
+      ).toBeGreaterThanOrEqual(wFloor);
+      expect(
+        c.bitmapW,
+        `${where}: canvas bitmap width ${c.bitmapW}px below floor ${wFloor}px — squished in a narrow column? (${dims})`,
+      ).toBeGreaterThanOrEqual(wFloor);
+      if (c.dpr > 1 && DPR_MIGRATED.has(sectionId)) {
+        const expectedW = Math.round(c.cssW * c.dpr);
+        expect(
+          Math.abs(c.bitmapW - expectedW),
+          `${where}: bitmap width ${c.bitmapW}px is not ~cssW*dpr (${expectedW}px) — ` +
+          `migration dropped DPR scaling? (${dims})`,
+        ).toBeLessThanOrEqual(c.dpr + 1);
+      }
     }
   }
 }
@@ -160,7 +200,7 @@ for (const s of ALL_SECTIONS) {
     await page.waitForTimeout(SETTLE_MS);
     const defaultView = await measureCanvases(page);
     expectPainted(defaultView, `${s.id} (default view)`);
-    expectHeights(defaultView, s.id, `${s.id} (default view)`);
+    expectDimensions(defaultView, s.id, `${s.id} (default view)`);
     let canvasesSeen = defaultView.length;
 
     // Walk every tab; a tab switch can remount panels and re-lock gates.
@@ -174,7 +214,7 @@ for (const s of ALL_SECTIONS) {
       const label = (await tabs.nth(t).textContent())?.trim() ?? `tab ${t}`;
       const inTab = await measureCanvases(page);
       expectPainted(inTab, `${s.id} (tab "${label}")`);
-      expectHeights(inTab, s.id, `${s.id} (tab "${label}")`);
+      expectDimensions(inTab, s.id, `${s.id} (tab "${label}")`);
       canvasesSeen += inTab.length;
     }
 
