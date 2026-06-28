@@ -11,6 +11,38 @@ describe('LabLayout', () => {
     expect(html.indexOf('THEORY_CONTENT')).toBeLessThan(html.indexOf('BENCH_CONTENT'));
   });
 
+  it('renders bench before theory in DOM order when leadWithBench is set', () => {
+    // Predict-first sections (e.g. gauss) put the gated sim in the bench but need
+    // it DOM-first so scroll-spy registers the sim anchor first and the mobile
+    // stack leads with the sim. The desktop grid still places it visually right.
+    const { container } = render(
+      <LabLayout leadWithBench theory={<p>THEORY_CONTENT</p>} bench={<p>BENCH_CONTENT</p>} />,
+    );
+    const html = container.innerHTML;
+    expect(html.indexOf('BENCH_CONTENT')).toBeLessThan(html.indexOf('THEORY_CONTENT'));
+  });
+
+  it('keeps the bench visually right (col 2) and theory left (col 1) under leadWithBench', () => {
+    // The DOM-order test above only covers half the contract: explicit grid
+    // placement is what keeps the DOM-first bench from rendering visually-LEFT
+    // via auto-placement. Lock both wrappers' columns so a refactor can't drop it.
+    const { container } = render(
+      <LabLayout leadWithBench theory={<p>THEORY_CONTENT</p>} bench={<p>BENCH_CONTENT</p>} />,
+    );
+    const [benchWrapper, theoryWrapper] = Array.from(container.firstElementChild!.children);
+    expect(benchWrapper.className).toContain('lg:col-start-2'); // bench → right
+    expect(theoryWrapper.className).toContain('lg:col-start-1'); // theory → left
+  });
+
+  it('renders no "Jump to lab" anchor under leadWithBench (the sim already leads the stack)', () => {
+    // With leadWithBench the bench is DOM-first AND first in the mobile stack, so a
+    // "Jump to lab" link would point UP to content the reader already passed.
+    render(
+      <LabLayout leadWithBench benchId="lab-x" jumpLabel="Jump to lab" theory={<p>t</p>} bench={<p>b</p>} />,
+    );
+    expect(screen.queryByRole('link', { name: /Jump to lab/i })).toBeNull();
+  });
+
   it('renders a sub-lg "Jump to lab" anchor targeting benchId when jumpLabel is set', () => {
     render(
       <LabLayout

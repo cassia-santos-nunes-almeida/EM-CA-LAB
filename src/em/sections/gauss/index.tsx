@@ -12,6 +12,8 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
@@ -331,14 +333,12 @@ export function GaussSection() {
     { id: 'gauss-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="gauss"
-      hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
-      toc={TOC}
-    >
-      {/* ── Interactive simulation ── */}
-      <SectionAnchor id="gauss-flux-sim" label="Flux Simulation">
+  const bench = (
+    <SectionAnchor id="gauss-flux-sim" label="Flux Simulation">
+      <LabStation
+        title="Flux Through a Gaussian Surface"
+        objective="Predict what the total flux does first, then drag the Gaussian surface to test whether it really depends on the surface radius."
+      >
       <PredictionGate
         question="You enclose a fixed charge +Q in a Gaussian sphere, then double the sphere's radius. What happens to the total electric flux through it?"
         options={[
@@ -351,25 +351,23 @@ export function GaussSection() {
         explanation={<span>Gauss's law gives Φ_E = Q_enc/ε₀ — flux depends only on the enclosed charge, not on the surface radius, so it is unchanged.</span>}
         onPredict={(correct) => markPredictionGate('gauss', correct)}
       >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
-            <canvas
-              ref={canvasTouchRef}
-              className="w-full h-full block"
-              style={{ cursor: dragging ? 'grabbing' : 'default' }}
-              role="img"
-              aria-label="Gauss's law simulation showing electric or magnetic flux through a surface"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeaveGauss}
-            />
-            <div className="absolute top-4 left-4 pointer-events-none bg-white/90 dark:bg-slate-800/90 p-2 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
-              <h5 className="font-bold text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Visualization</h5>
-              <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                {mode === 'ELECTRIC' ? 'Electric Monopole' : 'Magnetic Dipole'}
-              </div>
+      <div className="space-y-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px]">
+          <canvas
+            ref={canvasTouchRef}
+            className="w-full h-full block"
+            style={{ cursor: dragging ? 'grabbing' : 'default' }}
+            role="img"
+            aria-label="Gauss's law simulation showing electric or magnetic flux through a surface"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeaveGauss}
+          />
+          <div className="absolute top-4 left-4 pointer-events-none bg-white/90 dark:bg-slate-800/90 p-2 rounded border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h5 className="font-bold text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Visualization</h5>
+            <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
+              {mode === 'ELECTRIC' ? 'Electric Monopole' : 'Magnetic Dipole'}
             </div>
           </div>
         </div>
@@ -400,8 +398,12 @@ export function GaussSection() {
         </ControlPanel>
       </div>
       </PredictionGate>
-      </SectionAnchor>
+      </LabStation>
+    </SectionAnchor>
+  );
 
+  const theory = (
+    <div className="space-y-6">
       {/* ── Inline concept checks (distributed by mode: 2 electric, 1 magnetic) ── */}
       <SectionAnchor id="gauss-concept-checks" label="Concept Checks">
       {mode === 'ELECTRIC' ? (
@@ -486,6 +488,16 @@ export function GaussSection() {
       <SectionAnchor id="gauss-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="gauss"
+      hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
