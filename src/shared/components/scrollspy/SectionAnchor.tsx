@@ -20,9 +20,16 @@ interface SectionAnchorProps {
   id: string;
   label: string;
   children: ReactNode;
+  /**
+   * Optional classes applied to the rendered <div id>. Used when the anchor id
+   * is migrated off an inner element that carried scroll-margin (e.g.
+   * `scroll-mt-4`): since the anchor div becomes the scroll target, the margin
+   * must travel with the id. Omitted in EM sections, which need no margin.
+   */
+  className?: string;
 }
 
-export function SectionAnchor({ id, label, children }: SectionAnchorProps) {
+export function SectionAnchor({ id, label, children, className }: SectionAnchorProps) {
   const { registerAnchor, unregisterAnchor } = useContext(SectionAnchorContext);
 
   useEffect(() => {
@@ -34,5 +41,5 @@ export function SectionAnchor({ id, label, children }: SectionAnchorProps) {
     // is the correct behaviour (old anchor removed, new one registered).
   }, [id, label, registerAnchor, unregisterAnchor]);
 
-  return <div id={id}>{children}</div>;
+  return <div id={id} className={className}>{children}</div>;
 }

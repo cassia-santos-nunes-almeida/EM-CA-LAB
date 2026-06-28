@@ -14,6 +14,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { CircuitAnalysisExercise } from '@circuits/components/modules/CircuitAnalysisExercise';
@@ -77,6 +78,9 @@ export function TimeDomain() {
 
       <TableOfContents items={tocEntries} />
 
+      {/* The anchor wraps the gate (not the inner tab strip) so the level-3 nav
+          target exists even before the gate is passed. */}
+      <SectionAnchor id="circuit-analysis" label="Circuit Analysis" className="scroll-mt-4">
       <PredictionGate
         question="You double R in a series RC circuit (C fixed). What happens to the time constant τ and the s-domain pole at s = −1/τ?"
         options={[
@@ -90,7 +94,7 @@ export function TimeDomain() {
         onPredict={(correct) => markPredictionGate('circuit-analysis', correct)}
       >
         {/* circuit-type tab strip + selected comparison panel */}
-        <div id="circuit-analysis" className="scroll-mt-4 flex border-b-2 border-slate-200 dark:border-slate-700">
+        <div className="flex border-b-2 border-slate-200 dark:border-slate-700">
           {(['RC', 'RL', 'RLC'] as const).map((type) => (
             <button
               key={type}
@@ -110,8 +114,11 @@ export function TimeDomain() {
         {selectedCircuit === 'RL' && <RLCircuitComparison />}
         {selectedCircuit === 'RLC' && <RLCCircuitComparison />}
       </PredictionGate>
+      </SectionAnchor>
 
-      <div id="concept-check" className="scroll-mt-4" />
+      {/* Anchor wraps the (always one-of-three) concept check, replacing the
+          former zero-height marker div so the observer has real height. */}
+      <SectionAnchor id="concept-check" label="Check Understanding" className="scroll-mt-4">
       {selectedCircuit === 'RC' && (
         <ConceptCheck data={{
           mode: 'predict-reveal',
@@ -142,13 +149,18 @@ export function TimeDomain() {
           onHint={() => incrementHints('circuit-analysis')}
         />
       )}
+      </SectionAnchor>
 
-      <CollapsibleSection title="Method Comparison" defaultOpen={true} className="scroll-mt-4" id="method-comparison">
+      <SectionAnchor id="method-comparison" label="Method Comparison" className="scroll-mt-4">
+      <CollapsibleSection title="Method Comparison" defaultOpen={true}>
         <MethodComparisonTable />
       </CollapsibleSection>
-      <CollapsibleSection title="Circuit Response Types" defaultOpen={false} className="scroll-mt-4" id="response-types">
+      </SectionAnchor>
+      <SectionAnchor id="response-types" label="Response Types" className="scroll-mt-4">
+      <CollapsibleSection title="Circuit Response Types" defaultOpen={false}>
         <ResponseComparisons />
       </CollapsibleSection>
+      </SectionAnchor>
 
       <div className="bg-engineering-blue-50 dark:bg-engineering-blue-900/10 border-l-4 border-engineering-blue-400 dark:border-engineering-blue-600 rounded-r-lg p-4">
         <p className="text-xs font-semibold font-mono text-engineering-blue-700 dark:text-engineering-blue-400 uppercase tracking-wide mb-1">

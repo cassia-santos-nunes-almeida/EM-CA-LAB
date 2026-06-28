@@ -10,6 +10,7 @@ import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { LabStation } from '@shared/components/common/LabStation';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { WorkedSteps } from '@shared/components/common/WorkedSteps';
 import { verticalZigzag } from './zigzag';
@@ -165,7 +166,8 @@ export function NodalMesh() {
       <TableOfContents items={tocEntries} />
 
       {/* ── The puzzle ─────────────────────────────────────────────────── */}
-      <section id="puzzle" className="scroll-mt-4 space-y-4">
+      <SectionAnchor id="puzzle" label="The Unreducible Bridge" className="scroll-mt-4">
+      <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           The Unreducible Bridge
         </h2>
@@ -203,11 +205,11 @@ export function NodalMesh() {
           and mesh-current analysis are.
         </p>
       </section>
+      </SectionAnchor>
 
       {/* ── Lab 1: Node-Equation Builder ───────────────────────────────── */}
+      <SectionAnchor id="node-builder" label="Lab: Node-Equation Builder" className="scroll-mt-4">
       <LabStation
-        id="node-builder"
-        className="scroll-mt-4"
         number={getSectionNumber(SECTION_ID)}
         title="Node-Equation Builder"
         objective="Build the two KCL equations that crack the bridge — term by term, with the circuit highlighting each branch as you go."
@@ -234,6 +236,7 @@ export function NodalMesh() {
           <NodeEquationBuilder />
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       <ConceptCheck
         data={{
@@ -253,9 +256,8 @@ export function NodalMesh() {
       />
 
       {/* ── Lab 2: Mesh-Current Assigner ───────────────────────────────── */}
+      <SectionAnchor id="mesh-assigner" label="Lab: Mesh-Current Assigner" className="scroll-mt-4">
       <LabStation
-        id="mesh-assigner"
-        className="scroll-mt-4"
         number={getSectionNumber(SECTION_ID)}
         title="Mesh-Current Assigner"
         objective="Assign circulating currents, walk each loop, and let the shared branch do the talking."
@@ -281,6 +283,7 @@ export function NodalMesh() {
           <MeshCurrentAssigner />
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       <ConceptCheck
         data={{
@@ -296,7 +299,8 @@ export function NodalMesh() {
       />
 
       {/* ── Choosing a method ──────────────────────────────────────────── */}
-      <section id="choosing" className="scroll-mt-4">
+      <SectionAnchor id="choosing" label="Choosing a Method" className="scroll-mt-4">
+      <section>
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
           Choosing a Method
         </h2>
@@ -337,9 +341,11 @@ export function NodalMesh() {
           a planar circuit — one you can draw with no crossing wires.
         </p>
       </section>
+      </SectionAnchor>
 
       {/* ── The two escapes ────────────────────────────────────────────── */}
-      <section id="escapes" className="scroll-mt-4 space-y-4">
+      <SectionAnchor id="escapes" label={'Supernode & Supermesh'} className="scroll-mt-4">
+      <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           Supernode & Supermesh
         </h2>
@@ -431,6 +437,7 @@ export function NodalMesh() {
           </p>
         </div>
       </section>
+      </SectionAnchor>
 
       <ConceptCheck
         data={{
@@ -468,9 +475,9 @@ export function NodalMesh() {
         }
       />
 
-      <div id="challenge" className="scroll-mt-4">
+      <SectionAnchor id="challenge" label="Guided Challenge" className="scroll-mt-4">
         <GuidedChallenge challenge={CHALLENGE} />
-      </div>
+      </SectionAnchor>
 
       <CourseNavigation />
     </div>

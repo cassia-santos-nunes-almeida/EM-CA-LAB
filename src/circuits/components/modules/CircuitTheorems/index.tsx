@@ -10,6 +10,7 @@ import { SectionHook } from '@shared/components/common/SectionHook';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { LabStation } from '@shared/components/common/LabStation';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { useProgressStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 import { SourceKnockoutBench } from '@circuits/components/modules/CircuitTheorems/SourceKnockoutBench';
@@ -109,7 +110,8 @@ export function CircuitTheorems() {
       <TableOfContents items={tocEntries} />
 
       {/* ── The puzzle ───────────────────────────────────────────────────── */}
-      <section id="puzzle" className="scroll-mt-4 space-y-4">
+      <SectionAnchor id="puzzle" label="Four Loads, One Circuit" className="scroll-mt-4">
+      <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           Four Loads, One Circuit
         </h2>
@@ -158,11 +160,11 @@ export function CircuitTheorems() {
           it. By the end of this page each case is one division.
         </p>
       </section>
+      </SectionAnchor>
 
       {/* ── Lab 1: Source Knock-Out Bench (superposition) ────────────────── */}
+      <SectionAnchor id="knockout" label="Lab: Source Knock-Out Bench" className="scroll-mt-4">
       <LabStation
-        id="knockout"
-        className="scroll-mt-4"
         number={getSectionNumber(SECTION_ID)}
         title="Source Knock-Out Bench"
         objective="Turn each source off in turn, read node A, and watch the two partial answers add up to the real one."
@@ -181,6 +183,7 @@ export function CircuitTheorems() {
           <SourceKnockoutBench />
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       <ConceptCheck
         data={{
@@ -210,9 +213,8 @@ export function CircuitTheorems() {
       />
 
       {/* ── Lab 2: Black-Box Port Instrument (Thevenin by measurement) ───── */}
+      <SectionAnchor id="blackbox" label="Lab: Black-Box Port" className="scroll-mt-4">
       <LabStation
-        id="blackbox"
-        className="scroll-mt-4"
         number={getSectionNumber(SECTION_ID)}
         title="Black-Box Port Instrument"
         objective="Two measurements at a mystery port fully characterize whatever linear network hides inside — then prove it, load by load."
@@ -231,9 +233,11 @@ export function CircuitTheorems() {
           <BlackBoxPort />
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       {/* ── Norton & source transformation ───────────────────────────────── */}
-      <section id="norton" className="scroll-mt-4 space-y-4">
+      <SectionAnchor id="norton" label={'Norton & Source Transformation'} className="scroll-mt-4">
+      <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           Norton &amp; Source Transformation
         </h2>
@@ -291,11 +295,11 @@ export function CircuitTheorems() {
           onHint={() => incrementHints(SECTION_ID)}
         />
       </section>
+      </SectionAnchor>
 
       {/* ── Lab 3: Max-Power Bench (payoff) ──────────────────────────────── */}
+      <SectionAnchor id="max-power" label="Lab: Max-Power Bench" className="scroll-mt-4">
       <LabStation
-        id="max-power"
-        className="scroll-mt-4"
         number={getSectionNumber(SECTION_ID)}
         title="Max-Power Bench"
         objective="One curve answers the catalog question: which load pulls the most power from a 12 V / 2 Ω source?"
@@ -346,6 +350,7 @@ export function CircuitTheorems() {
           </div>
         </PredictionGate>
       </LabStation>
+      </SectionAnchor>
 
       <YourTurnPanel
         scenario="The lab swaps the resistors: now R1 = 3 Ω and R2 = 6 Ω (sources stay 24 V and 2 A)."
@@ -367,7 +372,8 @@ export function CircuitTheorems() {
       />
 
       {/* ── The Sanity-Check Triad (plausibility anchor, unit 2G) ─────────── */}
-      <section id="sanity" className="scroll-mt-4 space-y-4">
+      <SectionAnchor id="sanity" label="The Sanity-Check Triad" className="scroll-mt-4">
+      <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
           The Sanity-Check Triad
         </h2>
@@ -470,6 +476,7 @@ export function CircuitTheorems() {
           here on: they are this section riding along with you.
         </p>
       </section>
+      </SectionAnchor>
 
       <p className="text-slate-700 dark:text-slate-300">
         Everything here assumed resistors — pure algebra. Add capacitors and inductors and the
@@ -480,9 +487,9 @@ export function CircuitTheorems() {
         on impedances Z(s).
       </p>
 
-      <div id="challenge" className="scroll-mt-4">
+      <SectionAnchor id="challenge" label="Guided Challenge" className="scroll-mt-4">
         <GuidedChallenge challenge={CHALLENGE} />
-      </div>
+      </SectionAnchor>
 
       <CourseNavigation />
     </div>
