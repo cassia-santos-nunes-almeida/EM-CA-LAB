@@ -16,6 +16,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 
@@ -338,12 +339,20 @@ export function AmpereSection() {
     }
   }, []);
 
+  const TOC = [
+    { id: 'ampere-field-sim', label: 'Magnetic Field Simulation' },
+    { id: 'ampere-theory', label: "Ampère's Law" },
+    { id: 'ampere-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="ampere"
       hook="MRI machines generate fields of 1.5–3 T using superconducting coils carrying hundreds of amperes through hundreds of turns. Ampère's law relates the enclosed current to the magnetic field you will calculate here."
+      toc={TOC}
     >
       {/* ── Interactive simulation ── */}
+      <SectionAnchor id="ampere-field-sim" label="Magnetic Field Simulation">
       <PredictionGate
         question="You measure B at distance r from a long straight wire, then move the probe to 2r. How does the field magnitude change?"
         options={[
@@ -409,8 +418,10 @@ export function AmpereSection() {
 
       {/* Check: right-hand grip rule (after observing field circulation in the sim) */}
       <ConceptCheck data={toConceptCheck(Q_RHR)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
-      {/* ── Theory ── */}
+      {/* ── Theory (contains the nested parallel-wires PredictionGate) ── */}
+      <SectionAnchor id="ampere-theory" label="Ampère's Law">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -559,7 +570,10 @@ export function AmpereSection() {
           </ul>
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="ampere-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

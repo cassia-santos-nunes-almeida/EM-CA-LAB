@@ -17,6 +17,7 @@ import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallo
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 import { buildGaussData } from './chartData';
 
@@ -323,12 +324,21 @@ export function GaussSection() {
   const onCheckComplete = () => incrementConceptChecks('gauss');
   const onCheckHint = () => incrementHints('gauss');
 
+  const TOC = [
+    { id: 'gauss-flux-sim', label: 'Flux Simulation' },
+    { id: 'gauss-concept-checks', label: 'Concept Checks' },
+    { id: 'gauss-theory', label: "Gauss's Law" },
+    { id: 'gauss-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="gauss"
       hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
+      toc={TOC}
     >
       {/* ── Interactive simulation ── */}
+      <SectionAnchor id="gauss-flux-sim" label="Flux Simulation">
       <PredictionGate
         question="You enclose a fixed charge +Q in a Gaussian sphere, then double the sphere's radius. What happens to the total electric flux through it?"
         options={[
@@ -390,8 +400,10 @@ export function GaussSection() {
         </ControlPanel>
       </div>
       </PredictionGate>
+      </SectionAnchor>
 
       {/* ── Inline concept checks (distributed by mode: 2 electric, 1 magnetic) ── */}
+      <SectionAnchor id="gauss-concept-checks" label="Concept Checks">
       {mode === 'ELECTRIC' ? (
         <div className="space-y-4">
           <ConceptCheck data={toConceptCheck(Q_FLUX_RADIUS)} onComplete={onCheckComplete} onHint={onCheckHint} />
@@ -400,8 +412,10 @@ export function GaussSection() {
       ) : (
         <ConceptCheck data={toConceptCheck(Q_MONOPOLE)} onComplete={onCheckComplete} onHint={onCheckHint} />
       )}
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="gauss-theory" label="Gauss's Law">
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
@@ -468,7 +482,10 @@ export function GaussSection() {
           )}
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="gauss-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

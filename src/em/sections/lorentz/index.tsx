@@ -18,6 +18,7 @@ import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 import { sliderToSpeedKms, pxPerSecToKms, cyclotronRadiusMm, forceAttoN } from './unitMapping';
 
@@ -398,12 +399,20 @@ export function LorentzSection() {
     return () => cancelAnimationFrame(animationRef.current);
   }, [velocity, bField, charge, mass, isDarkMode, col, dragMode, handleReset, prepareFrame]);
 
+  const TOC = [
+    { id: 'lorentz-force-sim', label: 'Lorentz Force Simulation' },
+    { id: 'lorentz-theory', label: 'Theory' },
+    { id: 'lorentz-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="lorentz"
       hook="Particle accelerators like CERN steer proton beams using magnetic fields. A proton travelling at 99.9999991% of the speed of light is bent into a circle by this force — the same one you're about to calculate."
+      toc={TOC}
     >
       {/* ── Predict-first gate around the simulation ── */}
+      <SectionAnchor id="lorentz-force-sim" label="Lorentz Force Simulation">
       <PredictionGate
         question="A positive charge moves to the right in a magnetic field pointing out of the screen. Which direction is the magnetic force?"
         options={[
@@ -477,8 +486,10 @@ export function LorentzSection() {
 
       {/* Check: circular motion (after observing the v × B trajectory) */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="lorentz-theory" label="Theory">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -658,7 +669,10 @@ export function LorentzSection() {
           </p>
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="lorentz-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

@@ -11,6 +11,7 @@ import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { RadiatingChargeSim } from './RadiatingChargeSim';
 import { faradayOrbitSign } from './physics';
 import type { Challenge, QuizQuestion } from '@em/types/index';
@@ -336,12 +337,21 @@ export function MaxwellSection() {
     }
   }, [c]);
 
+  const TOC = [
+    { id: 'maxwell-four-equations', label: 'The Four Equations' },
+    { id: 'maxwell-radiation', label: 'Why Charges Radiate' },
+    { id: 'maxwell-theory', label: 'Complete Framework' },
+    { id: 'maxwell-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="maxwell"
       hook="The entire modern electrical grid — from power generation to wireless communication — is governed by four equations written in the 1860s. Every device you've ever used obeys them without exception."
+      toc={TOC}
     >
       {/* ── Animated 4-equation overview ── */}
+      <SectionAnchor id="maxwell-four-equations" label="The Four Equations">
       <PredictionGate
         question="Which single addition to Ampère's law let Maxwell predict self-propagating electromagnetic waves?"
         options={[
@@ -403,8 +413,10 @@ export function MaxwellSection() {
 
       {/* Check: which equation introduces displacement current (after the 4-card overview) */}
       <ConceptCheck data={toConceptCheck(Q_DISPLACEMENT)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
-      {/* ── Radiation mechanism: the Thomson/Purcell kink construction ── */}
+      {/* ── Radiation mechanism: the Thomson/Purcell kink construction (contains the radiation-sim gate) ── */}
+      <SectionAnchor id="maxwell-radiation" label="Why Charges Radiate">
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4">Why accelerating charges radiate</h3>
         <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
@@ -477,8 +489,10 @@ export function MaxwellSection() {
           </p>
         </div>
       </CollapsibleSection>
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="maxwell-theory" label="Complete Framework">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <FigureImage
@@ -562,7 +576,10 @@ export function MaxwellSection() {
         {/* Check: counting equations that contain B or Φ_B (after the differential forms) */}
         <ConceptCheck data={toConceptCheck(Q_COUNT_B)} onComplete={onCheckComplete} onHint={onCheckHint} />
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="maxwell-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

@@ -17,6 +17,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { YourTurnPanel } from '@shared/components/common/YourTurnPanel';
 import { solveToroid } from '@em/utils/magneticCircuits';
 import type { Challenge, QuizQuestion } from '@em/types/index';
@@ -296,12 +297,20 @@ export function MagneticCircuitsSection() {
     return () => cancelAnimationFrame(animationRef.current);
   }, [current, turns, gapPercent, materialIndex, isDarkMode, prepareFrame]);
 
+  const TOC = [
+    { id: 'magnetic-circuits-toroid-sim', label: 'Toroid Simulation' },
+    { id: 'magnetic-circuits-theory', label: 'Theory' },
+    { id: 'magnetic-circuits-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="magnetic-circuits"
       hook="Every transformer, motor, and inductor in your electronics relies on magnetic circuits. The same Kirchhoff-style analysis you use for electric circuits applies — just with flux instead of current and MMF instead of voltage."
+      toc={TOC}
     >
       {/* ── Predict-first gate around the simulation ── */}
+      <SectionAnchor id="magnetic-circuits-toroid-sim" label="Toroid Simulation">
       <PredictionGate
         question="If you insert an air gap into an iron core toroid, does the inductance increase, decrease, or stay the same?"
         options={[
@@ -365,8 +374,10 @@ export function MagneticCircuitsSection() {
 
       {/* Check: reluctance ~ resistance */}
       <ConceptCheck data={toConceptCheck(Q_RELUCTANCE)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
-      {/* ── Theory ── */}
+      {/* ── Theory (contains the nested Worked-Example-2 gate + YourTurnPanel) ── */}
+      <SectionAnchor id="magnetic-circuits-theory" label="Theory">
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
@@ -747,7 +758,10 @@ export function MagneticCircuitsSection() {
           </Link>
         </div>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="magnetic-circuits-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

@@ -17,6 +17,7 @@ import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import type { Challenge, Charge, QuizQuestion } from '@em/types/index';
 import { buildForceData, magnitudeInCoulombs } from './chartData';
@@ -459,12 +460,20 @@ export function CoulombSection() {
     ));
   }, []);
 
+  const TOC = [
+    { id: 'coulomb-superposition-sim', label: 'Charge Simulation' },
+    { id: 'coulomb-theory', label: 'Theory' },
+    { id: 'coulomb-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="coulomb"
       hook="The force between charges on a DNA strand is strong enough to hold the molecule together yet weak enough for enzymes to unzip it. The same inverse-square law governs both."
+      toc={TOC}
     >
       {/* ── Interactive simulation ── */}
+      <SectionAnchor id="coulomb-superposition-sim" label="Charge Simulation">
       <PredictionGate
         question="Two equal positive charges sit side by side. At the exact midpoint between them, what is the net electric field?"
         options={[
@@ -586,8 +595,10 @@ export function CoulombSection() {
 
       {/* Check: field-line direction (right after the field-line visualization) */}
       <ConceptCheck data={toConceptCheck(Q_FIELD_LINES)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="coulomb-theory" label="Theory">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 mb-4">
           <FigureImage
@@ -661,7 +672,10 @@ export function CoulombSection() {
           </p>
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="coulomb-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }

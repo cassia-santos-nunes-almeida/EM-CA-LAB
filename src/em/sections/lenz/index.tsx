@@ -16,6 +16,7 @@ import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallo
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
+import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import type { Challenge, QuizQuestion } from '@em/types/index';
 import { brakingForceArrowX } from './physics';
 
@@ -376,12 +377,20 @@ export function LenzSection() {
     return () => cancelAnimationFrame(animationRef.current);
   }, [magnetPos, prevPos, autoPlay, showField, numTurns, c, isDarkMode, prepareFrame]);
 
+  const TOC = [
+    { id: 'lenz-induction-sim', label: 'Induced-Current Simulation' },
+    { id: 'lenz-theory', label: "Lenz's Law" },
+    { id: 'lenz-challenge', label: 'Guided Challenge' },
+  ];
+
   return (
     <SectionLayout
       sectionId="lenz"
       hook="Induction cooktops use a rapidly alternating magnetic field to induce eddy currents in the pan. Those currents dissipate energy as I²R heat. Lenz's Law tells us the eddy currents flow in the direction that opposes the changing flux."
+      toc={TOC}
     >
       {/* ── Predict-first gate around the simulation ── */}
+      <SectionAnchor id="lenz-induction-sim" label="Induced-Current Simulation">
       <PredictionGate
         question="If the magnet is pulled away from the coil instead of pushed toward it, how does the induced current direction change?"
         options={[
@@ -474,8 +483,10 @@ export function LenzSection() {
 
       {/* Check: opposition principle (repel on approach) */}
       <ConceptCheck data={toConceptCheck(Q_REPEL)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </SectionAnchor>
 
       {/* ── Theory ── */}
+      <SectionAnchor id="lenz-theory" label="Lenz's Law">
       <div className="space-y-6">
         <FigureImage
           className="mb-6"
@@ -505,7 +516,10 @@ export function LenzSection() {
           <p>If you try to remove flux, it tries to keep it (Attraction).</p>
         </TheoryGuide>
       </div>
-      <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
+      <SectionAnchor id="lenz-challenge" label="Guided Challenge">
+        <GuidedChallenge challenge={CHALLENGE} />
+      </SectionAnchor>
     </SectionLayout>
   );
 }
