@@ -69,6 +69,7 @@ const MIN_CANVAS_W: Record<string, number> = {
   // a narrow-column squish that would clip that 200px element now trips the net —
   // a gap the generic 180 collapse-floor would miss.
   faraday: 210,
+  'magnetic-circuits': 210,
 };
 
 interface CanvasPaint {
