@@ -4,9 +4,9 @@
  * Covers:
  *  1. SectionAnchor registers {id,label} on mount, unregisters on unmount,
  *     and multiple anchors stay in document order.
- *  2. Given a sequence of IntersectionObserver entries the active id reflects
- *     exactly ONE entry (the topmost intersecting), and updates as entries
- *     change.
+ *  2. The active id = the LAST anchor in document order whose top has scrolled
+ *     above the activation line (root top + 15%), recomputed from geometry on
+ *     every observer callback — robust to a pinned sticky anchor.
  *  3. useScrollSpy() used outside a provider returns inert defaults without
  *     crashing.
  */
@@ -110,6 +110,11 @@ function TestWrapper({ children }: { children: ReactNode }) {
   // ScrollSpyProvider accepts RefObject<HTMLElement | null>.
   const rootEl = document.createElement('div');
   document.body.appendChild(rootEl);
+  // Deterministic root geometry so the activation line is computable:
+  // top=0, height=1000 → activationLine = 0 + 0.15 * 1000 = 150.
+  vi.spyOn(rootEl, 'getBoundingClientRect').mockReturnValue({
+    top: 0, bottom: 1000, left: 0, right: 1000, width: 1000, height: 1000, x: 0, y: 0, toJSON: () => ({}),
+  } as DOMRect);
   // Use a stable ref-like object:
   const rootRef = { current: rootEl };
   return (
@@ -205,11 +210,14 @@ describe('SectionAnchor', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 2. activeId reflects the topmost intersecting anchor
+// 2. activeId = the last anchor (document order) scrolled above the activation
+//    line (root top + 15% = 150 here). Robust to a pinned sticky anchor.
+//    isIntersecting on the synthetic entries is now irrelevant — the provider
+//    recomputes active from each anchor's geometry on every callback.
 // ---------------------------------------------------------------------------
 
 describe('ScrollSpyProvider / activeId', () => {
-  it('emits exactly one activeId — the topmost intersecting anchor', () => {
+  it('activates the last anchor scrolled above the line and updates as you scroll', () => {
     const Spy = () => {
       const { activeId } = useScrollSpy();
       return <div data-testid="active">{activeId ?? 'none'}</div>;
@@ -227,28 +235,27 @@ describe('ScrollSpyProvider / activeId', () => {
       </TestWrapper>,
     );
 
-    // Initially no intersecting entry → null
+    // Initially no anchor above the line → null
     expect(screen.getByTestId('active').textContent).toBe('none');
 
-    // Fire: alpha intersecting at top=50
+    // alpha scrolled above the line (50 ≤ 150), beta still below (300) → alpha
     fireEntries([
       { id: 'alpha', isIntersecting: true, top: 50 },
-      { id: 'beta', isIntersecting: false },
+      { id: 'beta', isIntersecting: false, top: 300 },
     ]);
     expect(screen.getByTestId('active').textContent).toBe('alpha');
 
-    // Scroll down: beta is now intersecting higher up than alpha
+    // Scroll down: both above the line → the LATER one in doc order (beta) wins
     fireEntries([
-      { id: 'alpha', isIntersecting: false },
-      { id: 'beta', isIntersecting: true, top: 30 },
+      { id: 'alpha', isIntersecting: false, top: -50 },
+      { id: 'beta', isIntersecting: true, top: 100 },
     ]);
-    // beta is now the only intersecting → activeId = 'beta'
     expect(screen.getByTestId('active').textContent).toBe('beta');
 
     unmount();
   });
 
-  it('picks the topmost when two anchors intersect simultaneously', () => {
+  it('when two anchors are above the line, the later one in doc order wins', () => {
     const Spy = () => {
       const { activeId } = useScrollSpy();
       return <div data-testid="active">{activeId ?? 'none'}</div>;
@@ -266,17 +273,17 @@ describe('ScrollSpyProvider / activeId', () => {
       </TestWrapper>,
     );
 
-    // Both intersecting simultaneously — top-sec has smaller top → wins
+    // Both above the line (10 and 120 ≤ 150) → doc-later bot-sec (scrolled into) wins
     fireEntries([
       { id: 'top-sec', isIntersecting: true, top: 10 },
-      { id: 'bot-sec', isIntersecting: true, top: 200 },
+      { id: 'bot-sec', isIntersecting: true, top: 120 },
     ]);
-    expect(screen.getByTestId('active').textContent).toBe('top-sec');
+    expect(screen.getByTestId('active').textContent).toBe('bot-sec');
 
     unmount();
   });
 
-  it('keeps activeId stable when a no-intersecting batch arrives', () => {
+  it('recomputes from geometry — clears active when the only anchor scrolls below the line', () => {
     const Spy = () => {
       const { activeId } = useScrollSpy();
       return <div data-testid="active">{activeId ?? 'none'}</div>;
@@ -284,20 +291,55 @@ describe('ScrollSpyProvider / activeId', () => {
 
     const { unmount } = render(
       <TestWrapper>
-        <SectionAnchor id="stable-sec" label="Stable">
-          <h2>Stable</h2>
+        <SectionAnchor id="solo-sec" label="Solo">
+          <h2>Solo</h2>
         </SectionAnchor>
         <Spy />
       </TestWrapper>,
     );
 
-    // Establish an active id
-    fireEntries([{ id: 'stable-sec', isIntersecting: true, top: 20 }]);
-    expect(screen.getByTestId('active').textContent).toBe('stable-sec');
+    fireEntries([{ id: 'solo-sec', isIntersecting: true, top: 20 }]);
+    expect(screen.getByTestId('active').textContent).toBe('solo-sec');
 
-    // Empty-intersecting batch (threshold gap) — should NOT reset
-    fireEntries([{ id: 'stable-sec', isIntersecting: false }]);
-    expect(screen.getByTestId('active').textContent).toBe('stable-sec');
+    // Scrolled back so the anchor is below the line again → active clears (no stale keep)
+    fireEntries([{ id: 'solo-sec', isIntersecting: false, top: 300 }]);
+    expect(screen.getByTestId('active').textContent).toBe('none');
+
+    unmount();
+  });
+
+  it('resets to a pinned doc-first anchor on scroll-up (sticky-bench fix)', () => {
+    const Spy = () => {
+      const { activeId } = useScrollSpy();
+      return <div data-testid="active">{activeId ?? 'none'}</div>;
+    };
+
+    const { unmount } = render(
+      <TestWrapper>
+        <SectionAnchor id="sim" label="Sim">
+          <h2>Sim</h2>
+        </SectionAnchor>
+        <SectionAnchor id="theory" label="Theory">
+          <h2>Theory</h2>
+        </SectionAnchor>
+        <Spy />
+      </TestWrapper>,
+    );
+
+    // Scrolled down: sim pinned at top=24 (always above the line) and theory above it too
+    fireEntries([
+      { id: 'sim', isIntersecting: true, top: 24 },
+      { id: 'theory', isIntersecting: true, top: 100 },
+    ]);
+    expect(screen.getByTestId('active').textContent).toBe('theory');
+
+    // Scrolled back to top: sim still pinned at 24, theory now below the line (300).
+    // Active RESETS to the pinned sim — the old batch-topmost left it stale on theory.
+    fireEntries([
+      { id: 'sim', isIntersecting: true, top: 24 },
+      { id: 'theory', isIntersecting: false, top: 300 },
+    ]);
+    expect(screen.getByTestId('active').textContent).toBe('sim');
 
     unmount();
   });
