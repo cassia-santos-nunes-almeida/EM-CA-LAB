@@ -13,6 +13,8 @@ import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
@@ -405,14 +407,12 @@ export function LorentzSection() {
     { id: 'lorentz-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="lorentz"
-      hook="Particle accelerators like CERN steer proton beams using magnetic fields. A proton travelling at 99.9999991% of the speed of light is bent into a circle by this force — the same one you're about to calculate."
-      toc={TOC}
-    >
-      {/* ── Predict-first gate around the simulation ── */}
-      <SectionAnchor id="lorentz-force-sim" label="Lorentz Force Simulation">
+  const bench = (
+    <SectionAnchor id="lorentz-force-sim" label="Lorentz Force Simulation">
+      <LabStation
+        title="The Lorentz Force"
+        objective="Predict the force direction first, then launch the particle and watch q·v × B bend it into a circular orbit."
+      >
       <PredictionGate
         question="A positive charge moves to the right in a magnetic field pointing out of the screen. Which direction is the magnetic force?"
         options={[
@@ -432,27 +432,25 @@ export function LorentzSection() {
         }
         onPredict={(correct) => markPredictionGate('lorentz', correct)}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <div
-              className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px] outline-none"
-              role="button"
-              aria-label="Lorentz force simulation. Use the arrow keys to move the charged particle."
-              tabIndex={0}
-              onKeyDown={handleKeyDown}
-            >
-              <canvas
-                ref={canvasTouchRef}
-                className="w-full h-full block"
-                style={{ cursor: dragMode !== 'none' ? 'grabbing' : 'default' }}
-                role="img"
-                aria-label="Lorentz force simulation showing charged particle trajectory in magnetic field"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseLeaveLorentz}
-              />
-            </div>
+        <div className="space-y-4">
+          <div
+            className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px] outline-none"
+            role="button"
+            aria-label="Lorentz force simulation. Use the arrow keys to move the charged particle."
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+          >
+            <canvas
+              ref={canvasTouchRef}
+              className="w-full h-full block"
+              style={{ cursor: dragMode !== 'none' ? 'grabbing' : 'default' }}
+              role="img"
+              aria-label="Lorentz force simulation showing charged particle trajectory in magnetic field"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeaveLorentz}
+            />
           </div>
           <ControlPanel title="Particle Controls">
             <Slider label={`Charge q = ${charge} e`} value={charge} min={-5} max={5} onChange={setCharge} color="bg-red-600" />
@@ -472,7 +470,12 @@ export function LorentzSection() {
           </ControlPanel>
         </div>
       </PredictionGate>
+      </LabStation>
+    </SectionAnchor>
+  );
 
+  const theory = (
+    <div className="space-y-6">
       {/* ── Plausibility callout (unit 2G): the magnitude judgment the SI units enable ── */}
       <PlausibilityCallout>
         Hover the orbit at the default settings:{' '}
@@ -486,7 +489,6 @@ export function LorentzSection() {
 
       {/* Check: circular motion (after observing the v × B trajectory) */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
-      </SectionAnchor>
 
       {/* ── Theory ── */}
       <SectionAnchor id="lorentz-theory" label="Theory">
@@ -673,6 +675,16 @@ export function LorentzSection() {
       <SectionAnchor id="lorentz-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="lorentz"
+      hook="Particle accelerators like CERN steer proton beams using magnetic fields. A proton travelling at 99.9999991% of the speed of light is bent into a circle by this force — the same one you're about to calculate."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
