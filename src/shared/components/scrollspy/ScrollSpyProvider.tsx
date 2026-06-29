@@ -4,13 +4,17 @@
  * Owns exactly ONE IntersectionObserver (spec §4) whose root is the scroll
  * container passed via rootRef (= Layout's <main id="main-content"> element).
  *
- * rootMargin: "-10% 0px -85% 0px"
- *   — a thin horizontal band anchored near the top of the scroll container.
- *     The section whose anchor enters this band is the "active" one.
- *     "topmost intersecting" is resolved by picking the anchor with the
- *     smallest positive boundingClientRect.top at callback time; when no
- *     anchor is intersecting the current activeId is kept (avoids flickering
- *     at the boundary between two anchors).
+ * Active selection (computeActiveId): on every observer callback we recompute
+ * the active anchor from current geometry as the LAST anchor in DOCUMENT ORDER
+ * whose top has scrolled above the activation line (root top + 15%). Document-
+ * order (not geometric-topmost) is robust to a PINNED sticky anchor — e.g. a
+ * leadWithBench sim bench — which sits visually near the top forever: being
+ * doc-first it is only the "last above the line" when nothing later is (= at the
+ * very top), so the meter resets to it on scroll-up instead of going stale on a
+ * theory anchor.
+ *
+ * rootMargin "-10% 0px -85% 0px" is only the TRIGGER: a thin band near the top
+ * whose crossings tell us when to recompute (threshold 0).
  *
  * Anchor-element lookup: document.getElementById(id) is called at
  * observation-time, not at registration-time, so we never hold a stale ref.
@@ -34,6 +38,13 @@ import {
   SectionAnchorContext,
   type AnchorEntry,
 } from './SectionAnchorContext';
+import { computeActiveId } from './computeActiveId';
+
+/**
+ * Fraction of the scroll-container height at which an anchor becomes "active"
+ * once its top scrolls above it. 0.15 = the lower edge of the rootMargin band.
+ */
+const ACTIVATION_RATIO = 0.15;
 
 interface ScrollSpyProviderProps {
   /** Ref to the scroll container element (Layout's <main>). */
@@ -91,53 +102,30 @@ export function ScrollSpyProvider({ rootRef, children }: ScrollSpyProviderProps)
 
     if (elements.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Build a map of currently intersecting entries from this batch
-        // combined with previous knowledge.  We track all intersecting ids
-        // so we can pick the topmost one.
-        setActiveId(prevId => {
-          // Update the intersecting set based on the incoming entries
-          const intersectingSet = new Set<string>();
-
-          // We rebuild from entries only — simpler and avoids stale sets.
-          // Entries whose isIntersecting=false are not included.
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              intersectingSet.add((entry.target as HTMLElement).id);
-            }
-          }
-
-          if (intersectingSet.size === 0) {
-            // No new intersections in this batch — keep prevId if its element
-            // is still intersecting (we cannot know from this batch alone).
-            // Fall back to prevId to avoid flickering during threshold gaps.
-            return prevId;
-          }
-
-          // Among intersecting anchors pick the topmost (smallest top offset)
-          let topmostId: string | null = null;
-          let topmostTop = Infinity;
-          for (const id of intersectingSet) {
+    const recompute = () => {
+      // Recompute from current geometry on every crossing: the active anchor is
+      // the LAST in document order whose top is above the activation line.
+      const rootRect = root.getBoundingClientRect();
+      const activationLine = rootRect.top + ACTIVATION_RATIO * rootRect.height;
+      setActiveId(
+        computeActiveId(
+          anchors.map((a) => a.id),
+          activationLine,
+          (id) => {
             const el = document.getElementById(id);
-            if (!el) continue;
-            const top = el.getBoundingClientRect().top;
-            if (top < topmostTop) {
-              topmostTop = top;
-              topmostId = id;
-            }
-          }
-          return topmostId ?? prevId;
-        });
-      },
-      {
-        root,
-        // Top-biased band: 10% from the top edge to 85% from the bottom edge
-        // → only ~5% of the container height acts as the "active zone".
-        rootMargin: '-10% 0px -85% 0px',
-        threshold: 0,
-      },
-    );
+            return el ? el.getBoundingClientRect().top : null;
+          },
+        ),
+      );
+    };
+
+    const observer = new IntersectionObserver(recompute, {
+      root,
+      // Top-biased band: only its crossings TRIGGER a recompute (the active
+      // anchor itself is chosen by computeActiveId, not by "is intersecting").
+      rootMargin: '-10% 0px -85% 0px',
+      threshold: 0,
+    });
 
     for (const el of elements) {
       observer.observe(el);
