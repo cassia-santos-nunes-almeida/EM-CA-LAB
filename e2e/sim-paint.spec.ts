@@ -59,6 +59,9 @@ const MIN_CANVAS_W: Record<string, number> = {
   // relation below; this floor catches a hard horizontal collapse on either viewport.
   gauss: 180,
   lorentz: 180, // same leadWithBench bench geometry as gauss (mobile 299 / desktop 482)
+  coulomb: 180,
+  lenz: 180,
+  polarization: 180,
 };
 
 interface CanvasPaint {

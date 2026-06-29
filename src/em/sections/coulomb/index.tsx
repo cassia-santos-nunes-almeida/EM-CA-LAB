@@ -13,6 +13,8 @@ import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { PhysicsChart } from '@em/components/common/PhysicsChart';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
@@ -466,14 +468,12 @@ export function CoulombSection() {
     { id: 'coulomb-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="coulomb"
-      hook="The force between charges on a DNA strand is strong enough to hold the molecule together yet weak enough for enzymes to unzip it. The same inverse-square law governs both."
-      toc={TOC}
-    >
-      {/* ── Interactive simulation ── */}
-      <SectionAnchor id="coulomb-superposition-sim" label="Charge Simulation">
+  const bench = (
+    <SectionAnchor id="coulomb-superposition-sim" label="Charge Simulation">
+      <LabStation
+        title="Coulomb's Law & Superposition"
+        objective="Predict the field at the midpoint first, then drag the charges and watch the field lines and force vectors rebuild by superposition."
+      >
       <PredictionGate
         question="Two equal positive charges sit side by side. At the exact midpoint between them, what is the net electric field?"
         options={[
@@ -486,12 +486,11 @@ export function CoulombSection() {
         explanation={<span>The two equal charges push a test charge in opposite directions along the line joining them, so the horizontal contributions cancel and |E| = 0 at the midpoint — vector superposition.</span>}
         onPredict={(correct) => markPredictionGate('coulomb', correct)}
       >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <div
-            role="button"
-            aria-label="Charge simulation area. Focus and use arrow keys to nudge the selected charge."
-            className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px] cursor-crosshair outline-none"
+      <div className="space-y-4">
+        <div
+          role="button"
+          aria-label="Charge simulation area. Focus and use arrow keys to nudge the selected charge."
+          className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px] cursor-crosshair outline-none"
             tabIndex={0}
             onKeyDown={handleKeyDown}
           >
@@ -510,7 +509,6 @@ export function CoulombSection() {
               <span className="text-slate-700 dark:text-slate-300 font-medium">Drag charges</span>
             </div>
           </div>
-        </div>
         <ControlPanel title="Charge Configuration">
           {charges.map((charge, i) => (
             <div key={charge.id} className="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-200 dark:border-slate-600 mb-4">
@@ -579,7 +577,12 @@ export function CoulombSection() {
         </ControlPanel>
       </div>
       </PredictionGate>
+      </LabStation>
+    </SectionAnchor>
+  );
 
+  const theory = (
+    <div className="space-y-6">
       {/* ── Plausibility callout (unit 2G): judge the inputs, not just the formula ── */}
       <PlausibilityCallout>
         Set both charges to <strong>+4 μC</strong> one grid square (0.1 m) apart and read
@@ -595,7 +598,6 @@ export function CoulombSection() {
 
       {/* Check: field-line direction (right after the field-line visualization) */}
       <ConceptCheck data={toConceptCheck(Q_FIELD_LINES)} onComplete={onCheckComplete} onHint={onCheckHint} />
-      </SectionAnchor>
 
       {/* ── Theory ── */}
       <SectionAnchor id="coulomb-theory" label="Theory">
@@ -676,6 +678,16 @@ export function CoulombSection() {
       <SectionAnchor id="coulomb-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="coulomb"
+      hook="The force between charges on a DNA strand is strong enough to hold the molecule together yet weak enough for enzymes to unzip it. The same inverse-square law governs both."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
