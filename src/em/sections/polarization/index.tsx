@@ -14,6 +14,8 @@ import { FigureImage } from '@shared/components/common/FigureImage';
 import { Layers } from 'lucide-react';
 import type { Challenge, Equation, QuizQuestion } from '@em/types/index';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
@@ -389,14 +391,12 @@ export function PolarizationSection() {
     { id: 'polarization-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="polarization"
-      hook="LCD screens work by rotating the polarization of light between two crossed polarizers. Without the physics in this section, there are no flat screens, no sunglasses, and no glare-reducing camera filters."
-      toc={TOC}
-    >
-      {/* ── Interactive simulation ── */}
-      <SectionAnchor id="polarization-state-sim" label="Polarization Simulation">
+  const bench = (
+    <SectionAnchor id="polarization-state-sim" label="Polarization Simulation">
+      <LabStation
+        title="Polarization States"
+        objective="Predict the polarization state first, then steer Ex, Ey, and their phase to trace linear, circular, and elliptical states."
+      >
       <PredictionGate
         question="Two orthogonal E-field components of EQUAL amplitude are combined with a 90° phase difference. What polarization state results?"
         options={[
@@ -409,10 +409,8 @@ export function PolarizationSection() {
         explanation={<span>Equal amplitudes with δ = ±90° make the E-vector tip trace a circle (Ex²+Ey² = const) — circular polarization. δ = 0°/180° gives linear; unequal amplitudes give elliptical.</span>}
         onPredict={(correct) => markPredictionGate('polarization', correct)}
       >
-        {/* existing interactive-simulation grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
+        <div className="space-y-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px]">
             <canvas
               ref={canvasTouchRef}
               className="w-full h-full block"
@@ -448,7 +446,6 @@ export function PolarizationSection() {
               </div>
             </div>
           </div>
-        </div>
         <ControlPanel title="Polarization Controls">
           <div className="mb-6 border-b border-slate-100 dark:border-slate-700 pb-6">
             <Slider label="Horizontal Amp (Ex)" value={ex} min={0} max={100} step={1} unit=" (arb.)" onChange={setEx} color="bg-red-600" />
@@ -507,7 +504,12 @@ export function PolarizationSection() {
         </ControlPanel>
         </div>
       </PredictionGate>
+      </LabStation>
+    </SectionAnchor>
+  );
 
+  const theory = (
+    <div className="space-y-6">
       {/* Plausibility callout (ILO-8): sanity-check how special circular polarization is */}
       <PlausibilityCallout>
         Circular polarization is a knife-edge condition, not a default: it needs the two
@@ -525,7 +527,6 @@ export function PolarizationSection() {
 
       {/* Check: circular polarization phase condition */}
       <ConceptCheck data={toConceptCheck(Q_CIRCULAR)} onComplete={onCheckComplete} onHint={onCheckHint} />
-      </SectionAnchor>
 
       {/* ── Theory ── */}
       <SectionAnchor id="polarization-theory" label="Theory">
@@ -575,6 +576,16 @@ export function PolarizationSection() {
       <SectionAnchor id="polarization-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="polarization"
+      hook="LCD screens work by rotating the polarization of light between two crossed polarizers. Without the physics in this section, there are no flat screens, no sunglasses, and no glare-reducing camera filters."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
