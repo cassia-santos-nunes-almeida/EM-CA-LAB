@@ -62,6 +62,13 @@ const MIN_CANVAS_W: Record<string, number> = {
   coulomb: 180,
   lenz: 180,
   polarization: 180,
+  // faraday + magnetic-circuits each draw a 200px-wide FIXED on-canvas element
+  // (faraday's rate-drag bar at barW=200; magnetic-circuits' readout box at fillRect
+  // width 200), so their floor is lifted above 200 → 210. Still well under the
+  // smallest healthy bench width (mobile 299 / desktop 482), so no false failure, but
+  // a narrow-column squish that would clip that 200px element now trips the net —
+  // a gap the generic 180 collapse-floor would miss.
+  faraday: 210,
 };
 
 interface CanvasPaint {

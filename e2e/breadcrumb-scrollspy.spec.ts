@@ -1,9 +1,10 @@
 // Guards the #11 active-subsection breadcrumb meter: it must ADVANCE as you scroll
 // down a section and RESET when you scroll back to the top. The leadWithBench
-// sections (gauss) put a scroll-spy anchor inside a lg:sticky bench; the old
+// sections (gauss, faraday) put a scroll-spy anchor inside a lg:sticky bench; the old
 // batch-topmost scroll-spy left the meter STALE on a theory anchor when scrolled
-// back up. The doc-order selector (computeActiveId) fixes it. faraday is a normal
-// (non-sticky) control proving the algorithm change didn't regress ordinary sections.
+// back up. The doc-order selector (computeActiveId) fixes it. ampere is a normal
+// (non-sticky, flat SectionLayout) control proving the algorithm change didn't
+// regress ordinary sections — it replaces faraday, which became leadWithBench in #13/PR9.
 import { test, expect, type Page } from '@playwright/test';
 
 async function meterK(page: Page): Promise<number> {
@@ -25,7 +26,8 @@ async function scrollTo(page: Page, frac: number) {
 
 const SECTIONS = [
   { id: 'gauss', route: '/gauss' },     // leadWithBench → sim anchor in the sticky bench
-  { id: 'faraday', route: '/faraday' }, // normal section (control)
+  { id: 'faraday', route: '/faraday' }, // leadWithBench (migrated #13/PR9) → sim anchor in the sticky bench
+  { id: 'ampere', route: '/ampere' },   // normal (non-sticky, flat SectionLayout) control
 ];
 
 for (const s of SECTIONS) {

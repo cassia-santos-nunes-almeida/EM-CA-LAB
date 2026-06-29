@@ -13,6 +13,8 @@ import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
@@ -301,14 +303,12 @@ export function FaradaySection() {
     { id: 'faraday-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="faraday"
-      hook="Every electrical transformer relies on Faraday's Law: a changing current in one coil creates a changing magnetic flux that induces a voltage in a neighboring coil — the principle behind the entire power grid."
-      toc={TOC}
-    >
-      {/* ── Predict-first gate around the simulation ── */}
-      <SectionAnchor id="faraday-induction-sim" label="Induction Simulation">
+  const bench = (
+    <SectionAnchor id="faraday-induction-sim" label="Induction Simulation">
+      <LabStation
+        title="Faraday's Law of Induction"
+        objective="Predict the induced-current direction first, then drive the flux faster and add turns to watch ℰ = −N dΦ/dt grow and flip sign."
+      >
       <PredictionGate
         question="A bar magnet's north pole approaches a coil from the left. In which direction does the induced current flow when viewed from the left?"
         options={[
@@ -325,9 +325,8 @@ export function FaradaySection() {
         }
         onPredict={(correct) => markPredictionGate('faraday', correct)}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
+        <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px]">
               <canvas
                 ref={canvasTouchRef}
                 className="w-full h-full block"
@@ -340,7 +339,6 @@ export function FaradaySection() {
                 style={{ cursor: 'crosshair' }}
               />
             </div>
-          </div>
           <ControlPanel title="Experiment Controls">
             <Slider label={`Frequency f = ${rateToHz(rate).toFixed(0)} Hz`} value={rate} min={0.1} max={3.0} step={0.1} onChange={setRate} />
             <Slider label="Loops (N)" value={loops} min={1} max={10} onChange={setLoops} color="bg-indigo-600" />
@@ -357,10 +355,14 @@ export function FaradaySection() {
           </ControlPanel>
         </div>
       </PredictionGate>
-
-      {/* Check: what produces a changing flux (after the induction demo) */}
-      <ConceptCheck data={toConceptCheck(Q_NO_EMF)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </LabStation>
       </SectionAnchor>
+  );
+
+  const theory = (
+    <div className="space-y-6">
+      {/* Check: what produces a changing flux — lifted from the bench to lead the theory column (lorentz Q_CIRCULAR pattern) */}
+      <ConceptCheck data={toConceptCheck(Q_NO_EMF)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
       {/* ── Theory ── */}
       <SectionAnchor id="faraday-theory" label="Faraday's Law">
@@ -593,6 +595,16 @@ export function FaradaySection() {
       <SectionAnchor id="faraday-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="faraday"
+      hook="Every electrical transformer relies on Faraday's Law: a changing current in one coil creates a changing magnetic flux that induces a voltage in a neighboring coil — the principle behind the entire power grid."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
