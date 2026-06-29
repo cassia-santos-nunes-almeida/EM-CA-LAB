@@ -58,6 +58,7 @@ const MIN_CANVAS_W: Record<string, number> = {
   // comes from the grid's 420px bench min-width + the symmetric bitmapW≈cssW*dpr
   // relation below; this floor catches a hard horizontal collapse on either viewport.
   gauss: 180,
+  lorentz: 180, // same leadWithBench bench geometry as gauss (mobile 299 / desktop 482)
 };
 
 interface CanvasPaint {
