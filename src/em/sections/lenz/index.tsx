@@ -10,6 +10,8 @@ import { HintBox } from '@em/components/common/HintBox';
 import { TheoryGuide } from '@em/components/common/TheoryGuide';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { PlausibilityCallout } from '@shared/components/common/PlausibilityCallout';
@@ -383,14 +385,12 @@ export function LenzSection() {
     { id: 'lenz-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="lenz"
-      hook="Induction cooktops use a rapidly alternating magnetic field to induce eddy currents in the pan. Those currents dissipate energy as I²R heat. Lenz's Law tells us the eddy currents flow in the direction that opposes the changing flux."
-      toc={TOC}
-    >
-      {/* ── Predict-first gate around the simulation ── */}
-      <SectionAnchor id="lenz-induction-sim" label="Induced-Current Simulation">
+  const bench = (
+    <SectionAnchor id="lenz-induction-sim" label="Induced-Current Simulation">
+      <LabStation
+        title="Lenz's Law"
+        objective="Predict how the induced current flips when the magnet reverses, then move the magnet and watch the coil oppose every change in flux."
+      >
       <PredictionGate
         question="If the magnet is pulled away from the coil instead of pushed toward it, how does the induced current direction change?"
         options={[
@@ -408,10 +408,9 @@ export function LenzSection() {
         }
         onPredict={(correct) => markPredictionGate('lenz', correct)}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="space-y-4">
             <div
-              className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px] outline-none"
+              className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px] outline-none"
               role="button"
               aria-label="Lenz's law simulation. Use the left and right arrow keys to move the magnet."
               tabIndex={0}
@@ -429,7 +428,6 @@ export function LenzSection() {
                 onMouseLeave={handleMouseUp}
               />
             </div>
-          </div>
           <ControlPanel title="Lenz's Law">
             <div className="flex items-center gap-2 mb-4">
               <input
@@ -469,7 +467,12 @@ export function LenzSection() {
           </ControlPanel>
         </div>
       </PredictionGate>
+      </LabStation>
+    </SectionAnchor>
+  );
 
+  const theory = (
+    <div className="space-y-6">
       {/* Plausibility callout (ILO-8): put a real number on the induced EMF */}
       <PlausibilityCallout>
         Put a number on the induced EMF. Thrust a neodymium magnet (~0.1 T at its face)
@@ -483,7 +486,6 @@ export function LenzSection() {
 
       {/* Check: opposition principle (repel on approach) */}
       <ConceptCheck data={toConceptCheck(Q_REPEL)} onComplete={onCheckComplete} onHint={onCheckHint} />
-      </SectionAnchor>
 
       {/* ── Theory ── */}
       <SectionAnchor id="lenz-theory" label="Lenz's Law">
@@ -520,6 +522,16 @@ export function LenzSection() {
       <SectionAnchor id="lenz-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="lenz"
+      hook="Induction cooktops use a rapidly alternating magnetic field to induce eddy currents in the pan. Those currents dissipate energy as I²R heat. Lenz's Law tells us the eddy currents flow in the direction that opposes the changing flux."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
