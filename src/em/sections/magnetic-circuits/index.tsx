@@ -13,6 +13,8 @@ import { Link } from 'react-router-dom';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { ArrowRight } from 'lucide-react';
 import { SectionLayout } from '@em/components/common/section/SectionLayout';
+import { LabLayout } from '@shared/components/common/LabLayout';
+import { LabStation } from '@shared/components/common/LabStation';
 import { ConceptCheck } from '@shared/components/common/ConceptCheck';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
 import { toConceptCheck } from '@em/components/common/section/quizAdapter';
@@ -303,14 +305,12 @@ export function MagneticCircuitsSection() {
     { id: 'magnetic-circuits-challenge', label: 'Guided Challenge' },
   ];
 
-  return (
-    <SectionLayout
-      sectionId="magnetic-circuits"
-      hook="Every transformer, motor, and inductor in your electronics relies on magnetic circuits. The same Kirchhoff-style analysis you use for electric circuits applies — just with flux instead of current and MMF instead of voltage."
-      toc={TOC}
-    >
-      {/* ── Predict-first gate around the simulation ── */}
-      <SectionAnchor id="magnetic-circuits-toroid-sim" label="Toroid Simulation">
+  const bench = (
+    <SectionAnchor id="magnetic-circuits-toroid-sim" label="Toroid Simulation">
+      <LabStation
+        title="The Toroid Magnetic Circuit"
+        objective="Predict what an air gap does to the inductance first, then open the gap and watch a sliver of air out-resist the whole iron core and collapse L = N²/ℛ."
+      >
       <PredictionGate
         question="If you insert an air gap into an iron core toroid, does the inductance increase, decrease, or stay the same?"
         options={[
@@ -328,9 +328,8 @@ export function MagneticCircuitsSection() {
         }
         onPredict={(correct) => markPredictionGate('magnetic-circuits', correct)}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden flex-grow min-h-[400px]">
+        <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden h-[400px]">
               <canvas
                 ref={canvasTouchRef}
                 className="w-full h-full"
@@ -338,7 +337,6 @@ export function MagneticCircuitsSection() {
                 aria-label="Toroid magnetic circuit simulation showing flux lines and air gap"
               />
             </div>
-          </div>
           <ControlPanel title="Toroid Parameters">
             <div className="space-y-1">
               <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400">Core Material</span>
@@ -365,16 +363,17 @@ export function MagneticCircuitsSection() {
             <HintBox>
               Even a tiny air gap drastically reduces inductance because μ₀ ≪ μ_iron.
             </HintBox>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2">
-              <strong>Note:</strong> μᵣ = 5,000 (Iron) is a typical linearized value. Real iron is nonlinear — μᵣ varies from ~100 (near saturation) to ~10,000 (low flux density). This simulation neglects B-H curve nonlinearity and fringing at the air gap (flux is assumed confined to the core cross-section A).
-            </p>
           </ControlPanel>
         </div>
       </PredictionGate>
-
-      {/* Check: reluctance ~ resistance */}
-      <ConceptCheck data={toConceptCheck(Q_RELUCTANCE)} onComplete={onCheckComplete} onHint={onCheckHint} />
+      </LabStation>
       </SectionAnchor>
+  );
+
+  const theory = (
+    <div className="space-y-6">
+      {/* Check: reluctance ~ resistance — lifted from the bench to lead the theory column (lorentz Q_CIRCULAR pattern) */}
+      <ConceptCheck data={toConceptCheck(Q_RELUCTANCE)} onComplete={onCheckComplete} onHint={onCheckHint} />
 
       {/* ── Theory (contains the nested Worked-Example-2 gate + YourTurnPanel) ── */}
       <SectionAnchor id="magnetic-circuits-theory" label="Theory">
@@ -397,6 +396,13 @@ export function MagneticCircuitsSection() {
             { label: 'Inductance', math: 'L = \\frac{N^2}{\\mathcal{R}}' },
           ]}
         />
+
+        {/* Modeling caveat — relocated out of the bench ControlPanel (#13/PR10) so the
+            sticky bench stays inside lg:max-h and the toroid readouts stay visible. The
+            WE-1 "B = 4 T should bother you" callout below refers back to this footnote. */}
+        <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+          <strong>Note:</strong> μᵣ = 5,000 (Iron) is a typical linearized value. Real iron is nonlinear — μᵣ varies from ~100 (near saturation) to ~10,000 (low flux density). This simulation neglects B-H curve nonlinearity and fringing at the air gap (flux is assumed confined to the core cross-section A).
+        </p>
 
         {/* Check: air gap → inductance (L = N²/ℛ) */}
         <ConceptCheck data={toConceptCheck(Q_AIR_GAP)} onComplete={onCheckComplete} onHint={onCheckHint} />
@@ -473,7 +479,7 @@ export function MagneticCircuitsSection() {
           <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
             <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 5 — Verify against the instrument</p>
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              Set Iron, N = 200, I = 1.0 A, gap 0% above and read the canvas:{' '}
+              Set Iron, N = 200, I = 1.0 A, gap 0% on the bench and read the canvas:{' '}
               <code className="text-xs">H_core = 636.620 A/m</code>, <code className="text-xs">B = 4.000 T</code>,{' '}
               <code className="text-xs">Φ = 4.00 mWb</code>, <code className="text-xs">L = 800.00 mH</code> — your
               0.800 H, milli-prefixed; same digits, SI prefix shifted. <strong>Digit for digit.</strong>
@@ -571,7 +577,7 @@ export function MagneticCircuitsSection() {
             <div className="border-l-2 border-indigo-300 dark:border-indigo-700 pl-4">
               <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">Step 6 — Verify against the instrument</p>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-2">
-                Set Iron, N = 200, I = 1.0 A, gap 1% above:
+                Set Iron, N = 200, I = 1.0 A, gap 1% on the bench:
               </p>
               <div className="overflow-x-auto">
                 <table className="text-sm text-slate-700 dark:text-slate-300 border-collapse">
@@ -762,6 +768,16 @@ export function MagneticCircuitsSection() {
       <SectionAnchor id="magnetic-circuits-challenge" label="Guided Challenge">
         <GuidedChallenge challenge={CHALLENGE} />
       </SectionAnchor>
+    </div>
+  );
+
+  return (
+    <SectionLayout
+      sectionId="magnetic-circuits"
+      hook="Every transformer, motor, and inductor in your electronics relies on magnetic circuits. The same Kirchhoff-style analysis you use for electric circuits applies — just with flux instead of current and MMF instead of voltage."
+      toc={TOC}
+    >
+      <LabLayout leadWithBench theory={theory} bench={bench} />
     </SectionLayout>
   );
 }
