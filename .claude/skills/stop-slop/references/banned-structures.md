@@ -140,13 +140,21 @@ Wh- openers become a crutch. "What makes this hard is..." becomes "The constrain
 AI text avoids "is" and "has" by substituting fancier verbs. These sound like a press
 release. Default to "is" or "has" unless a more specific verb genuinely adds meaning.
 
-| Pattern | Problem |
-|---------|---------|
-| "serves as" | Use "is" |
-| "features" (verb) | Use "has" or "includes" |
-| "boasts" | Use "has" |
-| "presents" (inflated) | Use "is" or "shows" |
-| "represents" | Often just "is" |
+| Pattern | Fix |
+|---------|-----|
+| "serves as" | is |
+| "stands as" | is |
+| "features" (verb) | has, includes |
+| "boasts" | has |
+| "presents" (inflated) | is, shows |
+| "represents" | is |
+| "marks a" | is, was |
+| "represents a" | is |
+| "plays a role in" | affects, contributes to (or state the relationship directly) |
+| "helps to" | helps (drop "to"), or use a direct active verb |
+| "aims to" | (state what it does, not what it intends) |
+| "seeks to" | (same as "aims to") |
+| "offers a" | has, gives, provides |
 
 ## Synonym Cycling
 
@@ -182,12 +190,25 @@ Also catches the corporate-collective "our": "our team", "our approach", "our co
 group exists, name it ("the EM/AC course team", "the PED faculty cohort"). If not, cut
 "our" and rephrase. Corporate "we/our" without antecedent is AI boilerplate.
 
+Also catches the inverse pattern, **over-attribution to assert importance** rather than
+to verify a claim. Naming a prestigious source when the specific claim does not require
+verification ("As reported in Nature, collaboration improves outcomes") is AI performing
+credibility. If a source is cited, it should be because the claim could be contested or
+is non-obvious, not because the source sounds impressive.
+
 ## Significance Inflation
 
 Phrases like "marking a pivotal moment in the evolution of..." or "a watershed moment for
 the industry" inflate routine events into history-making ones. State what happened and let
 the reader judge significance. If the sentence still works after you delete the inflation
 clause, delete it.
+
+Also catch these specific constructions:
+
+- "evolving landscape": name what is changing, or cut
+- "contributing to the broader [X]": state the specific contribution or cut the claim
+- "symbolizing its ongoing/enduring legacy": state the fact the symbol supposedly represents
+- "in the evolution of [field]": state what actually changed and when
 
 ## Promotional Language
 
@@ -274,9 +295,16 @@ collaboration." These say nothing. Replace with specific facts or cut entirely.
 
 ## Formulaic Challenges
 
-"Despite challenges, [subject] continues to thrive" or "While facing headwinds, the
-organization remains resilient." This is a non-statement. Name the actual challenge and
-the actual response, or cut the sentence.
+The full AI formula pairs an opening concession with a closing resilience claim:
+
+- **Opening:** "Despite its [positive adjective/claim], [subject] faces challenges [vague]..."
+- **Close:** "Despite these challenges, [subject] continues to thrive."
+
+The skill currently catches the close. The opening is equally banned. Both halves are
+non-statements. Name the actual challenge and the actual response, or cut the sentence.
+
+Bad: "Despite its innovative approach, the program faces challenges in reaching all students. Despite these challenges, it continues to thrive."
+Better: "The program has not reached students in rural areas. The team is piloting a remote version in autumn 2025."
 
 ## Continues-to Padding
 
@@ -356,9 +384,44 @@ Zero emoji in the `professional-message`, `academic-formal`, and `academic-human
 clusters. Remove every one. AI models default to emoji as warmth-signalers, bullet
 markers, or section headers. They read as marketing copy in any serious context.
 
+Two AI-specific sub-patterns to catch explicitly:
+
+- **Emoji as bullet markers:** replacing plain dashes or numbers with 🎯 📌 🔑 ✅ ▶️.
+  Strip the emoji and use a plain dash or number.
+- **Emoji as section header decoration:** 🧠 Analysis / 🔍 Results / 📊 Data.
+  Strip the emoji and keep the header text in sentence case.
+
 Exception: `informal-message` cluster only, and only when a specific emoji carries
 meaning the reader expects (e.g., a single thumbs-up as acknowledgment in a Teams
 chat with a close colleague). Even there, fewer is better.
+
+## Decorative Imagery
+
+Poetic images attached to plain facts to make them sound profound. The image carries no
+information; removing it leaves the sentence cleaner. Test: if the sentence means the same
+thing without the image, the image is decoration. Remove it.
+
+Common patterns:
+
+| Pattern | Fix |
+|---------|-----|
+| "the tapestry of [X]" | describe what X actually consists of |
+| "the symphony of [X]" | describe how X coordinates |
+| "the dance between X and Y" | describe the relationship directly |
+| "the seeds of [X]" | describe the early development |
+| "the fabric of [X]" | describe the structure |
+| "the heartbeat of [X]" | describe what is central and why |
+| "the DNA of [X]" | describe the core characteristics |
+| "weave/weaves/woven/weaving together X and Y" | combining X and Y |
+| "painting a picture of [X]" | describing [X] |
+| "casting light on [X]" | explaining [X] |
+| "the echoes of [X]" | the effects of [X] |
+
+Bad: "The research weaves together quantitative and qualitative strands."
+Better: "The research combines quantitative and qualitative data."
+
+Bad: "The course captures the symphony of electromagnetic theory and circuit analysis."
+Better: "The course covers electromagnetic theory and circuit analysis."
 
 ## When to Rewrite from Scratch vs. Patch
 
