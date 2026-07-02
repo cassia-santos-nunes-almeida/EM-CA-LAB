@@ -248,6 +248,19 @@ These words appear far more often in AI text than human text. Replace on sight.
 | has the ability to | can |
 | at this point in time | now |
 | up to my last training update | (cut; cutoff disclaimer) |
+| leverage | use, apply, draw on |
+| highlight (verb) | show, point to, note |
+| emphasize / emphasizing | stress, focus on (or restructure the sentence) |
+| bolster / bolstered | strengthen, support, back up |
+| commendable | (state what it does; use "good," "strong," or "effective" if needed) |
+| captivate | engage, interest, draw in |
+| proactive | (describe the specific action taken) |
+| disruptive | (describe what changed) |
+| pioneering / trailblazing | first, early, new (or describe what they did) |
+| supercharge | increase, speed up, strengthen |
+| visionary | (describe the specific foresight or decision) |
+| leading-edge | latest, newest |
+| accentuate | increase, add to, draw attention to |
 
 ### Vague Endorsement Phrases
 
@@ -299,6 +312,41 @@ Conversational tics from chat interfaces, not writing. Remove entirely.
 - "In this article, we will explore..."
 - "Let's dive in!"
 
+### False Warmth
+
+Performed emotional states inserted to sound human. They mark AI output precisely
+because they are formulaic and interchangeable regardless of context. Remove entirely
+in all clusters except `informal-message`, where genuine warmth is allowed but still
+must not sound scripted.
+
+**Performative empathy:** AI mimicking care:
+- "I understand your concern"
+- "I can see why you'd feel that way"
+- "I appreciate you sharing that with me"
+- "I appreciate your patience"
+- "That must have been frustrating"
+- "I can imagine how challenging that is"
+
+**Performative enthusiasm:** AI performing excitement about helping:
+- "I'd be happy to..."
+- "Happy to help!"
+- "Wonderful!" (as a response opener)
+- "That's wonderful that you're working on this"
+- "I'm glad you asked"
+- "I appreciate your interest in this topic"
+
+**False collaborative "we":** AI pretending shared effort when none exists:
+- "Let's explore this together"
+- "Let's think through this"
+- "We can approach this by..."
+
+**Closing warmth:** AI sign-off performance:
+- "I hope this clarifies things!"
+- "I hope this helps you move forward"
+- "Looking forward to hearing your thoughts!"
+- "Please reach out if you need anything further"
+- "I'm here if you have more questions"
+
 ### Cutoff and Sourcing Disclaimers
 
 Phrases that announce knowledge limits or an information cutoff. These are chatbot-internal notes, not prose the reader needs. Delete them.
@@ -340,7 +388,6 @@ the paragraph likely needs a rewrite.
 | unleash | release, enable, unlock |
 | streamline | simplify, speed up |
 | empower | enable, let, allow |
-| bolster | support, strengthen, back up |
 | spearhead | lead, drive, run |
 | resonate / resonates with | connect with, appeal to, matter to |
 | revolutionize | change, transform, reshape |
@@ -370,6 +417,13 @@ the paragraph likely needs a rewrite.
 | quintessential | typical, classic, defining |
 | overarching | main, central, broad |
 | underpinning / underpinnings | basis, foundation, what supports |
+| valuable | (describe the specific value, or use "useful") |
+| intuitive | easy to use, clear, straightforward |
+| versatile | flexible, adaptable (or describe what it handles) |
+| frictionless / effortless | smooth, easy (or describe the specific ease) |
+| redefine | change, reshape (or describe what changed) |
+| key (as adjective) | main, central, primary, important |
+| surpass | exceed, outperform (or give a number) |
 
 **Note:** "crucial" and "vital" are promoted to Tier 1 (always replace) because they were
 banned outright in message-coach and eer-paper-writing. Under the layered architecture,
@@ -401,5 +455,5 @@ of total words or 4+ instances per page).
 ultimately, essentially, fundamentally, comprehensive, robust, facilitate, utilize,
 foster, enhance, underscore, pivotal, critical, transformative, innovative, streamline,
 employing, spanning, bolster) is preserved. Words that appear in both that list and Tier 1
-above (robust, comprehensive, pivotal, underscores, utilize, enhance) are promoted to Tier 1
+above (robust, comprehensive, pivotal, underscores, utilize, enhance, bolster) are promoted to Tier 1
 (always replace). The rest remain in their respective tiers.

@@ -52,6 +52,8 @@ If the CLI is unavailable (e.g., claude.ai) or Step 2 failed:
 
 After any successful recovery, always verify with `notebook_list` before proceeding.
 
+**Proactive auth check for long sessions.** NotebookLM auth tokens can expire mid-session and fail silently. Before retrying any content operation that returned an error, check for auth errors first and re-authenticate proactively if the session has been running long. Do not assume a mid-session failure is a content-pipeline bug until auth has been re-verified via `notebook_list`.
+
 ## Error Handling
 
 Not all failures are auth errors. Distinguish these cases:

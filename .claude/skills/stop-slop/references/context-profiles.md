@@ -36,6 +36,9 @@ clusters. When called without a context parameter, it defaults to `professional-
 | Copula avoidance | skip | strict | relaxed | strict |
 | Synonym cycling | skip | strict | strict | strict |
 | New structural patterns (e) | skip | strict | strict | strict |
+| Analogy / metaphor control | relaxed (g) | strict | relaxed (g) | strict |
+| Decorative imagery | skip | strict | strict | strict |
+| False warmth | relaxed (h) | strict | strict | strict |
 | Scoring rubric | skip | strict | strict | strict |
 | Conversational voice test (Pass 1) | strict | strict | **skip** | **partial** (f) |
 | Pasta test (Pass 2) | strict | strict | strict | strict |
@@ -62,11 +65,21 @@ procedural sequences.
 attributions, significance inflation, promotional language, false ranges, novelty
 inflation, emotional flatline, false concession, parenthetical hedging, numbered list
 inflation, reasoning chain artifacts, sycophantic tone, acknowledgment loops, superficial
--ing analyses, formulaic challenges, excessive structure.
+-ing analyses, formulaic challenges, excessive structure, decorative imagery.
 
 **(f)** Partial conversational voice test for academic-human: apply to topic sentences,
 paragraph transitions, and discussion framing. Skip technical descriptions, statistical
 reporting, and method references within discussion sections.
+
+**(g)** Analogy/metaphor relaxation: informal-message allows analogies that pass the
+permission test without strict frequency limits. academic-formal allows precise technical
+analogies (e.g., voltage-as-pressure in physics teaching) if they pass the permission
+test; decorative and journey/battlefield metaphors still banned.
+
+**(h)** False warmth in informal-message: genuine expressions of warmth are allowed.
+Catch only formulaic patterns that are interchangeable regardless of context ("I can
+imagine how challenging that is" used with no actual context). Authentic warmth differs
+from scripted warmth by being specific to the situation.
 
 ---
 

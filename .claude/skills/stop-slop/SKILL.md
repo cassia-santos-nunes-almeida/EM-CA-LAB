@@ -11,7 +11,7 @@ description: >
   from informal messages to formal academic prose.
 metadata:
   trigger: Writing prose, editing drafts, reviewing content for AI patterns. Also invoked by message-coach and eer-paper-writing as a final quality pass.
-  author: "Adapted from Hardik Pandya (https://hvpandya.com), extended by Cassia Almeida. Patterns cross-validated 2026-04-18 against Wikipedia:Signs_of_AI_writing (CC-BY-SA 4.0) and blader/humanizer (MIT)."
+  author: "Adapted from Hardik Pandya (https://hvpandya.com), extended by Cassia Almeida. Patterns cross-validated 2026-04-18 against Wikipedia:Signs_of_AI_writing (CC-BY-SA 4.0) and blader/humanizer (MIT). Analogy-control + false-warmth + decorative-imagery extensions added 2026-05-05."
 ---
 
 # Stop Slop
@@ -33,30 +33,27 @@ See [references/context-profiles.md](references/context-profiles.md) for the ful
 
 ## Core Rules
 
-1. **Cut filler phrases.** Remove throat-clearing openers, emphasis crutches, and all adverbs. See [references/banned-phrases.md](references/banned-phrases.md).
+1. **Cut filler phrases.** Remove throat-clearing openers, emphasis crutches, and emphasis or softening adverbs. See [references/banned-phrases.md](references/banned-phrases.md).
 
 2. **Break formulaic structures.** Avoid binary contrasts, negative listings, dramatic fragmentation, rhetorical setups, false agency, copula avoidance, synonym cycling, and all structural AI patterns. See [references/banned-structures.md](references/banned-structures.md).
 
-3. **Use active voice.** Every sentence needs a human subject doing something. No passive constructions. No inanimate objects performing human actions ("the complaint becomes a fix").
+3. **Use active voice.** Every sentence needs a human subject doing something. Prefer active over passive; passive is standard in academic methods sections and acceptable where the actor is unknown or irrelevant. No inanimate objects performing human actions ("the complaint becomes a fix").
 
 4. **Be specific.** No vague declaratives ("The reasons are structural"). Name the specific thing. No lazy extremes ("every," "always," "never") doing vague work.
 
 5. **Put the reader in the room.** No narrator-from-a-distance voice. "You" beats "People." Specifics beat abstractions.
 
-6. **Vary rhythm.** Mix sentence lengths. Two items beat three. End paragraphs differently. No em dashes. Zero tolerance, all clusters.
+6. **Vary rhythm.** Mix sentence lengths. Avoid padding content to reach three items. End paragraphs differently. No em dashes. Zero tolerance, all clusters.
 
 7. **Trust readers.** State facts directly. Skip softening, justification, hand-holding.
-
-8. **Cut quotables.** If it sounds like a pull-quote, rewrite it.
 
 ## Quick Checks
 
 Before delivering prose:
 
-- Any adverbs? Kill them.
+- Emphasis or softening adverbs (really, just, literally, genuinely, actually, simply)? Cut them.
 - Any passive voice? Find the actor, make them the subject.
 - Inanimate thing doing a human verb ("the decision emerges")? Name the person.
-- Sentence starts with a Wh- word? Restructure it.
 - Any "here's what/this/that" throat-clearing? Cut to the point.
 - Any "not X, it's Y" contrasts? State Y directly.
 - Three consecutive sentences match length? Break one.
@@ -73,8 +70,9 @@ Before delivering prose:
 - More than two formal transitions per page? Remove or restructure.
 - All paragraphs roughly the same length? Break the pattern.
 - Spot the three-beat setup-bridge-point? Collapse to the point.
-- Copula avoidance ("serves as," "features," "boasts")? Use "is" or "has."
+- Copula avoidance ("serves as," "stands as," "marks a," "plays a role in," "helps to")? Use plain verbs: is, has, does, gives.
 - Synonym cycling in one paragraph? Repeat the right word.
+- Any analogy, metaphor, or decorative image ("the heartbeat of," "through the lens of," "weaving together")? Check [references/analogy-control.md](references/analogy-control.md).
 
 ## Statistical Detection Patterns
 
@@ -100,7 +98,7 @@ Collapse the three-beat "[Context]. [Bridge]. [Point]." pattern. Lead with the p
 
 ## Execution Order
 
-1. **Pattern matching:** Core rules (1-8), quick checks, statistical detection (9-14), structural patterns
+1. **Pattern matching:** Core rules (1-7), quick checks, statistical detection (9-14), structural patterns
 2. **Conversational voice test:** Scoped by cluster. See [references/self-audit.md](references/self-audit.md).
 3. **Pasta test:** Runs on all clusters. See [references/self-audit.md](references/self-audit.md).
 4. **Scoring:** 5-dimension rubric (only when requested or on full audit)
@@ -140,8 +138,9 @@ Below 35/50: revise.
 
 | File | Contains |
 |---|---|
-| [references/banned-phrases.md](references/banned-phrases.md) | Tiered banned words (1/2/3), phrases, transitions, chatbot artifacts |
+| [references/banned-phrases.md](references/banned-phrases.md) | Tiered banned words (1/2/3), phrases, transitions, chatbot artifacts, false warmth |
 | [references/banned-structures.md](references/banned-structures.md) | All banned structural patterns (original + avoid-ai-writing additions) |
+| [references/analogy-control.md](references/analogy-control.md) | Analogy and metaphor control: permission test, banned families, banned verbs, audit checklist |
 | [references/before-after.md](references/before-after.md) | Before/after transformation examples |
 | [references/context-profiles.md](references/context-profiles.md) | Cluster definitions, tolerance matrix, auto-detection cues |
 | [references/self-audit.md](references/self-audit.md) | Conversational voice test and pasta test with scoping rules |
