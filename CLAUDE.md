@@ -41,8 +41,9 @@ with: `Tested: [...]. Not tested: [...] because [...]`.
 - `src/shared/hooks/useSelfMeasuringCanvas.ts` — the canonical canvas hook:
   `prepareFrame()` self-measures + applies DPR; it returns `null` while a gate
   hides the canvas — callers early-return but KEEP the rAF loop scheduled.
-- Physics/math are pure modules tested alongside: per-section `physics.ts`
-  (em), `src/circuits/utils/componentMath.ts`,
+- Physics/math are pure modules tested alongside: several em sections have a
+  `physics.ts` (coulomb, lenz, maxwell, polarization — not all),
+  `src/circuits/utils/componentMath.ts`,
   `src/transmission/utils/transmissionMath.ts`, etc. Extract math to these
   modules; components stay thin.
 

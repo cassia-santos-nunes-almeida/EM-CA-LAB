@@ -31,9 +31,9 @@ npm run dev        # Vite dev server
 ```
 src/
 ├── shared/         # cross-domain: curriculum spine, layout primitives, scroll-spy, store
-├── circuits/       # Part 1–2: circuit analysis modules
-├── em/             # Part 2–3: electromagnetics sections
-├── transmission/   # Part 3–4: transmission lines, transformers, antennas
+├── circuits/       # circuit analysis modules
+├── em/             # electromagnetics sections
+├── transmission/   # transmission lines, transformers, antennas (they teach across several Parts — see src/shared/constants/curriculum.ts)
 ├── sectionRegistry.tsx   # section id → lazy component (the only presentation↔domain bridge)
 └── __tests__/      # repo-wide guard tests
 e2e/                # Playwright specs + screenshot harnesses
