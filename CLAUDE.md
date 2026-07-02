@@ -73,6 +73,7 @@ with: `Tested: [...]. Not tested: [...] because [...]`.
 - **Stacked-PR trap (bit twice: #49, #53):** never trust auto-retarget. Open
   the second PR against `main`, and after a stack lands, ancestor-check BOTH
   commits are on `origin/main` before declaring anything merged.
+  (verified 2026-07-02)
 - After merge: delete branches local + remote, re-run the gates on merged main.
 
 ## Where knowledge lives
