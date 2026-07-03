@@ -212,7 +212,7 @@ export function RLCAnalysisPanel({ response }: { response: CircuitResponse; time
     : dampingType === 'critically-damped' ? 'Decay τ = 1/α'
     : 'Envelope τ = 1/α';
   const tauHint = dampingType === 'overdamped'
-    ? 'The slow pole s₁ governs settling: about five of these time constants reaches ~99% of the final value — check it against the chart.'
+    ? 'The slow pole s₁ governs settling: about five of these time constants reach ~99% of the final value — check it against the chart.'
     : dampingType === 'critically-damped'
       ? '(1 + αt)e^{−αt} settles slower than a pure exponential — expect roughly seven time constants to reach 99%.'
       : 'How many envelope time constants until the response reaches ~99% of its final value? Does the simulation confirm about five?';

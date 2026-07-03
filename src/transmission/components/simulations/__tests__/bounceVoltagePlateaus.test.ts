@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { computeBounces, computeVoltageData, initialVoltage } from '@transmission/components/simulations/BounceDiagram';
 import { steadyStateVoltageFromGamma } from '@transmission/utils/transmissionMath';
 // initialVoltage is a local helper at BounceDiagram.tsx:53-56 (VS=10, Z0=50
-// module constants + zsFromGamma divider) — add `export` to it in Step 3.
+// module constants + zsFromGamma divider), exported for tests.
 // Verified values: initialVoltage(0) = 5.0 V exactly; initialVoltage(0.5) = 2.5 V exactly.
 
 /**
@@ -13,6 +13,9 @@ import { steadyStateVoltageFromGamma } from '@transmission/utils/transmissionMat
  * was short by Γ·a (ΓL=0.5, ΓS=0, 1 bounce: plotted 5 V, physical 7.5 V).
  */
 describe('bounce chart plateaus carry the (1+Γ) arrival term (P-05)', () => {
+  it('launch amplitude oracle: initialVoltage(0) = VS·Z0/(Z0+Z0) = 5 V exactly', () => {
+    expect(initialVoltage(0)).toBe(5);
+  });
   it('single bounce, matched source: load plateau = V0·(1+ΓL) = V_ss', () => {
     const v0 = initialVoltage(0); // Γs=0
     const segs = computeBounces(0.5, 0, 1);

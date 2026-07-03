@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { calculateCircuitResponse } from '@circuits/utils/circuitSolver';
 
 /**
- * Audit P-01/P-02 regression class-guard: every closed-form card displayed in
- * InteractiveLab/TimeDomain has a JS mirror here, evaluated against the solver
- * at indexed samples (t_i = i·timeStep exactly — no interpolation). If a card
- * and the solver ever disagree again, this suite fails instead of a student.
- * Post-Task-2 the time-domain impulse cards carry V_s, so their mirrors are
- * direct twins (×1); only the H(s) cards remain unit-impulse-referenced (and
- * are not mirrored here — they are transfer functions, not time signals).
+ * Audit P-01/P-02 regression class-guard: the mirrors here cover the RC/RL
+ * step + impulse cards and the three RLC STEP cards, evaluated against the
+ * solver at indexed samples (t_i = i·timeStep exactly — no interpolation). If
+ * a card and the solver ever disagree again, this suite fails instead of a
+ * student. The H(s) cards and the three RLC impulse h(t) cards are
+ * unit-impulse-referenced and are NOT mirrored here (named exclusions,
+ * follow-up audit item).
  */
 const TS = 1e-4, DUR = 0.01;
 
