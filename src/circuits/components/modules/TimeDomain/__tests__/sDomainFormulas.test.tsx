@@ -74,4 +74,20 @@ describe('TimeDomain s-domain transfer functions are algebraically correct', () 
     expect(hasFormula(String.raw`V_C(s) = \frac{V_s}{s(s^2LC + sRC + 1)}`)).toBe(true);
     expect(hasFormula(String.raw`\frac{V_s}{s^2LC + sRC + 1}`)).toBe(false);
   });
+
+  it('Step 4 damping solutions carry the forced term V_s (audit P-04)', async () => {
+    const user = userEvent.setup();
+    renderTimeDomain();
+    await passGate(user);
+    await user.click(screen.getByRole('button', { name: 'RLC Circuit' })); // circuit tabs render as buttons — same query as the test at :70
+
+    // Driven step equation (Step 3 RHS = V_s/LC) ⇒ complete response = V_s + natural modes.
+    expect(hasFormula(String.raw`v(t) = V_s + A_1e^{s_1t} + A_2e^{s_2t}`)).toBe(true);
+    expect(hasFormula(String.raw`v(t) = V_s + (A_1 + A_2t)e^{-\alpha t}`)).toBe(true);
+    expect(hasFormula(String.raw`v(t) = V_s + e^{-\alpha t}(A_1\cos(\omega_d t) + A_2\sin(\omega_d t))`)).toBe(true);
+    // The old source-free forms must be gone from Step 4 (unspaced variants —
+    // the SPACED natural-response card in ResponseComparisons stays and is
+    // asserted true elsewhere in this file).
+    expect(hasFormula(String.raw`v(t) = A_1e^{s_1t} + A_2e^{s_2t}`)).toBe(false);
+  });
 });
