@@ -79,7 +79,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Voltage (Impulse Response):</p>
-              <MathWrapper formula="v_C(t) = \frac{1}{RC}e^{-t/\tau}" block />
+              <MathWrapper formula="v_C(t) = \frac{V_s}{RC}e^{-t/\tau}" block />
             </div>
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">S-Domain:</p>
@@ -114,7 +114,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Current (Impulse Response):</p>
-              <MathWrapper formula="i(t) = \frac{1}{L}e^{-Rt/L}" block />
+              <MathWrapper formula="i(t) = \frac{V_s}{L}e^{-Rt/L}" block />
             </div>
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">S-Domain:</p>
@@ -188,8 +188,8 @@ function CircuitEquations({ circuitType, inputType, response }: {
               </p>
               {inputType === 'step' ? (
                 <>
-                  <MathWrapper formula="v_C(t) = V_s(A_1 e^{s_1 t} + A_2 e^{s_2 t})" block />
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots</p>
+                  <MathWrapper formula="v_C(t) = V_s + A_1 e^{s_1 t} + A_2 e^{s_2 t}" block />
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots; the initial conditions fix the constants (v(0)=0 &rArr; V_s + A&#8321; + A&#8322; = 0); both roots are negative, so the modes decay and v(&infin;) = V_s</p>
                 </>
               ) : (
                 <MathWrapper formula="h(t) = \frac{\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})" block />
@@ -203,10 +203,19 @@ function CircuitEquations({ circuitType, inputType, response }: {
 }
 
 /** RLC circuit analysis sidebar showing damping info and parameters (F24). */
-function RLCAnalysisPanel({ response, timeConstantMs }: {
-  response: CircuitResponse;
-  timeConstantMs: number;
-}) {
+export function RLCAnalysisPanel({ response }: { response: CircuitResponse; timeConstantMs: number }) {
+  const { alpha = 0, omega0 = 0, dampingType } = response;
+  const slowestTauMs = dampingType === 'overdamped'
+    ? 1000 / Math.abs(-alpha + Math.sqrt(alpha * alpha - omega0 * omega0))
+    : 1000 / alpha;
+  const tauLabel = dampingType === 'overdamped' ? 'Slowest mode τ = 1/|s₁|'
+    : dampingType === 'critically-damped' ? 'Decay τ = 1/α'
+    : 'Envelope τ = 1/α';
+  const tauHint = dampingType === 'overdamped'
+    ? 'The slow pole s₁ governs settling: about five of these time constants reach ~99% of the final value — check it against the chart.'
+    : dampingType === 'critically-damped'
+      ? '(1 + αt)e^{−αt} settles slower than a pure exponential — expect roughly seven time constants to reach 99%.'
+      : 'How many envelope time constants until the response reaches ~99% of its final value? Does the simulation confirm about five?';
   return (
     <div className="space-y-3 flex-1">
       <div className={`rounded-lg p-4 ${
@@ -245,11 +254,11 @@ function RLCAnalysisPanel({ response, timeConstantMs }: {
         </div>
 
         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Envelope &#964; = 1/&#945;</p>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tauLabel}</p>
           <p className="text-lg font-bold text-green-700 dark:text-green-400 mt-0.5">
-            {timeConstantMs.toFixed(3)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">ms</span>
+            {slowestTauMs.toFixed(3)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">ms</span>
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">How many time constants until the response reaches 99% of its final value? Does the simulation confirm that?</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">{tauHint}</p>
         </div>
 
         {response.dampingType === 'underdamped' && response.omega0 && response.zeta && (

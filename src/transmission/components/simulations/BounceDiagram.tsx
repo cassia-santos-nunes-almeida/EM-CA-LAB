@@ -50,7 +50,9 @@ function zsFromGamma(gammaSource: number): number {
  *
  * V0 = Vs * Z0 / (Zs + Z0)
  */
-function initialVoltage(gammaSource: number): number {
+// Exported (helper, not a component) for bounceVoltagePlateaus.test.ts.
+// eslint-disable-next-line react-refresh/only-export-components
+export function initialVoltage(gammaSource: number): number {
   const Zs = zsFromGamma(gammaSource);
   return VS * Z0 / (Zs + Z0);
 }
@@ -58,7 +60,9 @@ function initialVoltage(gammaSource: number): number {
 /**
  * Compute all bounce segments for the given parameters.
  */
-function computeBounces(
+// Exported (helper, not a component) for bounceVoltagePlateaus.test.ts.
+// eslint-disable-next-line react-refresh/only-export-components
+export function computeBounces(
   gammaLoad: number,
   gammaSource: number,
   numBounces: number,
@@ -112,8 +116,18 @@ function computeBounces(
  *
  * At any point in time, the voltage at an end is the superposition
  * of all waves that have arrived at that end.
+ *
+ * Audit P-05: a wave of amplitude a arriving at an end with reflection
+ * coefficient Γ jumps the terminal voltage by a·(1+Γ) AT THE ARRIVAL — the
+ * incident wave plus the reflection it simultaneously launches.
  */
-function computeVoltageData(segments: BounceSegment[]) {
+// Exported (helper, not a component) for bounceVoltagePlateaus.test.ts.
+// eslint-disable-next-line react-refresh/only-export-components
+export function computeVoltageData(
+  segments: BounceSegment[],
+  gammaLoad: number,
+  gammaSource: number,
+) {
   const sourceData: { time: number; voltage: number }[] = [{ time: 0, voltage: 0 }];
   const loadData: { time: number; voltage: number }[] = [{ time: 0, voltage: 0 }];
 
@@ -122,28 +136,23 @@ function computeVoltageData(segments: BounceSegment[]) {
 
   for (const seg of segments) {
     if (seg.direction === 'forward') {
-      // Forward wave: departs source at timeStart, arrives at load at timeEnd
-      // At source: voltage changes when wave departs (incident + reflected at source)
-      // The voltage at source updates when a forward wave departs
-      sourceVoltage += seg.amplitude;
-      sourceData.push({ time: seg.timeStart, voltage: sourceVoltage });
-
-      // At load: voltage changes when forward wave arrives
-      loadVoltage += seg.amplitude;
+      // Only the FIRST forward wave is a launch that appears at the source on
+      // departure; Γ_S re-reflections are already inside the (1+Γ_S) arrival
+      // jump of the backward wave that spawned them.
+      if (seg.index === 0) {
+        sourceVoltage += seg.amplitude;
+        sourceData.push({ time: seg.timeStart, voltage: sourceVoltage });
+      }
+      // Arrival at the load: incident + simultaneously launched reflection.
+      loadVoltage += seg.amplitude * (1 + gammaLoad);
       loadData.push({ time: seg.timeEnd, voltage: loadVoltage });
     } else {
-      // Backward wave: departs load at timeStart, arrives at source at timeEnd
-      // At load: voltage changes when backward wave departs (add reflected)
-      loadVoltage += seg.amplitude;
-      loadData.push({ time: seg.timeStart, voltage: loadVoltage });
-
-      // At source: voltage changes when backward wave arrives
-      sourceVoltage += seg.amplitude;
+      // Backward wave: its departure is already inside the load's (1+Γ_L) jump.
+      sourceVoltage += seg.amplitude * (1 + gammaSource);
       sourceData.push({ time: seg.timeEnd, voltage: sourceVoltage });
     }
   }
 
-  // Extend both to the max time so the charts look complete
   const maxTime = segments.length > 0 ? segments[segments.length - 1].timeEnd + 1 : 2;
   sourceData.push({ time: maxTime, voltage: sourceVoltage });
   loadData.push({ time: maxTime, voltage: loadVoltage });
@@ -216,8 +225,8 @@ export function BounceDiagram({ className = '' }: BounceDiagramProps) {
   );
 
   const { sourceData, loadData, maxTime } = useMemo(
-    () => computeVoltageData(visibleSegments),
-    [visibleSegments],
+    () => computeVoltageData(visibleSegments, gammaLoad, gammaSource),
+    [visibleSegments, gammaLoad, gammaSource],
   );
 
   const vSS = steadyStateVoltage(gammaLoad, gammaSource);

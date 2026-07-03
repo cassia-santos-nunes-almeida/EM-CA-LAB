@@ -12,7 +12,7 @@ import { CourseNavigation } from '@shared/components/common/CourseNavigation';
 import { SectionHook } from '@shared/components/common/SectionHook';
 import { FigureImage } from '@shared/components/common/FigureImage';
 import { PredictionGate } from '@shared/components/common/PredictionGate';
-import { useProgressStore } from '@shared/store/progressStore';
+import { useProgressStore, useThemeStore } from '@shared/store/progressStore';
 import { getSectionNumber } from '@shared/constants/curriculum';
 
 function TheoryTab() {
@@ -287,8 +287,6 @@ const readThePlotCases = [
   },
 ];
 
-const poleChartColors = { grid: '#e2e8f0', text: '#475569' };
-
 /** Format a pole as "s{i+1} = {x}[±{y}j]" for the Read-the-Plot readout (A.5 #6). */
 // eslint-disable-next-line react-refresh/only-export-components
 export function formatPole(p: { x: number; y: number }, i: number): string {
@@ -298,6 +296,11 @@ export function formatPole(p: { x: number; y: number }, i: number): string {
 function ReadThePlotTab() {
   const incrementConceptChecks = useProgressStore((s) => s.incrementConceptChecks);
   const incrementHints = useProgressStore((s) => s.incrementHints);
+  const isDark = useThemeStore((s) => s.theme) === 'dark';
+  const poleChartColors = {
+    grid: isDark ? '#334155' : '#e2e8f0',
+    text: isDark ? '#cbd5e1' : '#475569',
+  };
 
   return (
     <div className="space-y-8">
@@ -334,8 +337,8 @@ function ReadThePlotTab() {
                   label={{ value: 'Imag (jω)', angle: -90, position: 'insideLeft', fill: poleChartColors.text, fontSize: 11 }}
                   domain={caseData.domain.y as [number, number]}
                 />
-                <ReferenceLine x={0} stroke="#64748b" strokeWidth={2} />
-                <ReferenceLine y={0} stroke="#64748b" strokeWidth={2} />
+                <ReferenceLine x={0} stroke={isDark ? '#94a3b8' : '#64748b'} strokeWidth={2} />
+                <ReferenceLine y={0} stroke={isDark ? '#94a3b8' : '#64748b'} strokeWidth={2} />
                 <Scatter
                   name="Poles"
                   data={caseData.poles}

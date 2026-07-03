@@ -231,6 +231,7 @@ export function RadiationPatternSim({ className = '' }: RadiationPatternSimProps
             label="Radiation Resistance"
             value={`${radiationResistance.toFixed(1)}`}
             unit={'\u03A9'}
+            sublabel="at feed point (center-fed)"
           />
           <ReadoutCard
             label="Half-Power Beamwidth"

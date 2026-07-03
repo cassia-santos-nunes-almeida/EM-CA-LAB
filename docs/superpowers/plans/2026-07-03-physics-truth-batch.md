@@ -125,7 +125,7 @@ Line 117: `<MathWrapper formula="i(t) = \frac{V_s}{L}e^{-Rt/L}" block />`
 - Consumes: solver ground truth `calculateRLCUnified` overdamped step: `v = V_s(1 + (s₂e^{s₁t} − s₁e^{s₂t})/(s₁−s₂))` ≡ `V_s + A₁e^{s₁t} + A₂e^{s₂t}` with `A₁ = V_s·s₂/(s₁−s₂)`, `A₂ = −V_s·s₁/(s₁−s₂)` (from `v(0)=0`, `dv/dt(0)=0`). Default InteractiveLab params (R=100 Ω, L=0.1 H, C=100 µF) are overdamped (ζ≈1.58), so the default view shows this card.
 - Produces: the corrected card string, pinned here and mirrored in Task 5.
 
-- [ ] **Step 1: Write the failing test** (new file; copy the katex mock + `hasFormula` helper verbatim from `sDomainFormulas.test.tsx:1-30`; render via `MemoryRouter initialEntries={['/interactive-lab']}` — circuit/input seed from searchParams with defaults RLC/step at `index.tsx:331-334`, so the plain route already shows the overdamped step card; name the local helper `renderInteractiveLabRLCStep`):
+- [ ] **Step 1: Write the failing test** (new file; copy the katex mock + `hasFormula` helper from the sibling `rlImpulseTransfer.test.tsx` — mock at :8-12, helper at :15-17, the proven template in the SAME directory with the right InteractiveLab imports; do NOT copy `renderTimeDomain`/TimeDomain imports from `sDomainFormulas.test.tsx:1-30`; render via `MemoryRouter initialEntries={['/interactive-lab']}` — circuit/input seed from searchParams with defaults RLC/step at `index.tsx:331-334`, so the plain route already shows the overdamped step card; name the local helper `renderInteractiveLabRLCStep`):
 
 ```tsx
 /**
@@ -148,7 +148,7 @@ describe('overdamped step card shows the complete response (P-01)', () => {
 
 ```tsx
                   <MathWrapper formula="v_C(t) = V_s + A_1 e^{s_1 t} + A_2 e^{s_2 t}" block />
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots; the initial conditions fix the constants (v(0)=0 &rArr; V_s + A&#8321; + A&#8322; = 0), so v(&infin;) = V_s</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots; the initial conditions fix the constants (v(0)=0 &rArr; V_s + A&#8321; + A&#8322; = 0); both roots are negative, so the modes decay and v(&infin;) = V_s</p>
 ```
 
 - [ ] **Step 4: Run the test file** → PASS. Also re-run Task 2's file (same source file touched) → PASS.
@@ -198,7 +198,7 @@ describe('RLCAnalysisPanel τ card is damping-aware (P-03)', () => {
 
 
 - [ ] **Step 2: Run to verify FAIL** (export missing + labels missing).
-- [ ] **Step 3: Implement** — add `export` before `function RLCAnalysisPanel` and replace the Envelope card at :247-253 with:
+- [ ] **Step 3: Implement** — export the panel and STOP destructuring the now-unused prop, keeping the props TYPE unchanged so the call site (:582) and the test fixtures still compile (`noUnusedParameters` is on in tsconfig.app.json — a destructured-but-unused `timeConstantMs` fails `tsc -b` with TS6133 at the Task 11 build gate): `export function RLCAnalysisPanel({ response }: { response: CircuitResponse; timeConstantMs: number }) {` — and replace the Envelope card at :247-253 with:
 
 ```tsx
   const { alpha = 0, omega0 = 0, dampingType } = response;
@@ -215,7 +215,7 @@ describe('RLCAnalysisPanel τ card is damping-aware (P-03)', () => {
       : 'How many envelope time constants until the response reaches ~99% of its final value? Does the simulation confirm about five?';
 ```
 
-…and in the card JSX use `{tauLabel}` / `{slowestTauMs.toFixed(3)}` / `{tauHint}` in place of the hardcoded label, `{timeConstantMs.toFixed(3)}`, and the old italic question. (Keep the `timeConstantMs` prop — other readouts may use it; only this card switches.)
+…and in the card JSX use `{tauLabel}` / `{slowestTauMs.toFixed(3)}` / `{tauHint}` in place of the hardcoded label, `{timeConstantMs.toFixed(3)}`, and the old italic question. (Keep `timeConstantMs` in the props TYPE only — nothing else in the panel reads it; only this card switches.)
 
 - [ ] **Step 4: Run the new test file + Task 2/3 files** → ALL PASS.
 - [ ] **Step 5: Commit** — `fix(interactive-lab): tau card damping-aware — slowest-mode constant for overdamped (audit P-03)`
@@ -363,9 +363,11 @@ describe('bounce chart plateaus carry the (1+Γ) arrival term (P-05)', () => {
 ```
 
 - [ ] **Step 2: Run to verify FAIL** (functions not exported; then values wrong) — `npx vitest run --no-file-parallelism src/transmission/components/simulations/__tests__/bounceVoltagePlateaus.test.ts`
-- [ ] **Step 3: Implement** — export both functions and replace the body:
+- [ ] **Step 3: Implement** — export the three helpers, EACH prefixed with `// eslint-disable-next-line react-refresh/only-export-components` (`react-refresh/only-export-components` is error-severity under `reactRefresh.configs.vite` and would fail the lint gate; repo precedent: `SDomainAnalysis.tsx:293`, `InteractiveLab/index.tsx:32`), and replace the body:
 
 ```ts
+// Exported (helpers, not components) for bounceVoltagePlateaus.test.ts.
+// eslint-disable-next-line react-refresh/only-export-components
 export function computeVoltageData(
   segments: BounceSegment[],
   gammaLoad: number,
@@ -415,14 +417,15 @@ export function computeVoltageData(
 
 **Files:**
 - Modify: `src/transmission/utils/transmissionMath.ts:197-216` (`calculateRadiationResistance` at :201-216 + docstring from :197)
-- Modify: `src/transmission/components/simulations/RadiationPatternSim.tsx:230-234` (readout gains a sublabel — `ReadoutCard` already has an optional `sublabel` prop)
+- Modify: `src/transmission/components/simulations/RadiationPatternSim.tsx:230-234` (readout gains a sublabel — the file's LOCAL `ReadoutCard` at :259, props :246-256, already has an optional `sublabel` prop; do NOT import the shared `ReadoutCard.tsx`, which has no sublabel)
+- Modify: `src/transmission/components/modules/Antennas.tsx:205-212` (theory-tab caveat paragraph — after the feed-point referral it becomes factually FALSE: the readout then MATCHES 20π²(L/λ)² at small L/λ (~2.00 vs 1.97 Ω at 0.1λ); rewrite per Step 3)
 - Test: `src/transmission/utils/__tests__/transmissionMath.test.ts:313-320` (extend the existing describe)
 
 **Interfaces:**
 - Consumes: `calculateRadiationPattern(dipoleLengthFraction, theta)` (untouched); slider range 0.1–1.5λ step 0.05 (L=1.0λ reachable ⇒ clamp mandatory).
 - Produces: same signature, now feed-point referred: `R_in = 60·∫F²sinθdθ / max(sin²(π·L_λ), 1e-3)`.
 
-- [ ] **Step 1: Extend the existing describe with failing tests**:
+- [ ] **Step 1: Extend the existing describe with failing tests** (add ONLY the two NEW `it`s — the 73-ohm `it` quoted first below already exists at :316-319; do not duplicate it):
 
 ```ts
   it('half-wave dipole: R_rad ≈ 73 ohms', () => {   // existing — stays green (sin²(π/2)=1)
@@ -466,6 +469,20 @@ export function computeVoltageData(
           />
 ```
 
+…and rewrite the now-false caveat paragraph at `Antennas.tsx:205-212` (it currently says the simulated value and the 20π² formula "do not match" at small L/λ — post-fix they match to ~1.3%):
+
+```tsx
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Note on the pattern simulation below: its radiation-resistance readout is referred
+                to the feed point of a center-fed dipole with the sinusoidal current model. At{' '}
+                <MathWrapper formula="L = \lambda/2" /> this gives the 73-ohm result above, and at
+                small <MathWrapper formula="L/\lambda" /> it reproduces the short-dipole value{' '}
+                <MathWrapper formula="20\pi^2(L/\lambda)^2" />. Near <MathWrapper formula="L = n\lambda" />{' '}
+                the feed sits at a current null, so the feed-point resistance grows extremely large
+                (the simulation clamps it to keep the readout finite).
+              </p>
+```
+
 - [ ] **Step 4: Run the test file** → ALL PASS (73-anchor unchanged).
 - [ ] **Step 5: Commit** — `fix(antennas): radiation resistance referred to the feed point, clamped at current nulls (audit P-06)`
 
@@ -479,7 +496,7 @@ export function computeVoltageData(
 
 **Interfaces:**
 - Consumes: sim ground truth at :172-174 — `valX = ex·cos(t)`, `valY = ey·cos(t + rad)`, i.e. the cos(ωt − kz + δ) convention at z=0; handedness label keys off `phaseDelta > 0 ⇒ 'Right'` (:365-367).
-- Produces: displayed `E_x = ex·cos(ωt − kz)`, `E_y = ey·cos(ωt − kz + δ°)` — same convention Task 10 uses for em-wave (ωt leading).
+- Produces: displayed `E_x = ex·cos(ωt − kz)`, `E_y = ey·cos(ωt − kz + δ°)` — same convention Task 9 uses for em-wave (ωt leading).
 
 - [ ] **Step 1: Write the failing test** (katex mock + `hasFormula` helper copied from `sDomainFormulas.test.tsx`; render the polarization section route; the equation panel renders without passing the gate — if the render needs providers, copy the render scaffold from the existing polarization/em section test in `src/em/sections/__tests__/sections.test.tsx`):
 
@@ -504,6 +521,8 @@ it('equation panel uses the sim convention cos(ωt − kz + δ) (P-07)', () => {
     { label: 'x-Comp', math: `E_x = ${ex} \\cos(\\omega t - kz)` },
     { label: 'y-Comp', math: `E_y = ${ey} \\cos(\\omega t - kz + ${phaseDelta}^\\circ)` },
 ```
+
+…and update the stale rationale in `src/em/sections/polarization/__tests__/circularHintConvention.test.ts` (header comment at :6-8 and the it-title at :14): the panel convention they cite changes from `cos(kz − ωt + δ)` to `cos(ωt − kz + δ)`. Comment/title text ONLY — the assertions pin the Q_CIRCULAR hint strings and must stay byte-identical.
 
 - [ ] **Step 4: Run the test file + the polarization entries in `src/em/sections/__tests__/sections.test.tsx`** → PASS.
 - [ ] **Step 5: Commit** — `fix(polarization): equation panel matches the sim phase convention cos(ωt−kz+δ) (audit P-07)`
@@ -570,7 +589,7 @@ At :60-75 (true-scale B): change `const sinVal = Math.sin(k * x);` (:70) → `co
       phasorCtx.lineTo(tipX, pcy);
 ```
 (`tipX − pcx = pAmp·cos(phasorAngle)` (:832) now equals the trace value at the now-line by construction.)
-(c) V-I + power loops: `Math.sin(omega * 0.02 * ct + radV)` → `Math.cos(...)` and same for `radI` — four pairs at :292, :304, :343-344, :358-363. (The drag-handle `Math.sin` at :925-928 is circle GEOMETRY — leave it.)
+(c) V-I + power loops: `Math.sin(omega * 0.02 * ct + radV)` → `Math.cos(...)` and same for `radI` — four pairs at :292, :304, :343-344, :358-363. (The drag-handle `Math.sin` at :925-928 is circle GEOMETRY — leave it. Likewise the animated 2D/3D main-canvas wave loops at :486/:559/:574/:584/:643/:667 KEEP `sin(kx − ωt)`: a free-running animation has no phase anchor, so only the phase-anchored displays — the t = 0 snapshot chart, the EquationBox, and the phasor views — must be cosine. Do NOT blanket-flip sins in this file.)
 (d) Q_PHASOR tier-2 hint (:67):
 ```ts
     { tier: 2, label: 'Procedural hint', content: 'For an inductor: v = L di/dt. If i = I₀cos(ωt), then v = −LωI₀ sin(ωt) = LωI₀ cos(ωt + 90°). Voltage leads current by 90°, i.e., current lags voltage by 90°.' },

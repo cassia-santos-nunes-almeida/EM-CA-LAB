@@ -33,9 +33,9 @@ export const circuitAnalysisFormulas = {
     alpha: '\\alpha = \\frac{R}{2L}',
     omega0: '\\omega_0 = \\frac{1}{\\sqrt{LC}}',
     zeta: '\\zeta = \\frac{\\alpha}{\\omega_0}',
-    overdamped: 'v(t) = A_1e^{s_1t} + A_2e^{s_2t}',
-    criticallyDamped: 'v(t) = (A_1 + A_2t)e^{-\\alpha t}',
-    underdamped: 'v(t) = e^{-\\alpha t}(A_1\\cos(\\omega_d t) + A_2\\sin(\\omega_d t))',
+    overdamped: 'v(t) = V_s + A_1e^{s_1t} + A_2e^{s_2t}',
+    criticallyDamped: 'v(t) = V_s + (A_1 + A_2t)e^{-\\alpha t}',
+    underdamped: 'v(t) = V_s + e^{-\\alpha t}(A_1\\cos(\\omega_d t) + A_2\\sin(\\omega_d t))',
   },
 };
 

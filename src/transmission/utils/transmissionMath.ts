@@ -195,7 +195,8 @@ export function calculateDirectivity(dipoleLengthFraction: number): number {
 }
 
 /**
- * Calculate approximate radiation resistance for a thin dipole.
+ * Calculate approximate radiation resistance for a thin dipole, referred to
+ * the feed point of a center-fed dipole.
  * Uses numerical integration (Prad = integral of U * sin(theta) dtheta dphi).
  */
 export function calculateRadiationResistance(dipoleLengthFraction: number): number {
@@ -211,8 +212,14 @@ export function calculateRadiationResistance(dipoleLengthFraction: number): numb
     integral += E * E * Math.sin(theta) * dTheta;
   }
 
-  // R_rad = 60 * integral (for a center-fed dipole with 1A input)
-  return 60 * integral;
+  // 60·∫F²sinθ dθ is the radiation resistance referred to the CURRENT MAXIMUM
+  // I_max. A center-fed dipole is driven at I_in = I_max·sin(βL/2), so the
+  // feed-point value is R_in = R(I_max)/sin²(βL/2), βL/2 = π·(L/λ).
+  // Anchors: L=0.5λ → sin²=1 → ≈73 Ω (unchanged); L=0.1λ → ≈2.0 Ω ≈ 20π²(L/λ)²,
+  // matching the Antennas section prose. Near L=nλ the feed sits at a current
+  // null and R_in genuinely blows up — clamp so the readout stays finite. (P-06)
+  const sinHalf = Math.sin(Math.PI * dipoleLengthFraction);
+  return (60 * integral) / Math.max(sinHalf * sinHalf, 1e-3);
 }
 
 /**
