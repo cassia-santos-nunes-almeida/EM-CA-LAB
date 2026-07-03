@@ -79,7 +79,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Voltage (Impulse Response):</p>
-              <MathWrapper formula="v_C(t) = \frac{1}{RC}e^{-t/\tau}" block />
+              <MathWrapper formula="v_C(t) = \frac{V_s}{RC}e^{-t/\tau}" block />
             </div>
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">S-Domain:</p>
@@ -114,7 +114,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Current (Impulse Response):</p>
-              <MathWrapper formula="i(t) = \frac{1}{L}e^{-Rt/L}" block />
+              <MathWrapper formula="i(t) = \frac{V_s}{L}e^{-Rt/L}" block />
             </div>
             <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">S-Domain:</p>
