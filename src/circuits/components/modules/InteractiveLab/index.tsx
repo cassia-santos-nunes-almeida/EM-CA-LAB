@@ -203,10 +203,19 @@ function CircuitEquations({ circuitType, inputType, response }: {
 }
 
 /** RLC circuit analysis sidebar showing damping info and parameters (F24). */
-function RLCAnalysisPanel({ response, timeConstantMs }: {
-  response: CircuitResponse;
-  timeConstantMs: number;
-}) {
+export function RLCAnalysisPanel({ response }: { response: CircuitResponse; timeConstantMs: number }) {
+  const { alpha = 0, omega0 = 0, dampingType } = response;
+  const slowestTauMs = dampingType === 'overdamped'
+    ? 1000 / Math.abs(-alpha + Math.sqrt(alpha * alpha - omega0 * omega0))
+    : 1000 / alpha;
+  const tauLabel = dampingType === 'overdamped' ? 'Slowest mode τ = 1/|s₁|'
+    : dampingType === 'critically-damped' ? 'Decay τ = 1/α'
+    : 'Envelope τ = 1/α';
+  const tauHint = dampingType === 'overdamped'
+    ? 'The slow pole s₁ governs settling: about five of these time constants reaches ~99% of the final value — check it against the chart.'
+    : dampingType === 'critically-damped'
+      ? '(1 + αt)e^{−αt} settles slower than a pure exponential — expect roughly seven time constants to reach 99%.'
+      : 'How many envelope time constants until the response reaches ~99% of its final value? Does the simulation confirm about five?';
   return (
     <div className="space-y-3 flex-1">
       <div className={`rounded-lg p-4 ${
@@ -245,11 +254,11 @@ function RLCAnalysisPanel({ response, timeConstantMs }: {
         </div>
 
         <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Envelope &#964; = 1/&#945;</p>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tauLabel}</p>
           <p className="text-lg font-bold text-green-700 dark:text-green-400 mt-0.5">
-            {timeConstantMs.toFixed(3)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">ms</span>
+            {slowestTauMs.toFixed(3)} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">ms</span>
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">How many time constants until the response reaches 99% of its final value? Does the simulation confirm that?</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 italic mt-1">{tauHint}</p>
         </div>
 
         {response.dampingType === 'underdamped' && response.omega0 && response.zeta && (
