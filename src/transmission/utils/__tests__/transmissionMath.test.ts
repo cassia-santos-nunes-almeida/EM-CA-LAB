@@ -317,6 +317,16 @@ describe('calculateRadiationResistance', () => {
     const Rrad = calculateRadiationResistance(0.5);
     expect(Rrad).toBeCloseTo(73, 0); // Within 1 ohm
   });
+  it('short dipole 0.1λ is FEED-POINT referred: ≈ 2 Ω ≈ 20π²(L/λ)², not the 0.19 Ω I_max value (P-06)', () => {
+    const Rin = calculateRadiationResistance(0.1);
+    expect(Rin).toBeGreaterThan(1.5);          // old I_max-referred value was ≈0.195
+    expect(Rin).toBeCloseTo(20 * Math.PI ** 2 * 0.01, 0); // ≈1.97; repo's 360-step integral gives ≈2.00 (raw I_max value ≈0.191)
+  });
+  it('full-wave dipole (feed at a current null) stays finite via the clamp', () => {
+    const Rin = calculateRadiationResistance(1.0);
+    expect(Number.isFinite(Rin)).toBe(true);
+    expect(Rin).toBeGreaterThan(1000); // physically huge at the null — clamped, not Infinity
+  });
 });
 
 /* ─── Directivity ────────────────────────────────────────────────── */

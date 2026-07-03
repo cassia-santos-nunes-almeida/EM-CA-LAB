@@ -203,12 +203,13 @@ export function Antennas() {
                 which makes matching difficult.
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Note on the pattern simulation below: its radiation-resistance readout uses the
-                sinusoidal (center-fed) current model, which is accurate near{' '}
-                <MathWrapper formula="L = \lambda/2" /> (the 73-ohm result above). The short-dipole
-                formula <MathWrapper formula="20\pi^2(L/\lambda)^2" /> assumes a different
-                short-element current distribution, so at very small{' '}
-                <MathWrapper formula="L/\lambda" /> the simulated value and this formula do not match.
+                Note on the pattern simulation below: its radiation-resistance readout is referred
+                to the feed point of a center-fed dipole with the sinusoidal current model. At{' '}
+                <MathWrapper formula="L = \lambda/2" /> this gives the 73-ohm result above, and at
+                small <MathWrapper formula="L/\lambda" /> it reproduces the short-dipole value{' '}
+                <MathWrapper formula="20\pi^2(L/\lambda)^2" />. Near <MathWrapper formula="L = n\lambda" />{' '}
+                the feed sits at a current null, so the feed-point resistance grows extremely large
+                (the simulation clamps it to keep the readout finite).
               </p>
             </div>
           </CollapsibleSection>
