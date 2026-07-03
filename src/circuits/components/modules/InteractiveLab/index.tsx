@@ -188,8 +188,8 @@ function CircuitEquations({ circuitType, inputType, response }: {
               </p>
               {inputType === 'step' ? (
                 <>
-                  <MathWrapper formula="v_C(t) = V_s(A_1 e^{s_1 t} + A_2 e^{s_2 t})" block />
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots</p>
+                  <MathWrapper formula="v_C(t) = V_s + A_1 e^{s_1 t} + A_2 e^{s_2 t}" block />
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots; the initial conditions fix the constants (v(0)=0 &rArr; V_s + A&#8321; + A&#8322; = 0); both roots are negative, so the modes decay and v(&infin;) = V_s</p>
                 </>
               ) : (
                 <MathWrapper formula="h(t) = \frac{\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})" block />
