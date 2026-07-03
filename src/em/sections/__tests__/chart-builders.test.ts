@@ -62,13 +62,13 @@ describe('chart data builders keep x numeric', () => {
     const amplitude = 40;
     const refractiveIndex = 1.0;
     const d = buildSnapshotData(amplitude, k, refractiveIndex);
-    // At x=0, sin(k*0) = 0, so E=0 and B=0 — check a non-zero point
-    // At i=1: x=6, E = amplitude * sin(k*6), B = (amplitude * n / 300) * sin(k*6)
+    // At x=0, cos(k*0) = 1, so E=40 and B≈0.1333 (cosine reference: crest at origin)
+    // At i=1: x=6, E = amplitude * cos(k*6), B = (amplitude * n / 300) * cos(k*6)
     // B should be E * refractiveIndex / 300 (true scale, not ×300)
     const pt = d[1];
     const x = 6;
-    const sinVal = Math.sin(k * x);
-    const expectedB = (amplitude * refractiveIndex / 300) * sinVal;
+    const cosVal = Math.cos(k * x);
+    const expectedB = (amplitude * refractiveIndex / 300) * cosVal;
     expect(pt.B).toBeCloseTo(+expectedB.toFixed(4), 4);
     // Verify B is NOT the ×300 scaled version
     expect(Math.abs(pt.B)).toBeLessThan(1); // true B << E in magnitude
@@ -137,16 +137,18 @@ describe('golden worked-numbers: chart builders plot the correct physics values'
   it('EM-wave instantaneous power P = v·i/1000 (V₀=80, I₀=60, in phase, f=1 Hz)', () => {
     const omega = 2 * Math.PI * 1.0;
     const d = buildPowerData(80, 60, omega, 0, 0);
-    expect(d[1].P).toBeCloseTo(0.46, 2);  // t = 0.05 s
-    expect(d[5].P).toBeCloseTo(4.8, 2);   // t = 0.25 s — both sines peak: 80·60/1000
-    expect(d[10].P).toBeCloseTo(0, 2);    // t = 0.50 s — both sines ≈ 0
+    expect(d[0].P).toBeCloseTo(4.8, 2);   // t = 0 — cosine reference: crest at the origin
+    expect(d[1].P).toBeCloseTo(4.34, 2);  // t = 0.05 s — cos²(0.31416)·4.8
+    expect(d[5].P).toBeCloseTo(0, 2);     // t = 0.25 s — both cosines ≈ 0
+    expect(d[10].P).toBeCloseTo(4.8, 2);  // t = 0.50 s — both at trough: product peaks
   });
 
   it('EM-wave snapshot E and true-scale B at an independent point (x = 6)', () => {
     const k = (2 * Math.PI * 1.0 * 1.0) / 300;
     const d = buildSnapshotData(40, k, 1.0);
-    // sin(k·6) = sin(0.125664) = 0.125334 → E = 40·0.125334, B = (40/300)·0.125334
-    expect(d[1].E).toBeCloseTo(5.01, 2);
-    expect(d[1].B).toBeCloseTo(0.0167, 4);
+    // cos(k·6) = cos(0.125664) = 0.992115 → E = 40·0.992115, B = (40/300)·0.992115
+    expect(d[0].E).toBeCloseTo(40, 2);       // crest at x = 0 — cosine signature
+    expect(d[1].E).toBeCloseTo(39.68, 2);
+    expect(d[1].B).toBeCloseTo(0.1323, 4);
   });
 });

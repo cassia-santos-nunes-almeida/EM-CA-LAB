@@ -64,7 +64,7 @@ const Q_PHASOR: QuizQuestion = {
     "In a pure inductor, the voltage leads the current by 90° (equivalently, current lags voltage by 90°). This phase relationship arises because the inductor's back-EMF is proportional to di/dt, introducing a quarter-cycle delay.",
   hints: [
     { tier: 1, label: 'Conceptual hint', content: 'Remember the mnemonic "ELI the ICE man": E leads I in an inductor (L), I leads E in a capacitor (C).' },
-    { tier: 2, label: 'Procedural hint', content: 'For an inductor: V = L di/dt. If i = sin(ωt), then V = Lω cos(ωt) = Lω sin(ωt + 90°). Voltage leads current by 90°, i.e., current lags voltage by 90°.' },
+    { tier: 2, label: 'Procedural hint', content: 'For an inductor: v = L di/dt. If i = I₀cos(ωt), then v = −LωI₀ sin(ωt) = LωI₀ cos(ωt + 90°). Voltage leads current by 90°, i.e., current lags voltage by 90°.' },
     { tier: 3, label: 'Show worked step', content: 'Current lags voltage by 90° → "ELI" → E leads I in an inductor (L). Resistor: 0° phase. Capacitor: current leads voltage by 90°. The element is a pure inductor — option C.' },
   ],
 };
@@ -289,7 +289,7 @@ export function EMWaveSection() {
     for (let x = 0; x < (endX - startX); x++) {
       const ct = t * state.speed + x * 0.05;
       const gx = startX + x;
-      const vVal = state.vAmplitude * Math.sin(omega * 0.02 * ct + radV);
+      const vVal = state.vAmplitude * Math.cos(omega * 0.02 * ct + radV);
       const vY = centerY - vVal;
       if (x === 0) ctx.moveTo(gx, vY); else ctx.lineTo(gx, vY);
     }
@@ -301,7 +301,7 @@ export function EMWaveSection() {
     for (let x = 0; x < (endX - startX); x++) {
       const ct = t * state.speed + x * 0.05;
       const gx = startX + x;
-      const iVal = state.iAmplitude * Math.sin(omega * 0.02 * ct + radI);
+      const iVal = state.iAmplitude * Math.cos(omega * 0.02 * ct + radI);
       const iY = centerY - iVal;
       if (x === 0) ctx.moveTo(gx, iY); else ctx.lineTo(gx, iY);
     }
@@ -340,8 +340,8 @@ export function EMWaveSection() {
     for (let x = 0; x < (endX - startX); x++) {
       const ct = t * state.speed + x * 0.05;
       const gx = startX + x;
-      const vVal = state.vAmplitude * Math.sin(omega * 0.02 * ct + radV);
-      const iVal = state.iAmplitude * Math.sin(omega * 0.02 * ct + radI);
+      const vVal = state.vAmplitude * Math.cos(omega * 0.02 * ct + radV);
+      const iVal = state.iAmplitude * Math.cos(omega * 0.02 * ct + radI);
       const pVal = (vVal * iVal) / 100;
       const pY = centerY - pVal;
       if (Math.abs(pVal) > maxP) { maxP = Math.abs(pVal); maxPx = gx; }
@@ -358,8 +358,8 @@ export function EMWaveSection() {
     for (let x = 0; x < (endX - startX); x++) {
       const ct = t * state.speed + x * 0.05;
       const gx = startX + x;
-      const vVal = state.vAmplitude * Math.sin(omega * 0.02 * ct + radV);
-      const iVal = state.iAmplitude * Math.sin(omega * 0.02 * ct + radI);
+      const vVal = state.vAmplitude * Math.cos(omega * 0.02 * ct + radV);
+      const iVal = state.iAmplitude * Math.cos(omega * 0.02 * ct + radI);
       const pVal = (vVal * iVal) / 100;
       const pY = centerY - pVal;
       if (x === 0) ctx.moveTo(gx, pY); else ctx.lineTo(gx, pY);
@@ -758,8 +758,8 @@ export function EMWaveSection() {
       for (let i = 0; i <= POINTS; i++) {
         const frac = i / POINTS;
         const x = marginL + frac * drawW;
-        const ph = frac * cycles * 2 * Math.PI - angle;
-        const y = midY - amp * Math.sin(ph);
+        const ph = frac * cycles * 2 * Math.PI + angle;
+        const y = midY - amp * Math.cos(ph);
         if (i === 0) timeCtx.moveTo(x, y); else timeCtx.lineTo(x, y);
       }
       timeCtx.stroke();
@@ -767,8 +767,8 @@ export function EMWaveSection() {
       // "Now" line — fixed at 30% of the width
       const nowFrac = 0.3;
       const nowX = marginL + nowFrac * drawW;
-      const nowPh = nowFrac * cycles * 2 * Math.PI - angle;
-      const nowY = midY - amp * Math.sin(nowPh);
+      const nowPh = nowFrac * cycles * 2 * Math.PI + angle;
+      const nowY = midY - amp * Math.cos(nowPh);
 
       timeCtx.setLineDash([4, 4]);
       timeCtx.strokeStyle = '#f59e0b';
@@ -864,7 +864,7 @@ export function EMWaveSection() {
       phasorCtx.lineWidth = 1;
       phasorCtx.beginPath();
       phasorCtx.moveTo(tipX, tipY);
-      phasorCtx.lineTo(pcx - pRadius - 10, tipY);
+      phasorCtx.lineTo(tipX, pcy);
       phasorCtx.stroke();
       phasorCtx.setLineDash([]);
 
@@ -1207,17 +1207,17 @@ export function EMWaveSection() {
           equations={
             viewMode !== WaveViewMode.VIEW_VI
               ? [
-                  { label: 'E(x,t)', math: `E_0 \\sin(kx - \\omega t),\\quad k=${kVal},\\; \\omega=${omega}`, color: 'text-red-600' },
-                  { label: 'B(x,t)', math: `\\frac{E_0}{v} \\sin(kx - \\omega t) = \\frac{n E_0}{c} \\sin(kx - \\omega t)`, color: 'text-blue-600' },
+                  { label: 'E(x,t)', math: `E_0 \\cos(\\omega t - kx),\\quad k=${kVal},\\; \\omega=${omega}`, color: 'text-red-600' },
+                  { label: 'B(x,t)', math: `\\frac{E_0}{v} \\cos(\\omega t - kx) = \\frac{n E_0}{c} \\cos(\\omega t - kx)`, color: 'text-blue-600' },
                   { label: 'Velocity', math: `v = \\frac{c}{n} = \\frac{c}{${state.refractiveIndex}}` },
                   { label: 'Wavelength', math: `\\lambda = \\frac{\\lambda_0}{n} \\approx ${lambda} \\text{ (arb.)}` },
-                  { label: 'Lossy medium', math: `E(x,t) = E_0 e^{-\\alpha x}\\sin(kx-\\omega t),\\quad \\alpha = ${state.attenuation.toFixed(1)}\\ \\text{(arb.)}`, color: 'text-rose-600 dark:text-rose-400' },
+                  { label: 'Lossy medium', math: `E(x,t) = E_0 e^{-\\alpha x}\\cos(\\omega t - kx),\\quad \\alpha = ${state.attenuation.toFixed(1)}\\ \\text{(arb.)}`, color: 'text-rose-600 dark:text-rose-400' },
                   { label: 'Energy', math: 'u = \\frac{1}{2}\\epsilon_0 E^2 + \\frac{1}{2\\mu_0} B^2', color: 'text-purple-600 dark:text-purple-400' },
                   { label: 'Poynting', math: '\\vec{S} = \\frac{1}{\\mu_0}(\\vec{E} \\times \\vec{B})', color: 'text-purple-600 dark:text-purple-400' },
                 ]
               : [
-                  { label: 'v(t)', math: `${state.vAmplitude}\\sin(\\omega t ${formatPhase(state.vPhase)})`, color: 'text-red-600' },
-                  { label: 'i(t)', math: `${state.iAmplitude}\\sin(\\omega t ${formatPhase(state.iPhase)})`, color: 'text-amber-600' },
+                  { label: 'v(t)', math: `${state.vAmplitude}\\cos(\\omega t ${formatPhase(state.vPhase)})`, color: 'text-red-600' },
+                  { label: 'i(t)', math: `${state.iAmplitude}\\cos(\\omega t ${formatPhase(state.iPhase)})`, color: 'text-amber-600' },
                   { label: 'p(t)', math: 'v(t) \\cdot i(t)', color: 'text-purple-600' },
                   { label: 'Power', math: `P_{avg} = \\frac{1}{2}V_0 I_0 \\cos(\\Delta\\phi) \\approx ${pAvg} \\text{ W}`, color: 'text-slate-700 dark:text-slate-300' },
                   { label: 'Phase Diff', math: `\\Delta\\phi = \\phi_v - \\phi_i = ${phaseDiff.toFixed(0)}^\\circ` },
