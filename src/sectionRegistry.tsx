@@ -38,6 +38,7 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
   // ── Parts 2–4 · Electromagnetism (em) ───────────────────────────────────
   'math-vectors': lazyRetry(() => import('@em/sections/math-vectors').then((m) => ({ default: m.MathVectorsSection }))),
   coulomb: lazyRetry(() => import('@em/sections/coulomb').then((m) => ({ default: m.CoulombSection }))),
+  'math-integrals': lazyRetry(() => import('@em/sections/math-integrals').then((m) => ({ default: m.MathIntegralsSection }))),
   gauss: lazyRetry(() => import('@em/sections/gauss').then((m) => ({ default: m.GaussSection }))),
   ampere: lazyRetry(() => import('@em/sections/ampere').then((m) => ({ default: m.AmpereSection }))),
   lorentz: lazyRetry(() => import('@em/sections/lorentz').then((m) => ({ default: m.LorentzSection }))),

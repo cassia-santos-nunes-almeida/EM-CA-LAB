@@ -42,7 +42,7 @@ describe('CourseLanding', () => {
     renderLanding();
     // Part 1 has 9 sections, Part 2 has 4, etc.
     expect(screen.getByTestId('section-count-1')).toHaveTextContent('9 sections');
-    expect(screen.getByTestId('section-count-2')).toHaveTextContent('5 sections');
+    expect(screen.getByTestId('section-count-2')).toHaveTextContent('6 sections');
     expect(screen.getByTestId('section-count-5')).toHaveTextContent('4 sections');
   });
 

@@ -11,6 +11,7 @@ describe('getSectionNumber', () => {
     expect(getSectionNumber('interactive-lab')).toBe('1.9');
     expect(getSectionNumber('math-vectors')).toBe('2.1');
     expect(getSectionNumber('coulomb')).toBe('2.2');
+    expect(getSectionNumber('math-integrals')).toBe('2.3');
     expect(getSectionNumber('magnetic-circuits')).toBe('3.3');
     expect(getSectionNumber('transformers')).toBe('3.4');
     expect(getSectionNumber('antennas')).toBe('4.4');

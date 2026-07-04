@@ -12,6 +12,7 @@ import {
   Home,
   Cpu,
   ArrowUpRight,
+  Sigma,
 } from 'lucide-react';
 
 /** Canvas drawing color palette */
@@ -87,6 +88,15 @@ export const MODULES: ModuleDefinition[] = [
     shortLabel: 'Coulomb',
     icon: CircleDot,
     description: 'Electrostatic force between point charges',
+    track: 'electrostatics',
+  },
+  {
+    id: 'math-integrals',
+    path: '/math-integrals',
+    label: 'Line & Flux Integrals',
+    shortLabel: 'Integrals',
+    icon: Sigma,
+    description: 'Adding up fields along paths and through surfaces',
     track: 'electrostatics',
   },
   {

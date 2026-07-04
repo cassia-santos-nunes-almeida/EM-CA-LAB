@@ -15,8 +15,8 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(PARTS.map((p) => p.number)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('covers all 26 sections', () => {
-    expect(ALL_SECTIONS).toHaveLength(26);
+  it('covers all 27 sections', () => {
+    expect(ALL_SECTIONS).toHaveLength(27);
   });
 
   it('leads with circuits — Part 1 is entirely circuits-domain', () => {
@@ -46,7 +46,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
   });
 
   it('SECTION metadata and the Part spine cover the identical id set (no orphan/extra entries)', () => {
-    expect(Object.keys(SECTIONS)).toHaveLength(26);
+    expect(Object.keys(SECTIONS)).toHaveLength(27);
     expect(new Set(ALL_SECTIONS.map((s) => s.id))).toEqual(new Set(Object.keys(SECTIONS)));
   });
 
@@ -103,6 +103,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(getExpectedChecks('maxwell')).toBe(3);
     expect(getExpectedChecks('em-wave')).toBe(3);
     expect(getExpectedChecks('math-vectors')).toBe(3);
+    expect(getExpectedChecks('math-integrals')).toBe(3);
     expect(getExpectedChecks('component-physics')).toBe(0);
     expect(getExpectedChecks('transformers')).toBe(0);
     expect(getExpectedChecks('unknown-section')).toBe(0);
@@ -122,12 +123,12 @@ describe('curriculum — 5-part circuits-first spine', () => {
     }
   });
 
-  it('simHeavy: exactly 17 sections carry simHeavy===true', () => {
+  it('simHeavy: exactly 18 sections carry simHeavy===true', () => {
     const simHeavyIds = Object.values(SECTIONS)
       .filter((s) => s.simHeavy === true)
       .map((s) => s.id)
       .sort();
-    expect(simHeavyIds).toHaveLength(17);
+    expect(simHeavyIds).toHaveLength(18);
     expect(simHeavyIds).toEqual(
       [
         'ampere',
@@ -142,6 +143,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
         'lorentz',
         'lumped-distributed',
         'magnetic-circuits',
+        'math-integrals',
         'math-vectors',
         'maxwell',
         'polarization',
