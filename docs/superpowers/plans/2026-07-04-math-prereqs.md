@@ -1260,7 +1260,7 @@ Store wiring identical to PartialFractions (`markVisited('math-phasors')` in a `
   it('GaussSection back-links its integral toolkit to math-integrals (2.3)', async () => {
     const { GaussSection } = await import('@em/sections/gauss/index');
     renderSection(GaussSection);
-    expect(screen.getByText(/built hands-on in Section 2\.3/)).toBeInTheDocument();
+    expect(screen.getByText(/closed-surface ring and the area element in Section 2\.3/)).toBeInTheDocument();
   });
 
   it('MaxwellSection back-links divergence and curl to math-integrals (2.3)', async () => {

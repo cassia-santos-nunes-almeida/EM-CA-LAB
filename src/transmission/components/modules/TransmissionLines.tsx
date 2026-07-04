@@ -20,7 +20,7 @@ import { StandingWaveQuiz } from '@transmission/components/simulations/StandingW
 import { SmithChartSim } from '@transmission/components/simulations/SmithChartSim';
 
 /**
- * Section 5.2 page: Transmission Lines.
+ * Section 5.3 page: Transmission Lines.
  *
  * Virtual-lab layout: the section is chaptered into Tabs panels (one
  * digestible chunk each). Theory-only chapters render full width; lab chapters

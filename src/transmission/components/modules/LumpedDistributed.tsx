@@ -15,7 +15,7 @@ import { LadderAnimation } from '@transmission/components/simulations/LadderAnim
 import { Z0_YOUR_TURN_OPTIONS } from './lumpedDistributedChallenge';
 
 /**
- * Section 5.1 page: Lumped to Distributed.
+ * Section 5.2 page: Lumped to Distributed.
  *
  * Covers the LC ladder network, its progressive subdivision into a continuous
  * transmission line, and the derivation of the telegrapher's equations from
