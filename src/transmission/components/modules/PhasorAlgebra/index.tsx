@@ -88,7 +88,7 @@ export function PhasorAlgebra() {
               title: 'Step 1 — Differentiate the guess',
               body: (
                 <>
-                  <MathWrapper formula="\frac{d}{d\theta}(\cos\theta + j\sin\theta) = -\sin\theta + j\cos\theta = j(\cos\theta + j\sin\theta)" block />
+                  <MathWrapper formula="\frac{d}{d\theta}(\cos\theta + j\sin\theta) = -\sin\theta + j\cos\theta = j(\cos\theta + j\sin\theta)" block className="max-w-[calc(100vw-8rem)]" />
                   <p>The derivative is j times itself.</p>
                 </>
               ),

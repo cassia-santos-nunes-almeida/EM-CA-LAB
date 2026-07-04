@@ -22,8 +22,8 @@ interface SliderFieldProps {
 
 function SliderField({ label, value, min, max, step, unit, accent, onChange }: SliderFieldProps) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
+    <label className="flex min-w-0 flex-col gap-1.5">
+      <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
         <span className={`text-sm font-mono font-bold ${accent}`}>
           {value.toFixed(unit === '°' ? 0 : 1)}{unit}
@@ -37,7 +37,7 @@ function SliderField({ label, value, min, max, step, unit, accent, onChange }: S
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full accent-engineering-blue-600"
+        className="w-full min-w-0 accent-engineering-blue-600"
       />
     </label>
   );
@@ -70,7 +70,7 @@ export function PhasorMultiplierSim() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 bg-white dark:bg-slate-800 rounded-xl shadow-md p-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 bg-white dark:bg-slate-800 rounded-xl shadow-md p-4">
         <SliderField
           label="|z₁|"
           value={z1Mag}
@@ -160,7 +160,7 @@ export function PhasorMultiplierSim() {
           <text x={productPoint.x + 4} y={productPoint.y - 4} fontSize="12" fontWeight="bold" className="fill-emerald-600 dark:fill-emerald-400">z₁z₂</text>
         </svg>
 
-        <p className="font-mono text-sm" data-testid="phasor-product-readout">z₁z₂ = {p.mag.toFixed(2)}∠{shownAngle.toFixed(1)}° — lengths multiply, angles add</p>
+        <p className="w-full min-w-0 break-words text-center font-mono text-sm" data-testid="phasor-product-readout">z₁z₂ = {p.mag.toFixed(2)}∠{shownAngle.toFixed(1)}° — lengths multiply, angles add</p>
       </div>
     </div>
   );
