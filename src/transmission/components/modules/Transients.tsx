@@ -324,7 +324,7 @@ export function Transients() {
           onHint={() => incrementHints('transients')}
           data={{
             mode: 'multiple-choice',
-            question: 'After 3 round trips with \u0393_L = 0.5 and \u0393_S = \u22120.3, does V_load converge above or below V_ss?',
+            question: 'With \u0393_L = 0.5 and \u0393_S = \u22120.3, where does V_load sit right after the 3rd arrival \u2014 above or below V_ss?',
             options: [
               { text: 'Above V_ss \u2014 it overshoots then settles down', correct: true, explanation: 'Correct. With \u0393_L > 0, the first reflection adds to the initial wave, causing an overshoot. The product \u0393_L\u0393_S < 0 means successive corrections alternate in sign, oscillating around V_ss.' },
               { text: 'Below V_ss \u2014 it climbs monotonically', correct: false, explanation: 'With a positive \u0393_L the first reflection adds voltage, pushing above V_ss. The negative \u0393_S then causes the next correction to subtract.' },

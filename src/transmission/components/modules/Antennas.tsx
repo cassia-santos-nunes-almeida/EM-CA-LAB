@@ -173,7 +173,7 @@ export function Antennas() {
               because it provides a near-perfect impedance match to a half-wave dipole.
             </p>
             <MathWrapper
-              formula="Z_{\text{in}}(\lambda/2 \text{ dipole}) \approx 73 + j42.5\,\Omega \approx 73\,\Omega \text{ (at resonance)}"
+              formula="Z_{\text{in}}(\lambda/2 \text{ dipole}) \approx 73 + j42.5\,\Omega \approx 73\,\Omega \text{ resistive (exact resonance needs a slightly shorter dipole, } \approx 0.48\lambda \text{, where the } +j42.5\,\Omega \text{ reactance vanishes)}"
               block
             />
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -199,7 +199,7 @@ export function Antennas() {
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                 For a <MathWrapper formula="\lambda/2" /> dipole, evaluating this integral
                 gives <MathWrapper formula="R_{\text{rad}} \approx 73.1\,\Omega" />. For a short
-                dipole (<MathWrapper formula="L \ll \lambda" />), <MathWrapper formula="R_{\text{rad}} = 20\pi^2(L/\lambda)^2 \approx 2\,\Omega" />,
+                dipole (<MathWrapper formula="L \ll \lambda" />), <MathWrapper formula="R_{\text{rad}} = 20\pi^2(L/\lambda)^2" /> — e.g. <MathWrapper formula="\approx 2\,\Omega" /> at <MathWrapper formula="L = 0.1\lambda" />,
                 which makes matching difficult.
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">

@@ -424,7 +424,7 @@ export function GaussSection() {
           className="mb-6"
           src={`${import.meta.env.BASE_URL}figures/faraday-cage.jpg`}
           alt="Faraday cage demonstration showing electric field shielding"
-          caption="A Faraday cage: Gauss's law explains why the electric field inside a closed conductor is zero."
+          caption="A Faraday cage: charges on a conductor rearrange until the interior field vanishes — Gauss's law then confirms zero net flux through any interior surface."
           attribution="Amanjosan2008, CC BY-SA 4.0 — Wikimedia Commons"
           sourceUrl="https://commons.wikimedia.org/wiki/File:Faraday_Cage.JPG"
         />
@@ -500,7 +500,7 @@ export function GaussSection() {
   return (
     <SectionLayout
       sectionId="gauss"
-      hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
+      hook="Electrostatic shielding in coaxial cables, Faraday-cage shielding, and the uniform field inside a capacitor all trace back to this single law applied to the right surface."
       toc={TOC}
     >
       <LabLayout leadWithBench theory={theory} bench={bench} />
