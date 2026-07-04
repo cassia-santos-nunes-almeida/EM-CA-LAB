@@ -218,6 +218,20 @@ describe('Section smoke tests', () => {
     expect(screen.getByText(/90° phase difference/i)).toBeInTheDocument();
   });
 
+  it('MathIntegralsSection renders', async () => {
+    const { MathIntegralsSection } = await import('@em/sections/math-integrals/index');
+    renderSection(MathIntegralsSection);
+    expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+  });
+
+  it('MathIntegralsSection gates the sim behind a Predict First prediction', async () => {
+    const { MathIntegralsSection } = await import('@em/sections/math-integrals/index');
+    const { container } = renderSection(MathIntegralsSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument(); // exact string — the regex form multi-matches (see Task 2)
+    expect(screen.getByText(/what happens to the flux through it/i)).toBeInTheDocument();
+    expect(container.querySelector('canvas')).toBeNull(); // bench stays gated
+  });
+
   it('MathVectorsSection renders', async () => {
     const { MathVectorsSection } = await import('@em/sections/math-vectors/index');
     renderSection(MathVectorsSection);
