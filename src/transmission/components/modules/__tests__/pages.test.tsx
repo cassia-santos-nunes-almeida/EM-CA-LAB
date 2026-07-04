@@ -105,4 +105,10 @@ describe('Transmission page smoke tests', () => {
     renderInRouter(<Antennas />);
     expect(screen.getAllByText(/Antenna/i).length).toBeGreaterThan(0);
   });
+
+  it('PhasorAlgebra renders without crashing', async () => {
+    const { PhasorAlgebra } = await import('@transmission/components/modules/PhasorAlgebra');
+    renderInRouter(<PhasorAlgebra />);
+    expect(screen.getByRole('heading', { level: 1, name: /complex numbers & phasors/i })).toBeInTheDocument();
+  });
 });
