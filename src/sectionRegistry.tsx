@@ -36,7 +36,9 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
   'interactive-lab': lazyRetry(() => import('@circuits/components/modules/InteractiveLab').then((m) => ({ default: m.InteractiveLab }))),
 
   // ── Parts 2–4 · Electromagnetism (em) ───────────────────────────────────
+  'math-vectors': lazyRetry(() => import('@em/sections/math-vectors').then((m) => ({ default: m.MathVectorsSection }))),
   coulomb: lazyRetry(() => import('@em/sections/coulomb').then((m) => ({ default: m.CoulombSection }))),
+  'math-integrals': lazyRetry(() => import('@em/sections/math-integrals').then((m) => ({ default: m.MathIntegralsSection }))),
   gauss: lazyRetry(() => import('@em/sections/gauss').then((m) => ({ default: m.GaussSection }))),
   ampere: lazyRetry(() => import('@em/sections/ampere').then((m) => ({ default: m.AmpereSection }))),
   lorentz: lazyRetry(() => import('@em/sections/lorentz').then((m) => ({ default: m.LorentzSection }))),
@@ -49,6 +51,7 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
 
   // ── Parts 3–5 · Transmission lines & devices (transmission) ─────────────
   transformers: lazyRetry(() => import('@transmission/components/modules/Transformers').then((m) => ({ default: m.Transformers }))),
+  'math-phasors': lazyRetry(() => import('@transmission/components/modules/PhasorAlgebra').then((m) => ({ default: m.PhasorAlgebra }))),
   'lumped-distributed': lazyRetry(() => import('@transmission/components/modules/LumpedDistributed').then((m) => ({ default: m.LumpedDistributed }))),
   'transmission-lines': lazyRetry(() => import('@transmission/components/modules/TransmissionLines').then((m) => ({ default: m.TransmissionLines }))),
   'line-impedance': lazyRetry(() => import('@transmission/components/modules/LineImpedance').then((m) => ({ default: m.LineImpedance }))),

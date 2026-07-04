@@ -40,10 +40,10 @@ describe('CourseLanding', () => {
 
   it('shows a section count in each Part summary', () => {
     renderLanding();
-    // Part 1 has 9 sections, Part 2 has 4, etc.
+    // Part 1 has 9 sections, Part 2 has 6 sections, etc.
     expect(screen.getByTestId('section-count-1')).toHaveTextContent('9 sections');
-    expect(screen.getByTestId('section-count-2')).toHaveTextContent('4 sections');
-    expect(screen.getByTestId('section-count-5')).toHaveTextContent('4 sections');
+    expect(screen.getByTestId('section-count-2')).toHaveTextContent('6 sections');
+    expect(screen.getByTestId('section-count-5')).toHaveTextContent('5 sections');
   });
 
   it('all section deep-links are in the DOM even when their Part is collapsed', () => {
@@ -60,10 +60,10 @@ describe('CourseLanding', () => {
     renderLanding();
     // Part 1 first section = /component-physics
     expect(screen.getByTestId('start-part-1')).toHaveAttribute('href', '/component-physics');
-    // Part 2 first section = /coulomb
-    expect(screen.getByTestId('start-part-2')).toHaveAttribute('href', '/coulomb');
-    // Part 5 first section = /lumped-distributed
-    expect(screen.getByTestId('start-part-5')).toHaveAttribute('href', '/lumped-distributed');
+    // Part 2 first section = /math-vectors
+    expect(screen.getByTestId('start-part-2')).toHaveAttribute('href', '/math-vectors');
+    // Part 5 first section = /math-phasors
+    expect(screen.getByTestId('start-part-5')).toHaveAttribute('href', '/math-phasors');
   });
 
   // ── Visited / progress state ───────────────────────────────────────────────

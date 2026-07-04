@@ -349,7 +349,7 @@ export function FaradaySection() {
             />
             <HintBox>
               <span>
-                Increase the Rate (<MathWrapper formula="\omega" />) or Loops (<MathWrapper formula="N" />) to generate a stronger induced voltage/current!
+                Increase the Frequency (<MathWrapper formula="f" />) or Loops (<MathWrapper formula="N" />) to generate a stronger induced voltage/current!
               </span>
             </HintBox>
           </ControlPanel>

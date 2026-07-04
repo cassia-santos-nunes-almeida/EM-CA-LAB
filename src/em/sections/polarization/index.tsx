@@ -370,7 +370,7 @@ export function PolarizationSection() {
   const equations: Equation[] = [
     { label: 'Net Vector', math: '\\vec{E}(z,t) = E_x \\hat{x} + E_y \\hat{y}', color: 'text-purple-600' },
     { label: 'x-Comp', math: `E_x = ${ex} \\cos(\\omega t - kz)` },
-    { label: 'y-Comp', math: `E_y = ${ey} \\cos(\\omega t - kz + ${phaseDelta}^\\circ)` },
+    { label: 'y-Comp', math: `E_y = ${ey} \\cos(\\omega t - kz ${phaseDelta < 0 ? '-' : '+'} ${Math.abs(phaseDelta)}^\\circ)` },
     { label: 'State', math: `\\text{${handedness ? handedness + '-' : ''}${type}}`, color: 'font-bold' },
   ];
   if (type === 'Circular') {

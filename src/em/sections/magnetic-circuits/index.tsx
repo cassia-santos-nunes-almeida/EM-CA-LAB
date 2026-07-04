@@ -99,7 +99,7 @@ const CHALLENGE: Challenge = {
     `Slowly drag the 'Air Gap' slider up to about 5% and watch the L readout. Notice how steeply L falls for such a small gap, and that a second readout 'H_gap' now appears alongside 'H_core' once the gap opens.`,
     `With the gap held near 5%, compare the 'H_core' and 'H_gap' readouts: H_gap should be far larger than H_core. Conclude that almost all the magnetomotive force (MMF = NI) is being 'dropped' across the thin gap, because ℛ_gap = l_gap/(μ₀A) dwarfs ℛ_core.`,
     `Now click the 'Ferrite' core button (μᵣ = 1,000) and repeat the gap sweep from 0% to 5%. Compare how much L drops for ferrite versus iron and conclude which core's inductance is more sensitive to the same gap percentage.`,
-    `Return to 'Iron', set the gap back to 0%, and read the baseline L. Then nudge the 'Air Gap' slider up step by step until the L readout reaches roughly half of that baseline. Note the gap percentage where this happens and compare it to your prediction.`,
+    `Return to 'Iron', set the gap back to 0%, and read the baseline L. Then nudge the 'Air Gap' slider up step by step and watch how violently L collapses — even the smallest 1% gap drops it about 50-fold. Work out from R_gap ≈ R_core what tiny gap (≈0.02% of the path) would merely halve L.`,
     `For contrast, click the 'Air' core button (μᵣ = 1) with the gap at 0% and watch B and L collapse. Conclude that the iron/ferrite core is what makes the flux Φ = BA (and thus L = N²/ℛ) large in the first place.`,
   ],
   hint: `Total reluctance adds in series: ℛ_total = ℛ_core + ℛ_gap. Because μ₀ is thousands of times smaller than μ of iron/ferrite, even a 1-2% gap can add more reluctance than the entire core path — and L = N²/ℛ_total falls with it.`,

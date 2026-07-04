@@ -12,7 +12,9 @@ import { SECTIONS } from '@shared/constants/curriculum';
 import { MODULES } from '@em/constants/physics';
 
 const EM_SECTION_IDS = [
+  'math-vectors',
   'coulomb',
+  'math-integrals',
   'gauss',
   'ampere',
   'lorentz',

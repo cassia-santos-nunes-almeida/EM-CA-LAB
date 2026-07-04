@@ -305,6 +305,8 @@ export function PartialFractions() {
         <div className="space-y-4">
           <p className="text-slate-700 dark:text-slate-300">
             A complex-conjugate pole pair never factors over the reals — keep the quadratic whole:
+            {' '}The arrow picture of complex numbers behind this cos/sin split — magnitudes, angles,
+            and Euler's identity — is built hands-on in Section {getSectionNumber('math-phasors')}.
           </p>
           <MathWrapper formula="F(s) = \frac{100(s+3)}{(s+6)(s^2+6s+25)}" block />
           <WorkedSteps

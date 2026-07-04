@@ -15,8 +15,8 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(PARTS.map((p) => p.number)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('covers all 25 sections', () => {
-    expect(ALL_SECTIONS).toHaveLength(25);
+  it('covers all 28 sections', () => {
+    expect(ALL_SECTIONS).toHaveLength(28);
   });
 
   it('leads with circuits — Part 1 is entirely circuits-domain', () => {
@@ -46,7 +46,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
   });
 
   it('SECTION metadata and the Part spine cover the identical id set (no orphan/extra entries)', () => {
-    expect(Object.keys(SECTIONS)).toHaveLength(25);
+    expect(Object.keys(SECTIONS)).toHaveLength(28);
     expect(new Set(ALL_SECTIONS.map((s) => s.id))).toEqual(new Set(Object.keys(SECTIONS)));
   });
 
@@ -98,10 +98,13 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(getPartForSection('antennas')?.id).toBe('maxwell-waves-antennas');
   });
 
-  it('expectedChecks: EM fundamentals carry per-section targets, everything else 0', () => {
+  it('expectedChecks: EM fundamentals and the math sections carry per-section targets, everything else 0', () => {
     expect(getExpectedChecks('gauss')).toBe(3);
     expect(getExpectedChecks('maxwell')).toBe(3);
     expect(getExpectedChecks('em-wave')).toBe(3);
+    expect(getExpectedChecks('math-vectors')).toBe(3);
+    expect(getExpectedChecks('math-integrals')).toBe(3);
+    expect(getExpectedChecks('math-phasors')).toBe(3);
     expect(getExpectedChecks('component-physics')).toBe(0);
     expect(getExpectedChecks('transformers')).toBe(0);
     expect(getExpectedChecks('unknown-section')).toBe(0);
@@ -121,12 +124,12 @@ describe('curriculum — 5-part circuits-first spine', () => {
     }
   });
 
-  it('simHeavy: exactly 16 sections carry simHeavy===true', () => {
+  it('simHeavy: exactly 18 sections carry simHeavy===true', () => {
     const simHeavyIds = Object.values(SECTIONS)
       .filter((s) => s.simHeavy === true)
       .map((s) => s.id)
       .sort();
-    expect(simHeavyIds).toHaveLength(16);
+    expect(simHeavyIds).toHaveLength(18);
     expect(simHeavyIds).toEqual(
       [
         'ampere',
@@ -141,6 +144,8 @@ describe('curriculum — 5-part circuits-first spine', () => {
         'lorentz',
         'lumped-distributed',
         'magnetic-circuits',
+        'math-integrals',
+        'math-vectors',
         'maxwell',
         'polarization',
         'transmission-lines',
@@ -149,7 +154,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
     );
   });
 
-  it('simHeavy: the 9 non-sim sections are falsy (field absent or false)', () => {
+  it('simHeavy: the 10 non-sim sections are falsy (field absent or false)', () => {
     const nonSimIds = [
       'component-physics',
       'circuit-analysis',
@@ -160,6 +165,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
       'partial-fractions',
       's-domain',
       'transformers',
+      'math-phasors',
     ];
     for (const id of nonSimIds) {
       expect(SECTIONS[id].simHeavy, `${id} should be falsy`).toBeFalsy();

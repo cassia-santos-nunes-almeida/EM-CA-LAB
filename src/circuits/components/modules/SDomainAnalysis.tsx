@@ -216,7 +216,7 @@ function DampingTab() {
             <span className="text-engineering-blue-600 font-bold mt-1">•</span>
             <span>
               The damping ratio ζ predicts oscillatory behavior: ζ &lt; 1 gives oscillations,
-              ζ = 1 is optimal damping, ζ &gt; 1 is sluggish.
+              ζ = 1 is the fastest response with no overshoot; ζ &gt; 1 is sluggish.
             </span>
           </li>
           <li className="flex items-start gap-2">

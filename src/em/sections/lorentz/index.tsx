@@ -130,6 +130,15 @@ export function LorentzSection() {
   const physicsRef = useRef<ParticleState | null>(null);
   const animationRef = useRef(0);
   const hoverPos = useRef<{ x: number; y: number } | null>(null);
+  // Walkthrough fix: the equation box's "Computed r" used to read the launch-
+  // speed SLIDER, which disagrees with the hover readout's actual particle
+  // speed once the user drags the velocity-arrow tip (or changes the slider
+  // without respawning). Track the particle's real current speed here — same
+  // source as the hover readout — so both numbers always agree. Rounded to
+  // the display precision so harmless floating-point drift from the Boris
+  // integrator doesn't trigger a re-render every frame.
+  const [actualSpeedKms, setActualSpeedKms] = useState(() => sliderToSpeedKms(velocity));
+  const actualSpeedKmsRef = useRef(actualSpeedKms);
 
   const handleReset = useCallback(() => {
     if (canvasRef.current) {
@@ -311,6 +320,15 @@ export function LorentzSection() {
           // Position update
           p.x += p.vx * dt;
           p.y += p.vy * dt;
+        }
+
+        // Sync the actual-speed readout (same source as the hover box below)
+        // so the equation panel's "Computed r" tracks reality even after a
+        // velocity-arrow drag changes speed without touching the slider.
+        const actualSpeedKmsNow = Math.round(pxPerSecToKms(Math.hypot(p.vx, p.vy)) * 10) / 10;
+        if (actualSpeedKmsNow !== actualSpeedKmsRef.current) {
+          actualSpeedKmsRef.current = actualSpeedKmsNow;
+          setActualSpeedKms(actualSpeedKmsNow);
         }
 
         if (Math.random() > 0.5) {
@@ -517,7 +535,7 @@ export function LorentzSection() {
             { label: 'Radius', math: 'r = \\frac{mv}{|q|B}', color: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'On a wire', math: '\\vec{F} = I\\,\\vec{L} \\times \\vec{B}', color: 'text-emerald-600 dark:text-emerald-400' },
             { label: 'Computed r', math: charge !== 0 && bField !== 0
-              ? `r = \\frac{${mass}\\,\\text{u} \\times ${sliderToSpeedKms(velocity).toFixed(1)}\\,\\text{km/s}}{${Math.abs(charge)}\\,e \\times ${Math.abs(bField / 20).toFixed(1)}\\,\\text{mT}} = ${cyclotronRadiusMm(mass, Math.abs(charge), Math.abs(bField / 20), sliderToSpeedKms(velocity)).toFixed(0)}\\ \\text{mm}`
+              ? `r = \\frac{${mass}\\,\\text{u} \\times ${actualSpeedKms.toFixed(1)}\\,\\text{km/s}}{${Math.abs(charge)}\\,e \\times ${Math.abs(bField / 20).toFixed(1)}\\,\\text{mT}} = ${cyclotronRadiusMm(mass, Math.abs(charge), Math.abs(bField / 20), actualSpeedKms).toFixed(0)}\\ \\text{mm}`
               : '\\text{—}' },
           ]}
         />

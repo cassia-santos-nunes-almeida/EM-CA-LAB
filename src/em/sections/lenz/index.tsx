@@ -20,7 +20,7 @@ import { toConceptCheck } from '@em/components/common/section/quizAdapter';
 import { GuidedChallenge } from '@shared/components/common/GuidedChallenge';
 import { SectionAnchor } from '@shared/components/scrollspy/SectionAnchor';
 import type { Challenge, QuizQuestion } from '@em/types/index';
-import { brakingForceArrowX } from './physics';
+import { brakingForceArrowX, effectiveMagnetVelocity } from './physics';
 
 // ── Inline ConceptCheck content (verified; ported from constants/quizContent.ts) ──
 const Q_REPEL: QuizQuestion = {
@@ -120,6 +120,18 @@ export function LenzSection() {
   const canvasTouchRef = useCanvasTouch(canvasRef);
   const timeRef = useRef(0);
   const animationRef = useRef(0);
+  // Walkthrough fix: last time an input event (drag/keyboard/slider/auto-
+  // oscillate) actually moved the magnet, and the velocity currently being
+  // displayed — decayed toward 0 once the magnet has been at rest for a
+  // while so the sim stops reporting motion that already stopped.
+  // (Lazily initialized to `null` rather than calling Date.now() directly in
+  // useRef — that would be an impure call during render; it is set on the
+  // first animation frame instead, and on every input event thereafter.)
+  const lastMoveTimeRef = useRef<number | null>(null);
+  const effectiveVRef = useRef(0);
+  const markMoved = useCallback(() => {
+    lastMoveTimeRef.current = Date.now();
+  }, []);
 
   const getCanvasPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -154,9 +166,10 @@ export function LenzSection() {
     if (!pt) return;
     const rect = canvas.getBoundingClientRect();
     const newPos = Math.max(0, Math.min(100, (pt.x / rect.width) * 100));
+    markMoved();
     setPrevPos(magnetPos);
     setMagnetPos(newPos);
-  }, [draggingMagnet, canvasRef, getCanvasPoint, magnetPos]);
+  }, [draggingMagnet, canvasRef, getCanvasPoint, magnetPos, markMoved]);
 
   const handleMouseUp = useCallback(() => setDraggingMagnet(false), []);
 
@@ -165,27 +178,30 @@ export function LenzSection() {
     const step = 1.5;
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
+      markMoved();
       setPrevPos(magnetPos);
       setMagnetPos(p => Math.max(0, p - step));
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
+      markMoved();
       setPrevPos(magnetPos);
       setMagnetPos(p => Math.min(100, p + step));
     }
-  }, [autoPlay, magnetPos]);
+  }, [autoPlay, magnetPos, markMoved]);
 
 
   // Auto-oscillation effect
   useEffect(() => {
     if (autoPlay) {
       const int = setInterval(() => {
+        markMoved();
         setPrevPos(magnetPos);
         timeRef.current += 0.05 * speed;
         setMagnetPos(50 + 35 * Math.sin(timeRef.current));
       }, 16);
       return () => clearInterval(int);
     }
-  }, [autoPlay, speed, magnetPos]);
+  }, [autoPlay, speed, magnetPos, markMoved]);
 
   // Custom drawArrow helper
   const drawArrow = (
@@ -303,7 +319,17 @@ export function LenzSection() {
         // Physical flux model: dipole on axis of circular coil
         // Φ ∝ a² / (a² + d²)^(3/2), so dΦ/dd ∝ -3ad² / (a² + d²)^(5/2) * v
         // We use normalized units with coil radius a = 60px as reference
-        const v = magnetPos - prevPos; // velocity (slider units/frame)
+        const rawV = magnetPos - prevPos; // raw per-event delta (slider units)
+        // Walkthrough fix: once the magnet has been at rest (no input event)
+        // for longer than the grace window, decay the displayed velocity to 0
+        // instead of leaving it pinned at its last nonzero value — otherwise
+        // the v-arrow, current markers, and REPULSION/ATTRACTION readouts keep
+        // reporting motion for a magnet that is visibly sitting still.
+        const now = Date.now();
+        if (lastMoveTimeRef.current === null) lastMoveTimeRef.current = now;
+        const msSinceLastMove = now - lastMoveTimeRef.current;
+        effectiveVRef.current = effectiveMagnetVelocity(rawV, effectiveVRef.current, msSinceLastMove, autoPlay);
+        const v = effectiveVRef.current; // velocity (slider units/frame)
         const coilCenterNorm = 50; // coil is at 50% of width
         const dNorm = (magnetPos - coilCenterNorm) / 100 * w; // distance in pixels
         const a = 60; // coil radius in pixels
@@ -456,6 +482,7 @@ export function LenzSection() {
                 step={0.5}
                 unit=" %"
                 onChange={(v) => {
+                  markMoved();
                   setPrevPos(magnetPos);
                   setMagnetPos(v);
                 }}

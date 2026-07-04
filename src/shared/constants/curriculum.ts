@@ -76,7 +76,9 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0, simHeavy: true },
 
   // ── Part 2 · Electric & Magnetic Fields (em) ────────────────────────────
+  { id: 'math-vectors', title: 'Vector Toolkit', subtitle: 'Dot and cross products — projection, rotation, and the right-hand rule', route: '/math-vectors', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'coulomb', title: "Coulomb's Law", subtitle: 'Electrostatic force between point charges', route: '/coulomb', domain: 'em', expectedChecks: 3, simHeavy: true },
+  { id: 'math-integrals', title: 'Line & Flux Integrals', subtitle: 'Adding up fields along paths and through surfaces', route: '/math-integrals', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'gauss', title: "Gauss's Law", subtitle: 'Electric flux and closed surface integrals', route: '/gauss', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'ampere', title: "Ampère's Law", subtitle: 'Magnetic fields from steady currents', route: '/ampere', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'lorentz', title: 'Lorentz Force', subtitle: 'Force on charged particles in EM fields', route: '/lorentz', domain: 'em', expectedChecks: 3, simHeavy: true },
@@ -94,6 +96,7 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0, simHeavy: true },
 
   // ── Part 5 · Transmission Lines & Distributed Systems (transmission) ─────
+  { id: 'math-phasors', title: 'Complex Numbers & Phasors', route: '/math-phasors', domain: 'transmission', expectedChecks: 3 },
   { id: 'lumped-distributed', title: 'Lumped to Distributed', route: '/lumped-distributed', domain: 'transmission', expectedChecks: 0, simHeavy: true },
   { id: 'transmission-lines', title: 'Transmission Lines', route: '/transmission-lines', domain: 'transmission', expectedChecks: 0, simHeavy: true },
   { id: 'line-impedance', title: 'Line Impedance & Matching', route: '/line-impedance', domain: 'transmission', expectedChecks: 0, simHeavy: true },
@@ -113,7 +116,7 @@ export const PARTS: CoursePart[] = [
     id: 'electric-magnetic-fields',
     number: 2,
     title: 'Electric & Magnetic Fields',
-    sectionIds: ['coulomb', 'gauss', 'ampere', 'lorentz'],
+    sectionIds: ['math-vectors', 'coulomb', 'math-integrals', 'gauss', 'ampere', 'lorentz'],
   },
   {
     id: 'induction-magnetics',
@@ -131,7 +134,7 @@ export const PARTS: CoursePart[] = [
     id: 'transmission-lines',
     number: 5,
     title: 'Transmission Lines & Distributed Systems',
-    sectionIds: ['lumped-distributed', 'transmission-lines', 'line-impedance', 'transients'],
+    sectionIds: ['math-phasors', 'lumped-distributed', 'transmission-lines', 'line-impedance', 'transients'],
   },
 ];
 

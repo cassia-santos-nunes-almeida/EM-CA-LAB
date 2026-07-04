@@ -3,6 +3,7 @@ import { useCanvasTouch } from '@em/hooks/useCanvasTouch';
 import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { ControlPanel } from '@em/components/common/ControlPanel';
 import { Slider } from '@em/components/common/Slider';
 import { EquationBox } from '@em/components/common/EquationBox';
@@ -423,10 +424,15 @@ export function GaussSection() {
           className="mb-6"
           src={`${import.meta.env.BASE_URL}figures/faraday-cage.jpg`}
           alt="Faraday cage demonstration showing electric field shielding"
-          caption="A Faraday cage: Gauss's law explains why the electric field inside a closed conductor is zero."
+          caption="A Faraday cage: charges on a conductor rearrange until the interior field vanishes — Gauss's law then confirms zero net flux through any interior surface."
           attribution="Amanjosan2008, CC BY-SA 4.0 — Wikimedia Commons"
           sourceUrl="https://commons.wikimedia.org/wiki/File:Faraday_Cage.JPG"
         />
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Every symbol below was built hands-on before this: the closed-surface ring and the area
+          element in Section {getSectionNumber('math-integrals')}, the dot product in
+          Section {getSectionNumber('math-vectors')} — here they start doing physics.
+        </p>
         <EquationBox title={`Gauss's Law for ${mode === 'ELECTRIC' ? 'Electric Fields' : 'Magnetism'}`} equations={equations} />
 
         {/* ── Plausibility callout (unit 2G): the three-pass audit on the Result line ── */}
@@ -494,7 +500,7 @@ export function GaussSection() {
   return (
     <SectionLayout
       sectionId="gauss"
-      hook="Electrostatic shielding in coaxial cables, Faraday cages in microwave ovens, and the uniform field inside a capacitor all follow directly from this single law applied to the right surface."
+      hook="Electrostatic shielding in coaxial cables, Faraday-cage shielding, and the uniform field inside a capacitor all trace back to this single law applied to the right surface."
       toc={TOC}
     >
       <LabLayout leadWithBench theory={theory} bench={bench} />

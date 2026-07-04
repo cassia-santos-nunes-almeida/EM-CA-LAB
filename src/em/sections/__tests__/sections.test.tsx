@@ -217,4 +217,49 @@ describe('Section smoke tests', () => {
     expect(screen.getByText('Predict First')).toBeInTheDocument();
     expect(screen.getByText(/90° phase difference/i)).toBeInTheDocument();
   });
+
+  it('MathIntegralsSection renders', async () => {
+    const { MathIntegralsSection } = await import('@em/sections/math-integrals/index');
+    renderSection(MathIntegralsSection);
+    expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+  });
+
+  it('MathIntegralsSection gates the sim behind a Predict First prediction', async () => {
+    const { MathIntegralsSection } = await import('@em/sections/math-integrals/index');
+    const { container } = renderSection(MathIntegralsSection);
+    expect(screen.getByText('Predict First')).toBeInTheDocument(); // exact string — the regex form multi-matches (see Task 2)
+    expect(screen.getByText(/what happens to the flux through it/i)).toBeInTheDocument();
+    expect(container.querySelector('canvas')).toBeNull(); // bench stays gated
+  });
+
+  it('MathVectorsSection renders', async () => {
+    const { MathVectorsSection } = await import('@em/sections/math-vectors/index');
+    renderSection(MathVectorsSection);
+    // Curriculum-independent marker: the SectionHook block renders regardless of
+    // spine wiring (the h1 title arrives only with the Task 3 curriculum entry).
+    expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+  });
+
+  it('MathVectorsSection gates the sim behind a Predict First prediction', async () => {
+    const { MathVectorsSection } = await import('@em/sections/math-vectors/index');
+    const { container } = renderSection(MathVectorsSection);
+    // Exact string, NOT a regex: /predict first/i multi-matches PredictionGate's
+    // brow ('BENCH · PREDICT FIRST · ARMED'), status ('LOCKED · PREDICT FIRST'),
+    // and body <p> and throws — the coulomb idiom is getByText('Predict First').
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/what is the SIGN of A·B/i)).toBeInTheDocument();
+    expect(container.querySelector('canvas')).toBeNull(); // bench stays gated
+  });
+
+  it('GaussSection back-links its integral toolkit to math-integrals (2.3)', async () => {
+    const { GaussSection } = await import('@em/sections/gauss/index');
+    renderSection(GaussSection);
+    expect(screen.getByText(/closed-surface ring and the area element in Section 2\.3/)).toBeInTheDocument();
+  });
+
+  it('MaxwellSection back-links divergence and curl to math-integrals (2.3)', async () => {
+    const { MaxwellSection } = await import('@em/sections/maxwell/index');
+    renderSection(MaxwellSection);
+    expect(screen.getByText(/built from scratch in Section 2\.3/)).toBeInTheDocument();
+  });
 });

@@ -104,4 +104,9 @@ describe('PartialFractions page', () => {
     await user.click(screen.getByText('polynomial-divide — the fraction is improper (deg 3 ≥ deg 2)'));
     expect(screen.getByText(/Correct!/)).toBeInTheDocument();
   });
+
+  it('Complex Poles forward-links the arrow picture to math-phasors (5.1)', () => {
+    renderWithRouter(<PartialFractions />, '/partial-fractions');
+    expect(screen.getByText(/arrow picture of complex numbers/i)).toBeInTheDocument();
+  });
 });

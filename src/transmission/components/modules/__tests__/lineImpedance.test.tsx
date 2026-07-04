@@ -41,12 +41,12 @@ const renderLI = () => render(<MemoryRouter><LineImpedance /></MemoryRouter>);
 const gateQ = /quarter-wavelength/i;
 const distSlider = /distance from load/i;
 
-describe('LineImpedance — section 5.3 page', () => {
+describe('LineImpedance — section 5.4 page', () => {
   it('renders the h1 with the derived section number', () => {
     renderLI();
     const h1 = screen.getByRole('heading', { level: 1, name: /Line Impedance & Matching/i });
     expect(h1).toBeInTheDocument();
-    expect(h1).toHaveTextContent('5.3');
+    expect(h1).toHaveTextContent('5.4');
   });
 
   it('blocks the bench behind the gate with no Skip control, and unlock survives tab switches', async () => {
@@ -103,6 +103,14 @@ describe('LineImpedance — section 5.3 page', () => {
     // CC-3 lives in the Stubs tab.
     await user.click(screen.getByRole('tab', { name: /Stubs/i }));
     expect(screen.getByText(/What does it present at its input/i)).toBeInTheDocument();
+  });
+
+  it('back-links Euler and the rotating-arrow algebra to math-phasors (5.1)', async () => {
+    const user = userEvent.setup();
+    renderLI();
+    // The Euler derivation sentence lives in the Z_in Lab theory column.
+    await user.click(screen.getByRole('tab', { name: /Z_in Lab/i }));
+    expect(screen.getByText(/Section 5\.1/)).toBeInTheDocument();
   });
 });
 

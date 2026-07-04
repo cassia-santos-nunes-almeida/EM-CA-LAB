@@ -107,7 +107,7 @@ export function ComponentPhysics() {
           { id: 'half', label: 'Halves' },
         ]}
         getCorrectAnswer={() => '4x'}
-        explanation={<span>L depends on N², so doubling N multiplies L by 2² = 4. (R and C scale linearly with their geometry; only the inductor has a squared dependence.)</span>}
+        explanation={<span>L depends on N², so doubling N multiplies L by 2² = 4. (geometry enters R and C only to the first power; only the inductor carries a squared dependence.)</span>}
         onPredict={(correct) => markPredictionGate('component-physics', correct)}
       >
         {/* tab strip + active component panel */}
