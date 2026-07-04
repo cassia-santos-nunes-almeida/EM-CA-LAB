@@ -51,6 +51,7 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
 
   // ── Parts 3–5 · Transmission lines & devices (transmission) ─────────────
   transformers: lazyRetry(() => import('@transmission/components/modules/Transformers').then((m) => ({ default: m.Transformers }))),
+  'math-phasors': lazyRetry(() => import('@transmission/components/modules/PhasorAlgebra').then((m) => ({ default: m.PhasorAlgebra }))),
   'lumped-distributed': lazyRetry(() => import('@transmission/components/modules/LumpedDistributed').then((m) => ({ default: m.LumpedDistributed }))),
   'transmission-lines': lazyRetry(() => import('@transmission/components/modules/TransmissionLines').then((m) => ({ default: m.TransmissionLines }))),
   'line-impedance': lazyRetry(() => import('@transmission/components/modules/LineImpedance').then((m) => ({ default: m.LineImpedance }))),

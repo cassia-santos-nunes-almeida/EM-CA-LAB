@@ -96,6 +96,7 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'antennas', title: 'Antennas', route: '/antennas', domain: 'transmission', expectedChecks: 0, simHeavy: true },
 
   // ── Part 5 · Transmission Lines & Distributed Systems (transmission) ─────
+  { id: 'math-phasors', title: 'Complex Numbers & Phasors', route: '/math-phasors', domain: 'transmission', expectedChecks: 3 },
   { id: 'lumped-distributed', title: 'Lumped to Distributed', route: '/lumped-distributed', domain: 'transmission', expectedChecks: 0, simHeavy: true },
   { id: 'transmission-lines', title: 'Transmission Lines', route: '/transmission-lines', domain: 'transmission', expectedChecks: 0, simHeavy: true },
   { id: 'line-impedance', title: 'Line Impedance & Matching', route: '/line-impedance', domain: 'transmission', expectedChecks: 0, simHeavy: true },
@@ -133,7 +134,7 @@ export const PARTS: CoursePart[] = [
     id: 'transmission-lines',
     number: 5,
     title: 'Transmission Lines & Distributed Systems',
-    sectionIds: ['lumped-distributed', 'transmission-lines', 'line-impedance', 'transients'],
+    sectionIds: ['math-phasors', 'lumped-distributed', 'transmission-lines', 'line-impedance', 'transients'],
   },
 ];
 

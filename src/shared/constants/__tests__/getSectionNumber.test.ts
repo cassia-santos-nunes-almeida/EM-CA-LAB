@@ -15,9 +15,10 @@ describe('getSectionNumber', () => {
     expect(getSectionNumber('magnetic-circuits')).toBe('3.3');
     expect(getSectionNumber('transformers')).toBe('3.4');
     expect(getSectionNumber('antennas')).toBe('4.4');
-    expect(getSectionNumber('transmission-lines')).toBe('5.2');
-    expect(getSectionNumber('line-impedance')).toBe('5.3');
-    expect(getSectionNumber('transients')).toBe('5.4');
+    expect(getSectionNumber('math-phasors')).toBe('5.1');
+    expect(getSectionNumber('transmission-lines')).toBe('5.3');
+    expect(getSectionNumber('line-impedance')).toBe('5.4');
+    expect(getSectionNumber('transients')).toBe('5.5');
   });
 
   it('returns empty string for an unknown id', () => {

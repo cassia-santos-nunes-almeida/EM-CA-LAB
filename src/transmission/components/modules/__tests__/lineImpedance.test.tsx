@@ -41,12 +41,12 @@ const renderLI = () => render(<MemoryRouter><LineImpedance /></MemoryRouter>);
 const gateQ = /quarter-wavelength/i;
 const distSlider = /distance from load/i;
 
-describe('LineImpedance — section 5.3 page', () => {
+describe('LineImpedance — section 5.4 page', () => {
   it('renders the h1 with the derived section number', () => {
     renderLI();
     const h1 = screen.getByRole('heading', { level: 1, name: /Line Impedance & Matching/i });
     expect(h1).toBeInTheDocument();
-    expect(h1).toHaveTextContent('5.3');
+    expect(h1).toHaveTextContent('5.4');
   });
 
   it('blocks the bench behind the gate with no Skip control, and unlock survives tab switches', async () => {
