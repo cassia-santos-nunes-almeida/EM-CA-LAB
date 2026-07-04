@@ -16,13 +16,13 @@ const SETTLE_MS = 1500; // recharts mount animation + canvas warm-up
 // For these, the dpr=2 project additionally asserts the backing store actually
 // grew by devicePixelRatio — catching a migration that silently dropped ctx.scale.
 // Each #14 sim-migration PR adds its section id here.
-const DPR_MIGRATED = new Set<string>(['magnetic-circuits', 'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'polarization', 'maxwell', 'em-wave']);
+const DPR_MIGRATED = new Set<string>(['magnetic-circuits', 'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'polarization', 'maxwell', 'em-wave', 'math-vectors']);
 
 // Routes that MUST surface at least one canvas once gates/tabs are walked —
 // guards against a vacuous pass when gate-unlocking silently fails and the
 // canvas never enters the DOM at all.
 const EXPECT_CANVAS = new Set([
-  'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'magnetic-circuits',
+  'math-vectors', 'coulomb', 'gauss', 'ampere', 'lorentz', 'faraday', 'lenz', 'magnetic-circuits',
   'maxwell', 'em-wave', 'polarization',
   'transformers', 'antennas', 'lumped-distributed', 'transmission-lines', 'transients',
 ]);
@@ -37,7 +37,7 @@ const EXPECT_CANVAS = new Set([
 // sims (the migration targets) get the strongest floor. If a real layout change moves
 // a baseline, update the value deliberately — do NOT relax it to dodge a true regression.
 const MIN_CANVAS_H: Record<string, number> = {
-  coulomb: 238, gauss: 238, ampere: 238, lorentz: 238, faraday: 238,
+  'math-vectors': 238, coulomb: 238, gauss: 238, ampere: 238, lorentz: 238, faraday: 238,
   lenz: 238, 'magnetic-circuits': 238, polarization: 238,
   transients: 312, antennas: 300, 'em-wave': 189, transformers: 144,
   'lumped-distributed': 132, maxwell: 94, 'transmission-lines': 48,
@@ -59,6 +59,7 @@ const MIN_CANVAS_W: Record<string, number> = {
   // relation below; this floor catches a hard horizontal collapse on either viewport.
   gauss: 180,
   lorentz: 180, // same leadWithBench bench geometry as gauss (mobile 299 / desktop 482)
+  'math-vectors': 180, // same leadWithBench bench geometry as gauss (mobile 299 / desktop 482)
   coulomb: 180,
   lenz: 180,
   polarization: 180,

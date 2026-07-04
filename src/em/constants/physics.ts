@@ -11,6 +11,7 @@ import {
   Layers,
   Home,
   Cpu,
+  ArrowUpRight,
 } from 'lucide-react';
 
 /** Canvas drawing color palette */
@@ -70,6 +71,15 @@ export const MODULES: ModuleDefinition[] = [
     description: 'Introduction to Electromagnetics & AC Circuit Analysis',
   },
   // ── Electrostatics ────────────────────────────────────────────────
+  {
+    id: 'math-vectors',
+    path: '/math-vectors',
+    label: 'Vector Toolkit',
+    shortLabel: 'Vectors',
+    icon: ArrowUpRight,
+    description: 'Dot and cross products — projection, rotation, and the right-hand rule',
+    track: 'electrostatics',
+  },
   {
     id: 'coulomb',
     path: '/coulomb',

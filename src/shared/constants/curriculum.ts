@@ -76,6 +76,7 @@ const SECTION_LIST: CourseSection[] = [
   { id: 'interactive-lab', title: 'Interactive Lab', route: '/interactive-lab', domain: 'circuits', expectedChecks: 0, simHeavy: true },
 
   // ── Part 2 · Electric & Magnetic Fields (em) ────────────────────────────
+  { id: 'math-vectors', title: 'Vector Toolkit', subtitle: 'Dot and cross products — projection, rotation, and the right-hand rule', route: '/math-vectors', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'coulomb', title: "Coulomb's Law", subtitle: 'Electrostatic force between point charges', route: '/coulomb', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'gauss', title: "Gauss's Law", subtitle: 'Electric flux and closed surface integrals', route: '/gauss', domain: 'em', expectedChecks: 3, simHeavy: true },
   { id: 'ampere', title: "Ampère's Law", subtitle: 'Magnetic fields from steady currents', route: '/ampere', domain: 'em', expectedChecks: 3, simHeavy: true },
@@ -113,7 +114,7 @@ export const PARTS: CoursePart[] = [
     id: 'electric-magnetic-fields',
     number: 2,
     title: 'Electric & Magnetic Fields',
-    sectionIds: ['coulomb', 'gauss', 'ampere', 'lorentz'],
+    sectionIds: ['math-vectors', 'coulomb', 'gauss', 'ampere', 'lorentz'],
   },
   {
     id: 'induction-magnetics',

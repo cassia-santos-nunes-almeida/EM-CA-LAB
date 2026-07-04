@@ -42,7 +42,7 @@ describe('CourseLanding', () => {
     renderLanding();
     // Part 1 has 9 sections, Part 2 has 4, etc.
     expect(screen.getByTestId('section-count-1')).toHaveTextContent('9 sections');
-    expect(screen.getByTestId('section-count-2')).toHaveTextContent('4 sections');
+    expect(screen.getByTestId('section-count-2')).toHaveTextContent('5 sections');
     expect(screen.getByTestId('section-count-5')).toHaveTextContent('4 sections');
   });
 
@@ -60,8 +60,8 @@ describe('CourseLanding', () => {
     renderLanding();
     // Part 1 first section = /component-physics
     expect(screen.getByTestId('start-part-1')).toHaveAttribute('href', '/component-physics');
-    // Part 2 first section = /coulomb
-    expect(screen.getByTestId('start-part-2')).toHaveAttribute('href', '/coulomb');
+    // Part 2 first section = /math-vectors
+    expect(screen.getByTestId('start-part-2')).toHaveAttribute('href', '/math-vectors');
     // Part 5 first section = /lumped-distributed
     expect(screen.getByTestId('start-part-5')).toHaveAttribute('href', '/lumped-distributed');
   });

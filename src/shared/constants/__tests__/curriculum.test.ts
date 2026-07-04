@@ -15,8 +15,8 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(PARTS.map((p) => p.number)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('covers all 25 sections', () => {
-    expect(ALL_SECTIONS).toHaveLength(25);
+  it('covers all 26 sections', () => {
+    expect(ALL_SECTIONS).toHaveLength(26);
   });
 
   it('leads with circuits — Part 1 is entirely circuits-domain', () => {
@@ -46,7 +46,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
   });
 
   it('SECTION metadata and the Part spine cover the identical id set (no orphan/extra entries)', () => {
-    expect(Object.keys(SECTIONS)).toHaveLength(25);
+    expect(Object.keys(SECTIONS)).toHaveLength(26);
     expect(new Set(ALL_SECTIONS.map((s) => s.id))).toEqual(new Set(Object.keys(SECTIONS)));
   });
 
@@ -98,10 +98,11 @@ describe('curriculum — 5-part circuits-first spine', () => {
     expect(getPartForSection('antennas')?.id).toBe('maxwell-waves-antennas');
   });
 
-  it('expectedChecks: EM fundamentals carry per-section targets, everything else 0', () => {
+  it('expectedChecks: EM fundamentals and the math sections carry per-section targets, everything else 0', () => {
     expect(getExpectedChecks('gauss')).toBe(3);
     expect(getExpectedChecks('maxwell')).toBe(3);
     expect(getExpectedChecks('em-wave')).toBe(3);
+    expect(getExpectedChecks('math-vectors')).toBe(3);
     expect(getExpectedChecks('component-physics')).toBe(0);
     expect(getExpectedChecks('transformers')).toBe(0);
     expect(getExpectedChecks('unknown-section')).toBe(0);
@@ -121,12 +122,12 @@ describe('curriculum — 5-part circuits-first spine', () => {
     }
   });
 
-  it('simHeavy: exactly 16 sections carry simHeavy===true', () => {
+  it('simHeavy: exactly 17 sections carry simHeavy===true', () => {
     const simHeavyIds = Object.values(SECTIONS)
       .filter((s) => s.simHeavy === true)
       .map((s) => s.id)
       .sort();
-    expect(simHeavyIds).toHaveLength(16);
+    expect(simHeavyIds).toHaveLength(17);
     expect(simHeavyIds).toEqual(
       [
         'ampere',
@@ -141,6 +142,7 @@ describe('curriculum — 5-part circuits-first spine', () => {
         'lorentz',
         'lumped-distributed',
         'magnetic-circuits',
+        'math-vectors',
         'maxwell',
         'polarization',
         'transmission-lines',

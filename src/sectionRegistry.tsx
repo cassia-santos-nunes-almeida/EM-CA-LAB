@@ -36,6 +36,7 @@ export const SECTION_LOADERS: Record<string, ComponentType> = {
   'interactive-lab': lazyRetry(() => import('@circuits/components/modules/InteractiveLab').then((m) => ({ default: m.InteractiveLab }))),
 
   // ── Parts 2–4 · Electromagnetism (em) ───────────────────────────────────
+  'math-vectors': lazyRetry(() => import('@em/sections/math-vectors').then((m) => ({ default: m.MathVectorsSection }))),
   coulomb: lazyRetry(() => import('@em/sections/coulomb').then((m) => ({ default: m.CoulombSection }))),
   gauss: lazyRetry(() => import('@em/sections/gauss').then((m) => ({ default: m.GaussSection }))),
   ampere: lazyRetry(() => import('@em/sections/ampere').then((m) => ({ default: m.AmpereSection }))),
