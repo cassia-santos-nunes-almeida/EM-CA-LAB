@@ -122,13 +122,13 @@ export function PhasorMultiplierSim() {
         >
           <defs>
             <marker id="phasor-arrow-z1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z" fill="#2563eb" />
+              <path d="M0,0 L8,4 L0,8 Z" className="fill-blue-600 dark:fill-blue-400" />
             </marker>
             <marker id="phasor-arrow-z2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z" fill="#d97706" />
+              <path d="M0,0 L8,4 L0,8 Z" className="fill-amber-600 dark:fill-amber-400" />
             </marker>
             <marker id="phasor-arrow-product" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-              <path d="M0,0 L9,4.5 L0,9 Z" fill="#059669" />
+              <path d="M0,0 L9,4.5 L0,9 Z" className="fill-emerald-600 dark:fill-emerald-400" />
             </marker>
           </defs>
 
@@ -138,27 +138,26 @@ export function PhasorMultiplierSim() {
             cy={CENTER}
             r={SCALE}
             fill="none"
-            stroke="currentColor"
-            className="text-slate-300 dark:text-slate-600"
+            className="stroke-slate-400 dark:stroke-slate-500"
             strokeDasharray="3 3"
           />
 
           {/* Re/Im axes */}
-          <line x1={10} y1={CENTER} x2={310} y2={CENTER} stroke="currentColor" className="text-slate-400 dark:text-slate-500" strokeWidth={1} />
-          <line x1={CENTER} y1={10} x2={CENTER} y2={310} stroke="currentColor" className="text-slate-400 dark:text-slate-500" strokeWidth={1} />
+          <line x1={10} y1={CENTER} x2={310} y2={CENTER} className="stroke-slate-400 dark:stroke-slate-500" strokeWidth={1} />
+          <line x1={CENTER} y1={10} x2={CENTER} y2={310} className="stroke-slate-400 dark:stroke-slate-500" strokeWidth={1} />
           <text x={296} y={CENTER - 6} fontSize="12" className="fill-slate-500 dark:fill-slate-400">Re</text>
           <text x={CENTER + 6} y={20} fontSize="12" className="fill-slate-500 dark:fill-slate-400">Im</text>
 
           {/* z1 — blue */}
-          <line x1={CENTER} y1={CENTER} x2={z1Point.x} y2={z1Point.y} stroke="#2563eb" strokeWidth={2} markerEnd="url(#phasor-arrow-z1)" />
+          <line x1={CENTER} y1={CENTER} x2={z1Point.x} y2={z1Point.y} className="stroke-blue-600 dark:stroke-blue-400" strokeWidth={2} markerEnd="url(#phasor-arrow-z1)" />
           {/* z2 — amber */}
-          <line x1={CENTER} y1={CENTER} x2={z2Point.x} y2={z2Point.y} stroke="#d97706" strokeWidth={2} markerEnd="url(#phasor-arrow-z2)" />
+          <line x1={CENTER} y1={CENTER} x2={z2Point.x} y2={z2Point.y} className="stroke-amber-600 dark:stroke-amber-400" strokeWidth={2} markerEnd="url(#phasor-arrow-z2)" />
           {/* z1z2 — emerald, thicker */}
-          <line x1={CENTER} y1={CENTER} x2={productPoint.x} y2={productPoint.y} stroke="#059669" strokeWidth={3.5} markerEnd="url(#phasor-arrow-product)" />
+          <line x1={CENTER} y1={CENTER} x2={productPoint.x} y2={productPoint.y} className="stroke-emerald-600 dark:stroke-emerald-400" strokeWidth={3.5} markerEnd="url(#phasor-arrow-product)" />
 
-          <text x={z1Point.x + 4} y={z1Point.y - 4} fontSize="12" fill="#2563eb" fontWeight="bold">z₁</text>
-          <text x={z2Point.x + 4} y={z2Point.y - 4} fontSize="12" fill="#d97706" fontWeight="bold">z₂</text>
-          <text x={productPoint.x + 4} y={productPoint.y - 4} fontSize="12" fill="#059669" fontWeight="bold">z₁z₂</text>
+          <text x={z1Point.x + 4} y={z1Point.y - 4} fontSize="12" fontWeight="bold" className="fill-blue-600 dark:fill-blue-400">z₁</text>
+          <text x={z2Point.x + 4} y={z2Point.y - 4} fontSize="12" fontWeight="bold" className="fill-amber-600 dark:fill-amber-400">z₂</text>
+          <text x={productPoint.x + 4} y={productPoint.y - 4} fontSize="12" fontWeight="bold" className="fill-emerald-600 dark:fill-emerald-400">z₁z₂</text>
         </svg>
 
         <p className="font-mono text-sm" data-testid="phasor-product-readout">z₁z₂ = {p.mag.toFixed(2)}∠{shownAngle.toFixed(1)}° — lengths multiply, angles add</p>

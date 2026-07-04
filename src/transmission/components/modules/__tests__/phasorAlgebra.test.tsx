@@ -4,8 +4,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { PhasorAlgebra } from '../PhasorAlgebra';
 
+/* ─── Mock katex (used by MathWrapper) ─────────────────────────── */
+/* Sibling shape (transformers.test.tsx / transmissionLabels.test.tsx):
+   `render` writes the raw latex into the target element so block
+   formulas can be asserted as text. */
 vi.mock('katex', () => ({
-  default: { renderToString: (latex: string) => `<span class="katex">${latex}</span>`, render: vi.fn() },
+  default: {
+    renderToString: (latex: string) => `<span class="katex">${latex}</span>`,
+    render: (latex: string, el: HTMLElement) => {
+      el.textContent = latex;
+    },
+  },
 }));
 vi.mock('katex/dist/katex.min.css', () => ({}));
 

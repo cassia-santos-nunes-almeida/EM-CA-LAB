@@ -22,12 +22,6 @@ const tocEntries = [
   { id: 'challenge', label: 'Guided Challenge' },
 ];
 
-// The raw KaTeX source for Euler's identity, shared between the visible
-// MathWrapper rendering and an sr-only literal fallback (math rendered purely
-// via a canvas-painted KaTeX span is invisible to most screen readers, so the
-// plain-text identity is kept available in the accessibility tree too).
-const EULER_IDENTITY = 'e^{j\\theta} = \\cos\\theta + j\\sin\\theta';
-
 const CHALLENGE = {
   title: 'Walk the unit circle',
   description: 'Use the multiplier to verify Euler’s identity by construction.',
@@ -147,7 +141,6 @@ export function PhasorAlgebra() {
           Euler's Identity
         </p>
         <MathWrapper formula="e^{j\theta} = \cos\theta + j\sin\theta" block />
-        <span className="sr-only">{EULER_IDENTITY}</span>
       </div>
       </SectionAnchor>
 

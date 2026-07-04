@@ -1102,7 +1102,7 @@ export function expJ(thetaRad: number): Complex {
 - Consumes: Task 7's `complexMath` exports; the PartialFractions template blocks — `SectionHook`, numbered `h1` via `getSectionNumber('math-phasors')`, `TableOfContents`, `WorkedSteps`, `LabStation`, `PredictionGate`, `ConceptCheck`, `YourTurnPanel`, `GuidedChallenge`, `CourseNavigation`, `MathWrapper`, `CollapsibleSection` (all `@shared/components/common/`); `useProgressStore` (`markVisited` in a mount effect — circuits/transmission sections self-assemble, no SectionLayout, exactly `PartialFractions/index.tsx:53-61`).
 - Produces: `export function PhasorAlgebra()` for Task 9's registry entry; `PhasorMultiplierSim` props `{ z1AngleDeg: number; z2AngleDeg: number; z1Mag: number; z2Mag: number }`-free (it owns its slider state) with the deterministic readout `data-testid="phasor-product-readout"` formatted `{mag.toFixed(2)}∠{angleDeg.toFixed(1)}°`.
 
-- [ ] **Step 1: Write the failing page test** (`phasorAlgebra.test.tsx`; katex mock + MemoryRouter scaffold as shown — same mock as `sections.test.tsx`):
+- [ ] **Step 1: Write the failing page test** (`phasorAlgebra.test.tsx`; katex mock + MemoryRouter scaffold as shown — the in-domain sibling shape from `transformers.test.tsx` / `transmissionLabels.test.tsx`, whose `render` writes raw latex into the element so block formulas are greppable as text; amended post-review — the original `render: vi.fn()` never throws, so MathWrapper's raw-LaTeX fallback never fires and block formulas render empty):
 
 ```tsx
 import { render, screen } from '@testing-library/react';
@@ -1111,8 +1111,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { PhasorAlgebra } from '../PhasorAlgebra';
 
+/* ─── Mock katex (used by MathWrapper) ─────────────────────────── */
+/* Sibling shape (transformers.test.tsx / transmissionLabels.test.tsx):
+   `render` writes the raw latex into the target element so block
+   formulas can be asserted as text. */
 vi.mock('katex', () => ({
-  default: { renderToString: (latex: string) => `<span class="katex">${latex}</span>`, render: vi.fn() },
+  default: {
+    renderToString: (latex: string) => `<span class="katex">${latex}</span>`,
+    render: (latex: string, el: HTMLElement) => {
+      el.textContent = latex;
+    },
+  },
 }));
 vi.mock('katex/dist/katex.min.css', () => ({}));
 
