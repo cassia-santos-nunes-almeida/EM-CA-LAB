@@ -68,3 +68,38 @@ describe('InteractiveLab RC impulse time-domain card carries V_s (audit P-02)', 
     expect(hasFormula(String.raw`H(s) = \frac{1/RC}{s + 1/RC}`)).toBe(true);
   });
 });
+
+/**
+ * RLC impulse time-domain cards (Phase-3 fix wave B, completes audit P-02): the
+ * three RLC impulse cards displayed the UNIT impulse response h(t) while the
+ * adjacent chart plots the response to Vs·δ(t) (circuitSolver scales by Vs —
+ * see calculateRLCUnified's `scale = Vs * omega0 * omega0` branches), a 10x
+ * peak mismatch at the default Vs=10. Each damping type's card must carry Vs.
+ */
+function renderRLCImpulse(query: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/interactive-lab?circuit=RLC&input=impulse${query}`]}>
+      <InteractiveLab />
+    </MemoryRouter>,
+  );
+}
+
+describe('InteractiveLab RLC impulse cards carry V_s (audit P-02 completion)', () => {
+  it('overdamped (default R=100,L=0.1,C=100µF) card carries Vs, old unit form gone', () => {
+    renderRLCImpulse('');
+    expect(hasFormula(String.raw`v_C(t) = \frac{V_s\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})`)).toBe(true);
+    expect(hasFormula(String.raw`h(t) = \frac{\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})`)).toBe(false);
+  });
+
+  it('critically damped (R=63.246,L=0.1,C=100µF) card carries Vs, old unit form gone', () => {
+    renderRLCImpulse('&R=63.246&L=0.1&C=0.0001');
+    expect(hasFormula(String.raw`v_C(t) = V_s\omega_0^2 t e^{-\alpha t}`)).toBe(true);
+    expect(hasFormula(String.raw`h(t) = \omega_0^2\,t\,e^{-\alpha t}`)).toBe(false);
+  });
+
+  it('underdamped (R=20,L=0.1,C=100µF) card carries Vs, old unit form gone', () => {
+    renderRLCImpulse('&R=20&L=0.1&C=0.0001');
+    expect(hasFormula(String.raw`v_C(t) = \frac{V_s\omega_0^2}{\omega_d}e^{-\alpha t}\sin(\omega_d t)`)).toBe(true);
+    expect(hasFormula(String.raw`h(t) = \frac{\omega_0^2}{\omega_d}\,e^{-\alpha t}\sin(\omega_d t)`)).toBe(false);
+  });
+});

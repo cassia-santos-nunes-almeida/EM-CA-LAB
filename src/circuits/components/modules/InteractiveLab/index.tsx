@@ -36,6 +36,29 @@ export function responseYAxisLabel(inputType: InputType): string {
     : 'Voltage (V) / Current (mA)';
 }
 
+/**
+ * Response-chart time-constant marker (completes P-03). The chart previously
+ * marked 2L/R for every RLC damping type, but 2L/R (= 1/α) is only the governing
+ * constant for under/critically-damped — for overdamped RLC the SLOWEST mode
+ * s₁ governs settling, per RLCAnalysisPanel's `slowestTauMs`. Reuses the exact
+ * same response.alpha/response.omega0 fields so the chart marker and the panel
+ * always show the SAME number. RC/RL and RLC under/critically-damped keep the
+ * existing fallback (envelopeTauMs, already 2L/R = 1/α upstream).
+ */
+// eslint-disable-next-line react-refresh/only-export-components
+export function chartTauMarkerMs(
+  circuitType: CircuitType,
+  response: CircuitResponse,
+  envelopeTauMs: number,
+): number {
+  if (circuitType === 'RLC' && response.dampingType === 'overdamped'
+    && response.alpha !== undefined && response.omega0 !== undefined) {
+    const { alpha, omega0 } = response;
+    return 1000 / Math.abs(-alpha + Math.sqrt(alpha * alpha - omega0 * omega0));
+  }
+  return envelopeTauMs;
+}
+
 /** Circuit equations panel showing formulas for the selected circuit/input type (F24). */
 function CircuitEquations({ circuitType, inputType, response }: {
   circuitType: CircuitType;
@@ -160,7 +183,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
               {inputType === 'step' ? (
                 <MathWrapper formula="v_C(t) = V_s\left(1 - e^{-\alpha t}\left(\cos(\omega_d t) + \frac{\alpha}{\omega_d}\sin(\omega_d t)\right)\right)" block />
               ) : (
-                <MathWrapper formula="h(t) = \frac{\omega_0^2}{\omega_d}\,e^{-\alpha t}\sin(\omega_d t)" block />
+                <MathWrapper formula="v_C(t) = \frac{V_s\omega_0^2}{\omega_d}e^{-\alpha t}\sin(\omega_d t)" block />
               )}
               <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">
                 where <MathWrapper formula="\omega_d = \omega_0\sqrt{1-\zeta^2}" /> = {(response.omega0 * Math.sqrt(1 - response.zeta * response.zeta)).toFixed(2)} rad/s
@@ -176,7 +199,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
               {inputType === 'step' ? (
                 <MathWrapper formula="v_C(t) = V_s(1 - e^{-\alpha t}(1 + \alpha t))" block />
               ) : (
-                <MathWrapper formula="h(t) = \omega_0^2\,t\,e^{-\alpha t}" block />
+                <MathWrapper formula="v_C(t) = V_s\omega_0^2 t e^{-\alpha t}" block />
               )}
             </div>
           )}
@@ -192,7 +215,7 @@ function CircuitEquations({ circuitType, inputType, response }: {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">where s&#8321;, s&#8322; are the two distinct real roots; the initial conditions fix the constants (v(0)=0 &rArr; V_s + A&#8321; + A&#8322; = 0); both roots are negative, so the modes decay and v(&infin;) = V_s</p>
                 </>
               ) : (
-                <MathWrapper formula="h(t) = \frac{\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})" block />
+                <MathWrapper formula="v_C(t) = \frac{V_s\omega_0^2}{s_1 - s_2}(e^{s_1 t} - e^{s_2 t})" block />
               )}
             </div>
           )}
@@ -421,6 +444,16 @@ export function InteractiveLab() {
 
   const timeConstantMs = timeConstant * 1000;
 
+  // Damping-aware marker: overdamped RLC uses the slowest-mode constant so the
+  // chart marker matches RLCAnalysisPanel's "Slowest mode τ" number (P-03).
+  const tauMarkerMs = useMemo(
+    () => chartTauMarkerMs(circuitType, response, timeConstantMs),
+    [circuitType, response, timeConstantMs],
+  );
+  const tauMarkerLabel = circuitType === 'RLC' && response.dampingType === 'overdamped'
+    ? 'τ (slowest)'
+    : 'τ';
+
   const dampedPeriodMs = useMemo(() => {
     if (circuitType === 'RLC' && response.dampingType === 'underdamped' && response.omega0 && response.zeta) {
       const omegaD = response.omega0 * Math.sqrt(1 - response.zeta * response.zeta);
@@ -552,14 +585,14 @@ export function InteractiveLab() {
             <YAxis tick={{ fill: chartColors.text }} label={{ value: responseYAxisLabel(inputType), angle: -90, position: 'insideLeft', fill: chartColors.text }} />
             <Tooltip content={({ payload, label }) => <ResponseChartTooltip payload={payload as unknown as Array<{ color?: string; name?: string; value?: string | number }>} label={label} />} />
             <Legend wrapperStyle={{ color: chartColors.legend }} />
-            {/* Time constant marker */}
-            {timeConstantMs <= effectiveDuration * 1000 && (
+            {/* Time constant marker \u2014 damping-aware for RLC (P-03) */}
+            {tauMarkerMs <= effectiveDuration * 1000 && (
               <ReferenceLine
-                x={timeConstantMs}
+                x={tauMarkerMs}
                 stroke="#16a34a"
                 strokeWidth={1.5}
                 strokeDasharray="6 3"
-                label={{ value: '\u03C4', position: 'top', fill: '#16a34a', fontWeight: 'bold', fontSize: 14 }}
+                label={{ value: tauMarkerLabel, position: 'top', fill: '#16a34a', fontWeight: 'bold', fontSize: 14 }}
               />
             )}
             {/* Damped period marker for underdamped RLC */}
@@ -807,7 +840,7 @@ export function InteractiveLab() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-engineering-blue-600 font-bold mt-1">&#8226;</span>
-            <span>The dashed green line on the chart marks the time constant &#964;. For underdamped RLC, the purple line marks one damped period T<sub>d</sub>.</span>
+            <span>The dashed green line on the chart marks the governing time constant &#964; (the slowest mode, when the RLC circuit is overdamped). For underdamped RLC, the purple line marks one damped period T<sub>d</sub>.</span>
           </li>
         </ul>
       </CollapsibleSection>

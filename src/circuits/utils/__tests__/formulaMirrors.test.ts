@@ -6,9 +6,11 @@ import { calculateCircuitResponse } from '@circuits/utils/circuitSolver';
  * step + impulse cards and the three RLC STEP cards, evaluated against the
  * solver at indexed samples (t_i = i·timeStep exactly — no interpolation). If
  * a card and the solver ever disagree again, this suite fails instead of a
- * student. The H(s) cards and the three RLC impulse h(t) cards are
- * unit-impulse-referenced and are NOT mirrored here (named exclusions,
- * follow-up audit item).
+ * student. The H(s) cards stay unit-impulse-referenced by design and are NOT
+ * mirrored here. The three RLC impulse cards were the last named exclusion
+ * (follow-up audit item) — they now carry V_s (Phase-3 fix wave B, completes
+ * P-02) and are pinned in rlImpulseTransfer.test.tsx instead of here, since
+ * they need URL-driven damping-type selection rather than a solver mirror.
  */
 const TS = 1e-4, DUR = 0.01;
 
