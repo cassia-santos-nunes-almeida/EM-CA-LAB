@@ -173,7 +173,9 @@ export function MathIntegralsSection() {
 
         FIELD_LINE_OFFSETS.forEach((dx) => {
           const x = cx + dx * worldScale;
-          const pierced = x >= segXMin && x <= segXMax;
+          // Edge-on (90°) pierces NOTHING — the ±1px x-extent padding would
+          // otherwise let the center line pass and contradict the 0.0 readout.
+          const pierced = tilt < 90 && x >= segXMin && x <= segXMax;
           drawArrowSeg(ctx, x, height - 16, x, 16, pierced ? colPierced : colField, pierced ? 2.5 : 1.5);
         });
 
@@ -191,7 +193,10 @@ export function MathIntegralsSection() {
         });
         const rad = (pathAngle * Math.PI) / 180;
         const halfLen = worldScale * 1; // 2-unit path, 1 unit each side of center
-        const ux = Math.cos(rad), uy = Math.sin(rad);
+        // pathAngle is measured FROM THE FIELD (the vertical up-arrows), matching
+        // the readout's E·L·cos(pathAngle): 0° = parallel to the field (max),
+        // 90° = horizontal (zero), 180° = antiparallel (−max). Hence sin/cos.
+        const ux = Math.sin(rad), uy = Math.cos(rad);
         const sx = cx - ux * halfLen, sy = cy + uy * halfLen; // canvas y is down; math y is up
         const ex = cx + ux * halfLen, ey = cy - uy * halfLen;
         drawArrowSeg(ctx, sx, sy, ex, ey, colPath, 3);
@@ -207,9 +212,12 @@ export function MathIntegralsSection() {
             const wy = -yHalfWorld + (j + 0.5) * ((2 * yHalfWorld) / rows);
             const v = field({ x: wx, y: wy });
             const mag = Math.hypot(v.x, v.y);
-            const cappedWorld = mag > 0 ? Math.min(mag, maxArrowPx / worldScale) : 0;
-            const ux2 = mag > 0 ? v.x / mag : 0;
-            const uy2 = mag > 0 ? v.y / mag : 0;
+            // Zero vector (e.g. the vortex center): nothing to draw — a
+            // zero-length segment would still paint a phantom 8px arrowhead.
+            if (mag < 1e-12) continue;
+            const cappedWorld = Math.min(mag, maxArrowPx / worldScale);
+            const ux2 = v.x / mag;
+            const uy2 = v.y / mag;
             const px = cx + wx * worldScale;
             const py = cy - wy * worldScale;
             const ex2 = px + ux2 * cappedWorld * worldScale;
@@ -378,7 +386,7 @@ export function MathIntegralsSection() {
                 ]}
               />
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                One honesty note about the bench: it is a 2-D slice. Its closed 'surface' is the box OUTLINE and its flux is counted per unit depth into the screen, so the bench computes ∮F·n̂ dl ÷ box area where the 3-D definition divides ∮E·dA by volume. Same idea, one dimension down; the 3-D forms on this card are the ones Maxwell's equations use.
+                One honesty note about the bench: it is a 2-D slice. Its closed 'surface' is the box OUTLINE and its flux is counted per unit depth into the screen, so its flux readout is the raw ∮F·n̂ dl — divide it by the box area yourself and you have the 2-D stand-in for (1/V)∮E·dA. Same idea, one dimension down; the 3-D forms on this card are the ones Maxwell's equations use.
               </p>
               <p className="text-sm text-slate-700 dark:text-slate-300">
                 The two theorems say the same thing at two zoom levels: total outflow through a skin = summed sources inside; total circulation around a rim = summed swirl across the sheet (with C and S oriented by the same right-hand pairing as the curl card). Section {getSectionNumber('maxwell')} writes all four field laws in this local language.
