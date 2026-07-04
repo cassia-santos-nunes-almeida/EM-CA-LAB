@@ -184,22 +184,23 @@ export function MathVectorsSection() {
         ctx.closePath();
         ctx.fill();
         if (zEff !== 0) {
+          // ring + direction marker draw together; parallel vectors (zEff === 0) draw nothing
           ctx.strokeStyle = colMark;
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(cx, cy, 11, 0, 2 * Math.PI);
           ctx.stroke();
-        }
-        if (zEff > 0) {
-          ctx.beginPath(); // ⊙ out of screen
-          ctx.arc(cx, cy, 3, 0, 2 * Math.PI);
-          ctx.fillStyle = colMark;
-          ctx.fill();
-        } else {
-          ctx.beginPath(); // ⊗ into screen
-          ctx.moveTo(cx - 6, cy - 6); ctx.lineTo(cx + 6, cy + 6);
-          ctx.moveTo(cx + 6, cy - 6); ctx.lineTo(cx - 6, cy + 6);
-          ctx.stroke();
+          if (zEff > 0) {
+            ctx.beginPath(); // ⊙ out of screen
+            ctx.arc(cx, cy, 3, 0, 2 * Math.PI);
+            ctx.fillStyle = colMark;
+            ctx.fill();
+          } else {
+            ctx.beginPath(); // ⊗ into screen
+            ctx.moveTo(cx - 6, cy - 6); ctx.lineTo(cx + 6, cy + 6);
+            ctx.moveTo(cx + 6, cy - 6); ctx.lineTo(cx - 6, cy + 6);
+            ctx.stroke();
+          }
         }
       } else {
         // Add: ghost copy of B re-rooted at A's tip (tip-to-tail), then the resultant
