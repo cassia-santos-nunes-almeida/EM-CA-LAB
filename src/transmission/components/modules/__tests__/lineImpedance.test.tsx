@@ -104,6 +104,14 @@ describe('LineImpedance — section 5.4 page', () => {
     await user.click(screen.getByRole('tab', { name: /Stubs/i }));
     expect(screen.getByText(/What does it present at its input/i)).toBeInTheDocument();
   });
+
+  it('back-links Euler and the rotating-arrow algebra to math-phasors (5.1)', async () => {
+    const user = userEvent.setup();
+    renderLI();
+    // The Euler derivation sentence lives in the Z_in Lab theory column.
+    await user.click(screen.getByRole('tab', { name: /Z_in Lab/i }));
+    expect(screen.getByText(/Section 5\.1/)).toBeInTheDocument();
+  });
 });
 
 /**

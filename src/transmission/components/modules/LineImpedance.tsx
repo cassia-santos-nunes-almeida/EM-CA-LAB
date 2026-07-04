@@ -322,6 +322,7 @@ export function LineImpedance() {
             Substitute <MathWrapper formula="\Gamma_L = \frac{Z_L - Z_0}{Z_L + Z_0}" /> and apply
             Euler (<MathWrapper formula="e^{\pm j\beta l} = \cos\beta l \pm j\sin\beta l" />) to
             trade the exponentials for a tangent.
+            {' '}(Euler and the rotating-arrow algebra are Section {getSectionNumber('math-phasors')} if the identity does not feel obvious.)
           </p>
         </div>
       </CollapsibleSection>

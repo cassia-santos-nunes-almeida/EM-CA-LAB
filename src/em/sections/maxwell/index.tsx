@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { useSelfMeasuringCanvas } from '@shared/hooks/useSelfMeasuringCanvas';
 import { COLORS, COLORS_DARK } from '@em/constants/physics';
 import { useThemeStore, useProgressStore } from '@shared/store/progressStore';
+import { getSectionNumber } from '@shared/constants/curriculum';
 import { MathWrapper } from '@shared/components/common/MathWrapper';
 import { CollapsibleSection } from '@shared/components/common/CollapsibleSection';
 import { FigureImage } from '@shared/components/common/FigureImage';
@@ -548,6 +549,8 @@ export function MaxwellSection() {
             The integral forms above are equivalent to these point-form (differential) equations,
             which describe the fields at every point in space rather than over surfaces and paths.
             The differential and integral forms are connected by the divergence and Stokes' theorems.
+            {' '}Both theorems — and what divergence and curl actually measure — are built from
+            scratch in Section {getSectionNumber('math-integrals')}.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600">

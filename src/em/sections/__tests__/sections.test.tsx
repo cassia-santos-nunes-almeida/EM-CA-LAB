@@ -250,4 +250,16 @@ describe('Section smoke tests', () => {
     expect(screen.getByText(/what is the SIGN of A·B/i)).toBeInTheDocument();
     expect(container.querySelector('canvas')).toBeNull(); // bench stays gated
   });
+
+  it('GaussSection back-links its integral toolkit to math-integrals (2.3)', async () => {
+    const { GaussSection } = await import('@em/sections/gauss/index');
+    renderSection(GaussSection);
+    expect(screen.getByText(/closed-surface ring and the area element in Section 2\.3/)).toBeInTheDocument();
+  });
+
+  it('MaxwellSection back-links divergence and curl to math-integrals (2.3)', async () => {
+    const { MaxwellSection } = await import('@em/sections/maxwell/index');
+    renderSection(MaxwellSection);
+    expect(screen.getByText(/built from scratch in Section 2\.3/)).toBeInTheDocument();
+  });
 });
