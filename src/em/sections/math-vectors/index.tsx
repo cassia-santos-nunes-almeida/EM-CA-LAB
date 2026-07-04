@@ -183,14 +183,14 @@ export function MathVectorsSection() {
         ctx.lineTo(cx + bv.x * scale, cy - bv.y * scale);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = colMark;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 11, 0, 2 * Math.PI);
-        ctx.stroke();
-        if (zEff === 0) {
-          // parallel vectors: no direction to mark
-        } else if (zEff > 0) {
+        if (zEff !== 0) {
+          ctx.strokeStyle = colMark;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 11, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+        if (zEff > 0) {
           ctx.beginPath(); // ⊙ out of screen
           ctx.arc(cx, cy, 3, 0, 2 * Math.PI);
           ctx.fillStyle = colMark;
@@ -207,7 +207,10 @@ export function MathVectorsSection() {
         ctx.setLineDash([6, 4]);
         drawArrow(ctx, cx + A.x * scale, cy - A.y * scale, bv, scale, colDrop, '');
         ctx.setLineDash([]);
-        drawArrow(ctx, cx, cy, r, scale, colPos, 'A+B');
+        // Skip drawing resultant arrow if it is near-zero (float noise).
+        if (magnitude(r) >= CROSS_EPS) {
+          drawArrow(ctx, cx, cy, r, scale, colPos, 'A+B');
+        }
       }
       drawArrow(ctx, cx, cy, A, scale, colA, 'A');
       drawArrow(ctx, cx, cy, bv, scale, colB, 'B');
@@ -256,11 +259,15 @@ export function MathVectorsSection() {
             <Slider label="B angle from A (°)" value={bAngle} min={0} max={360} step={5} onChange={setBAngle} />
             <Slider label="|B|" value={bMag} min={0.5} max={3} step={0.1} onChange={setBMag} />
           </ControlPanel>
-          {mode === 'dot' && (
-            <p className="font-mono text-sm" data-testid="dot-readout">
-              A·B = |A||B|cosθ = 2 × {bMag.toFixed(1)} × cos({angleBetweenDeg(A, b).toFixed(0)}°) = {dot2(A, b).toFixed(2)}
-            </p>
-          )}
+          {mode === 'dot' && (() => {
+            const d = dot2(A, b);
+            const dEff = Math.abs(d) < CROSS_EPS ? 0 : d;
+            return (
+              <p className="font-mono text-sm" data-testid="dot-readout">
+                A·B = |A||B|cosθ = 2 × {bMag.toFixed(1)} × cos({angleBetweenDeg(A, b).toFixed(0)}°) = {dEff.toFixed(2)}
+              </p>
+            );
+          })()}
           {mode === 'cross' && (() => {
             const z = cross2z(A, b);
             const zEff = Math.abs(z) < CROSS_EPS ? 0 : z; // same epsilon as the canvas marker
