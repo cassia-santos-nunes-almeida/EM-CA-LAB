@@ -36,7 +36,7 @@ describe('CourseNavigation', () => {
 
   it('crosses Part boundaries (last of Part 1 links to first of Part 2)', () => {
     renderAt('/interactive-lab');
-    expect(screen.getByText("Coulomb's Law")).toBeInTheDocument();
+    expect(screen.getByText('Vector Toolkit')).toBeInTheDocument();
   });
 
   it('honours an explicit currentSectionId over the route', () => {
