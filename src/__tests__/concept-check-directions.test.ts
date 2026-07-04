@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Q_RING_DIR } from '@em/sections/lenz/index';
 import { Q_FORCE_DIR } from '@em/sections/lorentz/index';
 import { Q_JONES } from '@em/sections/polarization/index';
+import { Q_CROSS_DIR, Q_QE_DIR } from '@em/sections/math-vectors/index';
 
 /**
  * Permanent net — directional ConceptCheck distractor-independence.
@@ -40,6 +41,8 @@ const CASES = [
   // RCP keys on the −i (U+2212) component; the LCP distractor carries +i, so exactly
   // one option may name the −i handedness. Char class also tolerates an ASCII hyphen.
   { name: 'polarization · Q_JONES (right-circular = −i Jones vector)', cc: Q_JONES, term: /[−-]i/, exclude: null },
+  { name: 'math-vectors · Q_CROSS_DIR (x̂×ŷ out of the screen)', cc: Q_CROSS_DIR, term: /out of the screen/i, exclude: null },
+  { name: 'math-vectors · Q_QE_DIR (F = qE on an electron)', cc: Q_QE_DIR, term: /−x|-x/, exclude: null },
 ] as const;
 
 describe('directional ConceptChecks key exactly one direction (no double-key)', () => {

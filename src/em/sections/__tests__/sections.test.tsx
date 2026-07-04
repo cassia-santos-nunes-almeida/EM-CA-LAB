@@ -217,4 +217,23 @@ describe('Section smoke tests', () => {
     expect(screen.getByText('Predict First')).toBeInTheDocument();
     expect(screen.getByText(/90° phase difference/i)).toBeInTheDocument();
   });
+
+  it('MathVectorsSection renders', async () => {
+    const { MathVectorsSection } = await import('@em/sections/math-vectors/index');
+    renderSection(MathVectorsSection);
+    // Curriculum-independent marker: the SectionHook block renders regardless of
+    // spine wiring (the h1 title arrives only with the Task 3 curriculum entry).
+    expect(screen.getByText('Why This Matters')).toBeInTheDocument();
+  });
+
+  it('MathVectorsSection gates the sim behind a Predict First prediction', async () => {
+    const { MathVectorsSection } = await import('@em/sections/math-vectors/index');
+    const { container } = renderSection(MathVectorsSection);
+    // Exact string, NOT a regex: /predict first/i multi-matches PredictionGate's
+    // brow ('BENCH · PREDICT FIRST · ARMED'), status ('LOCKED · PREDICT FIRST'),
+    // and body <p> and throws — the coulomb idiom is getByText('Predict First').
+    expect(screen.getByText('Predict First')).toBeInTheDocument();
+    expect(screen.getByText(/what is the SIGN of A·B/i)).toBeInTheDocument();
+    expect(container.querySelector('canvas')).toBeNull(); // bench stays gated
+  });
 });

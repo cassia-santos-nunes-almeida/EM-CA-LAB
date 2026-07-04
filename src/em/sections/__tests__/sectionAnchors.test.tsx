@@ -44,6 +44,7 @@ import { AmpereSection } from '@em/sections/ampere/index';
 import { MaxwellSection } from '@em/sections/maxwell/index';
 import { EMWaveSection } from '@em/sections/em-wave/index';
 import { MagneticCircuitsSection } from '@em/sections/magnetic-circuits/index';
+import { MathVectorsSection } from '@em/sections/math-vectors/index';
 
 interface Case {
   name: string;
@@ -65,6 +66,7 @@ const CASES: Case[] = [
   { name: 'maxwell', Section: MaxwellSection, anchors: ['maxwell-four-equations', 'maxwell-radiation', 'maxwell-theory', 'maxwell-challenge'] },
   { name: 'em-wave', Section: EMWaveSection, anchors: ['em-wave-sim', 'em-wave-concept-checks', 'em-wave-theory', 'em-wave-challenge'] },
   { name: 'magnetic-circuits', Section: MagneticCircuitsSection, anchors: ['magnetic-circuits-toroid-sim', 'magnetic-circuits-theory', 'magnetic-circuits-challenge'] },
+  { name: 'math-vectors', Section: MathVectorsSection, anchors: ['math-vectors-products-sim', 'math-vectors-concept-checks', 'math-vectors-theory', 'math-vectors-challenge'] },
 ];
 
 describe('EM SectionAnchor sweep', () => {
