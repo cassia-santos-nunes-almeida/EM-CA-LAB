@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Electromagnetism & Circuit Analysis — interactive virtual laboratory (consolidated)",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "start": "vite",
