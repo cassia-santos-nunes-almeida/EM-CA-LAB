@@ -1,7 +1,7 @@
 ---
 name: stop-slop
 description: >
-  Use this skill whenever Claude is about to deliver prose of any kind -- emails,
+  Use this skill whenever Claude is about to deliver prose of any kind: emails,
   papers, reports, student materials, lecture notes, any written output. Also trigger
   when Cássia says "check this for AI patterns," "audit my writing," "de-slop this,"
   "remove AI language," "make this sound more human," or "clean up my text." Invoked
@@ -20,7 +20,7 @@ Shared voice-and-pattern quality layer. Detect and remove predictable AI writing
 
 ## Invocation
 
-stop-slop accepts an optional `context` parameter selecting one of four enforcement clusters. When called without a parameter, it defaults to `professional-message`.
+stop-slop takes an optional `context` naming one of four enforcement clusters. There is no named parameter on either delivery channel: the cluster arrives as plain text from the caller or the request (for example `cluster: academic-human`). With no cluster named, use `professional-message`.
 
 | Cluster | Covers | Character |
 |---|---|---|
@@ -65,7 +65,7 @@ Before delivering prose:
 - Narrator-from-a-distance ("Nobody designed this")? Put the reader in the scene.
 - Meta-joiners ("The rest of this essay...")? Delete.
 - More than ~25% of sentences share an opener? Vary them.
-- Three or more Tier 2 words in one paragraph? Replace with simpler alternatives.
+- Two or more Tier 2 words in one paragraph (three in `informal-message`)? Replace with simpler alternatives.
 - Three or more hedges in one paragraph? Commit or cut.
 - More than two formal transitions per page? Remove or restructure.
 - All paragraphs roughly the same length? Break the pattern.
@@ -102,7 +102,16 @@ Collapse the three-beat "[Context]. [Bridge]. [Point]." pattern. Lead with the p
 2. **Conversational voice test:** Scoped by cluster. See [references/self-audit.md](references/self-audit.md).
 3. **Pasta test:** Runs on all clusters. See [references/self-audit.md](references/self-audit.md).
 4. **Scoring:** 5-dimension rubric (only when requested or on full audit)
-5. **Final em-dash gate (mandatory, runs last, never skipped):** Before declaring any version clean or delivering output, scan the text character by character for any em-dash (`—`, Unicode U+2014) or en-dash (`–`, Unicode U+2013). If any are found, replace with comma, period, or semicolon as appropriate. This gate runs even when all prior checks reported clean. The rule is absolute across all four clusters with no exception. Do not confuse em-dash with hyphen (`-`, U+002D): hyphens in compound words (`end-to-end`, `cross-functional`) are fine; the ban is on dashes used as punctuation. If you catch an em-dash at this stage, the correct narration is "removed 1 em-dash at final gate," matching the "removed N em-dashes" wording used by callers in their version/section footers. Do not report "clean" for a version that had an em-dash caught at any stage.
+5. **Final em-dash gate (mandatory, runs last, never skipped):** Before declaring any version clean or delivering output, scan the full text for any em-dash (`—`, Unicode U+2014) or en-dash (`–`, Unicode U+2013). If any are found, replace with comma, period, or semicolon as appropriate. This gate runs even when all prior checks reported clean. The rule is absolute across all four clusters with no exception. Do not confuse em-dash with hyphen (`-`, U+002D): hyphens in compound words (`end-to-end`, `cross-functional`) are fine; the ban is on dashes used as punctuation. If you catch an em-dash at this stage, the correct narration is "removed 1 em-dash at final gate," matching the "removed N em-dashes" wording used by callers in their version/section footers. Do not report "clean" for a version that had an em-dash caught at any stage.
+
+## Optional: mechanical check for the surface rules (Claude Code)
+
+When the prose is in a file and a shell is available, grep it for the em-dash (U+2014), the
+en-dash (U+2013), and the curly quotes (U+2018, U+2019, U+201C, U+201D) before declaring the
+gate passed. A grep hit is authoritative and must be fixed; a clean grep replaces no pattern
+pass above, and the emoji and Title Case checks stay manual because they have no reliable
+pattern. On claude.ai the text is in the conversation and there is no shell: read for the
+same characters as before.
 
 ## Hard Constraints
 
@@ -116,9 +125,7 @@ Collapse the three-beat "[Context]. [Bridge]. [Point]." pattern. Lead with the p
 - Every idiosyncratic word normalized to its plainest synonym: keep one.
 - Zero hedges remaining where genuine uncertainty exists: restore one.
 
-This skill should make writing sound more human, not less. Voice-level signs of over-polish (first-person use, opinions, symmetric framing) are owned by the voice layer in `style/writing-voice.md` and `style/signs-of-over-polish.md`.
-
-**Backward compatibility.** stop-slop remains fully functional when called without a context parameter. The default cluster is `professional-message`.
+This skill should make writing sound more human, not less. Voice-level signs of over-polish (first-person use, opinions, symmetric framing) are owned by the voice layer in `style/writing-voice.md` and `style/signs-of-over-polish.md`. Those files are repo-only and are deliberately not bundled here, so on claude.ai and inside a consumer repo they cannot be opened: leave voice restoration to a separate pass rather than inlining it.
 
 ## Scoring
 

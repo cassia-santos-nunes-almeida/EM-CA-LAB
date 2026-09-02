@@ -37,6 +37,12 @@ and Step 3 (label generation in the .tex file).
 If no such skill is available, use the defaults in this skill's Layout
 Conventions section.
 
+If **two or more** conventions skills are loaded at once (on claude.ai both
+`em-ca-textbook-conventions` and `eng-physics-textbook-conventions` can sit in one
+project), ask which course the figure is for with AskUserQuestion before drawing.
+They pin different variable names for the same quantities, and a wrong choice is
+invisible in the rendered PNG. Ask once per session and reuse the answer.
+
 ### Step 1 — Parse the circuit description
 
 Identify components, values, topology, and any switching actions.
@@ -49,7 +55,7 @@ Before writing any `.tex`, plan label positions explicitly to prevent overlap. S
 
 ### Step 3 — Generate the .tex file
 
-Create the LaTeX source in `/home/claude/`. Use the conventions below and consult `references/circuitikz-guide.md` for component syntax.
+Create the LaTeX source in the session working directory (`/home/claude/` on claude.ai). Use the conventions below and consult `references/circuitikz-guide.md` for component syntax.
 
 ### Step 4 — Compile to SVG and PNG
 
@@ -58,7 +64,9 @@ SKILL_DIR=/mnt/skills/user/circuitikz-circuit-diagrams
 python "$SKILL_DIR/scripts/render_circuitikz.py" diagram.tex
 ```
 
-The render script produces both `diagram.svg` (final deliverable) and `diagram.png` (for visual verification in Step 4b). If compiling manually:
+The render script produces both `diagram.svg` (final deliverable) and `diagram.png` (for visual verification in Step 4b). If `scripts/render_circuitikz.py` is not present in your deployed skill folder, or `pdflatex` is not on PATH, compile manually instead — and if neither is available, say so and stop rather than delivering an unrendered `.tex`: Step 4b cannot be skipped.
+
+If compiling manually:
 
 ```bash
 cd /home/claude
@@ -69,7 +77,7 @@ pdftoppm -r 200 -png diagram.pdf diagram  # produces diagram-1.png
 
 ### Step 4b — Visual verification (mandatory)
 
-Use the `view` tool on the generated PNG. **First, a qualitative pass:** step back and look at the whole image. Does it look like something you would put in a lecture slide? If any region looks crowded, squished, or cramped, fix it even if no single overlap check below fails. For multi-component series branches, also check that components are **evenly distributed vertically** — if one component's span is visibly different from its neighbors, rebalance the spans before re-rendering. A diagram can pass every overlap bullet and still read as "too tight" or "top-heavy" — trust your eye.
+Look at the generated PNG (`view` on claude.ai; the `Read` tool in Claude Code). **First, a qualitative pass:** step back and look at the whole image. Does it look like something you would put in a lecture slide? If any region looks crowded, squished, or cramped, fix it even if no single overlap check below fails. For multi-component series branches, also check that components are **evenly distributed vertically** — if one component's span is visibly different from its neighbors, rebalance the spans before re-rendering. A diagram can pass every overlap bullet and still read as "too tight" or "top-heavy" — trust your eye.
 
 Then run the overlap checks:
 
@@ -83,20 +91,17 @@ If any overlap is found, **do not deliver**. Adjust coordinates or label sides (
 
 ### Step 5 — Deliver to user
 
+On claude.ai:
+
 ```bash
 cp /home/claude/diagram.svg /mnt/user-data/outputs/diagram.svg
 ```
 
 Then call `present_files` with the output path. **This step is mandatory** — without it, the user never receives the file.
 
+In Claude Code there is no `present_files` and no `/mnt/user-data/outputs/`: write the `.svg` to a path in the user's repo or working directory and name that path in your reply. **Equally mandatory** — a rendered SVG the user never receives is a failed run.
+
 Optionally also deliver the `.tex` source so the user can edit it later.
-
-## Input Format
-
-Users can describe circuits in natural language:
-- "Draw a series RLC circuit with R=100 ohm, L=10mH, C=1uF powered by 12V DC"
-- "Create a parallel RLC with a switch that opens at t=0"
-- "Show a toroidal core with N turns and an air gap"
 
 ## .tex File Structure
 
@@ -210,116 +215,49 @@ When labeling a circuit node on a wire, use `above`, `below`, `above right`, etc
 
 ### Checklist before rendering
 
-Mentally walk the circuit once before compiling:
+Before compiling, confirm two things about every label you placed — component
+labels, voltage labels, current arrows, node labels, and source polarity markers:
 
-1. List every label in the diagram (component labels, voltage labels, current arrows, node labels, source polarity).
-2. For each pair of labels within 1.5 units of each other, verify they're on opposite sides or have explicit `xshift`/`yshift`.
-3. Confirm `border=10pt` gives enough margin for outermost labels.
+- Any two of them within **1.5 coordinate units** of each other are on opposite
+  sides, or carry explicit `xshift`/`yshift`.
+- `border=10pt` leaves margin for the outermost labels.
 
-Step 4b (the PNG visual check) catches what this pass misses, but prevention is faster than iteration.
+Step 4b is still mandatory — this pass reduces iterations, it does not replace the render check.
 
 ## Key CircuiTikZ Components
 
-### Passive components
+The full catalogue — every component, node anchor, diode fill style, meter
+style, and label/current-arrow form — is in `references/circuitikz-guide.md`.
+Open it for anything outside the table below; it ships on both channels (synced
+into `.claude/skills/` and bundled in the claude.ai ZIP), so the pointer always
+resolves.
 
-| Component | Syntax |
-|-----------|--------|
-| Resistor | `to[R, l=$R$]` |
-| Inductor | `to[L, l=$L$]` |
-| Capacitor | `to[C, l=$C$]` |
-| Polar Capacitor | `to[eC, l=$C$]` |
-| Fuse | `to[fuse, l=$F$]` |
-| Short circuit | `to[short]` |
-| Open circuit | `to[open, v^=$v(t)$]` |
-
-### Sources
-
-| Component | Syntax |
-|-----------|--------|
-| DC Voltage source | `to[V, v=$V_s$]` |
-| AC Voltage source | `to[sinusoidal voltage source, v=$V_s$]` |
+| Need | Syntax |
+|---|---|
+| R / L / C | `to[R, l=$R$]`, `to[L, l=$L$]`, `to[C, l=$C$]` |
+| DC / AC source | `to[V, v=$V_s$]`, `to[sinusoidal voltage source, v=$V_s$]` |
 | Current source | `to[I, l=$I_s$]` |
-| Battery (single cell) | `to[battery1, v=$9V$]` |
-| Battery (multi-cell) | `to[battery, v=$9V$]` |
-| Controlled voltage (diamond) | `to[cV, v=$\alpha v_x$]` |
-| Controlled current (diamond) | `to[cI, l=$\beta i_x$]` |
-
-### Switches
-
-| Component | Syntax |
-|-----------|--------|
-| SPST switch (opening) | `to[opening switch, l=$t{=}0$]` |
-| SPST switch (closing) | `to[closing switch, l=$t{=}0$]` |
-| Normal open | `to[nos]` |
-| Normal closed | `to[ncs]` |
-
-### Grounds and power supplies (node-style)
-
-| Component | Syntax | Notes |
-|-----------|--------|-------|
-| Ground | `node[ground]{}` | Standard ground symbol |
-| Reference ground | `node[rground]{}` | Triangle ground |
-| Signal ground | `node[sground]{}` | Fillable |
-| European ground | `node[eground]{}` | Three horizontal lines |
-| Chassis ground | `node[cground]{}` | Chassis/frame |
-| VCC/VDD | `node[vcc]{VCC}` | Power supply up arrow |
-| VEE/VSS | `node[vee]{VEE}` | Power supply down arrow |
-
-### Diodes
-
-| Component | Syntax |
-|-----------|--------|
+| Controlled sources | `to[cV, v=$\alpha v_x$]`, `to[cI, l=$\beta i_x$]` |
+| Switches | `to[opening switch]`, `to[closing switch]`, `to[nos]`, `to[ncs]` |
+| Wire / gap | `to[short]`, `to[open, v^=$v(t)$]` |
+| Ground | `node[ground]{}` |
 | Diode | `to[D, l=$D$]` |
-| Zener diode | `to[zD]` |
-| LED | `to[leD]` |
-| Photodiode | `to[pD]` |
-| Schottky diode | `to[sD]` |
-| TVS diode | `to[tvsD]` |
-| Thyristor | `to[Ty]` |
-| Triac | `to[Tr]` |
-
-Use `full diode` / `empty diode` / `stroke diode` for explicit fill styles, or set globally with `fulldiode`, `emptydiode`, `strokediode` package options.
-
-### Transistors (node-style)
-
-| Component | Syntax | Anchors |
-|-----------|--------|---------|
-| NPN BJT | `node[npn](Q){Q}` | B (base), C (collector), E (emitter) |
-| PNP BJT | `node[pnp](Q){}` | B, C, E |
-| N-channel MOSFET | `node[nmos](Q){Q}` | G (gate), D (drain), S (source) |
-| P-channel MOSFET | `node[pmos](Q){}` | G, D, S |
-| N-IGBT | `node[nigbt](Q){Q}` | G, D (collector), S (emitter) |
-| P-IGBT | `node[pigbt](Q){}` | G, D, S |
-
-### Op-amps (node-style)
-
-| Component | Syntax | Anchors |
-|-----------|--------|---------|
-| Op-amp | `node[op amp](A){}` | + (non-inv), - (inv), out, up, down |
-
-Op-amp example with power rails:
-
-```latex
-\node[op amp](A) at (0,0) {};
-\draw (A.up) -- ++(0,0.3) node[vcc]{\SI{+10}{V}};
-\draw (A.down) -- ++(0,-0.3) node[vee]{\SI{-10}{V}};
-```
-
-### Instruments
-
-| Component | Syntax |
-|-----------|--------|
-| Voltmeter | `to[voltmeter]` or `to[vmeter]` |
-| Ammeter | `to[ammeter]` or `to[ameter]` |
-| Ohmmeter | `to[ohmmeter]` or `to[ometer]` |
-
-### Labels and arrows
-
-| Annotation | Syntax |
-|-----------|--------|
-| Voltage label | `v=$v_C$` or `v^=$v_o(t)$` |
-| Current arrow | `i>^=$\Phi$` |
+| Transistor | `node[npn](Q){Q}` — anchors B, C, E |
+| Op-amp | `node[op amp](A){}` — anchors +, -, out, up, down |
+| Voltage / current labels | `v=$v_C$`, `v_=$v_C$` (other side), `i>^=$i$` |
 | Junction dot | `\fill (x,y) circle (2pt);` |
+
+House choices that override anything the catalogue implies:
+
+- Vertical voltage sources are drawn **top-to-bottom** with `v_=` so `+` lands on
+  top and the label sits outside the circuit (see Source polarity gotcha).
+- Every circuit gets `node[ground]{}` at the reference node unless the topology is
+  genuinely floating (see Layout Conventions).
+- `opening switch` / `closing switch` name the **action at t=0**, not the state
+  before it.
+- **`vmeter` and `ameter` are not built-in names.** Use `voltmeter` / `ammeter` /
+  `ohmmeter`, or define the aliases from the guide
+  (`\tikzset{vmeter/.style={rmeterwa, t=V}}`) before using them.
 
 ## Switch Conventions
 
@@ -358,15 +296,6 @@ Use `\shortstack` for multi-line component labels:
 ```latex
 to[opening switch, l={\shortstack{$t{=}0$\\(opens)}}]
 ```
-
-## Label Positioning
-
-- `l=$R$` — label above/right (default position)
-- `l_=$R$` — label below/left (opposite side)
-- `v=$v_C$` — voltage label (+ at start, - at end)
-- `v^=$v_C$` — voltage label (reversed polarity)
-- `i=$i$` — current arrow along component
-- `i>^=$\Phi$` — current arrow with explicit direction
 
 ## Physical/Geometric Diagrams (TikZ)
 
@@ -411,9 +340,9 @@ apt-get install -y texlive-latex-base texlive-pictures texlive-latex-recommended
 ## Output and Delivery
 
 - **Format**: SVG (compiled from PDF via pdf2svg)
-- **Working directory**: `/home/claude/` for .tex and intermediate files
-- **Output directory**: Copy final `.svg` (and optionally `.tex`) to `/mnt/user-data/outputs/`
-- **Present to user**: Always call `present_files` with the output path(s)
+- **Working directory**: the session working directory (`/home/claude/` on claude.ai) for .tex and intermediate files
+- **Output**: on claude.ai copy the final `.svg` (and optionally `.tex`) to `/mnt/user-data/outputs/` and call `present_files`; in Claude Code write it to a path in the user's workspace
+- **Never end a run without handing the user a path** — the file must actually reach them
 
 ## Diagram Types
 
@@ -428,12 +357,6 @@ apt-get install -y texlive-latex-base texlive-pictures texlive-latex-recommended
 
 When a circuit has multiple switches (e.g., 4-switch source-free RLC):
 
-**Diagram rules:**
-- **Name every switch** (SW1, SW2, ...) with an italic `\textit{}` label below each switch element.
-- **Label the action** above each switch: `t{=}0` `(opens)` or `(closes)`.
-- Use CircuiTikZ's native `opening switch` / `closing switch` elements.
-- **Leave enough horizontal space** between adjacent vertical components so polarity/voltage labels don't overlap.
-
 **Design pattern (4-switch source-free RLC):**
 - SW1, SW4 closed at `t < 0` → connect energy sources to L and C for DC charging.
 - SW2, SW3 open at `t < 0` → isolate the middle RLC section.
@@ -444,15 +367,13 @@ When a circuit has multiple switches (e.g., 4-switch source-free RLC):
 1. **Coordinate-based drawing**: Plan layout on paper first, use explicit (x,y) coordinates.
 2. **Consistent spacing**: Use integer or half-integer coordinates for alignment.
 3. **Junction dots**: Always add `\fill (x,y) circle (2pt)` at parallel branch junctions.
-4. **Node labels**: Use `\node[position]` for complex labels instead of `l=` parameter.
-5. **Overlap prevention**: See the Overlap Prevention section for spacing minimums and label-side rules.
-6. **Centering pattern**: For a branch between rails at `y_top` and `y_bot`, center a 1.5-unit component like this:
+4. **Centering pattern**: For a branch between rails at `y_top` and `y_bot`, center a 1.5-unit component like this:
    ```latex
    % Branch from y=5 down to y=0, component centered at y=2.5
    \draw (x, 5) -- (x, 3.25) to[R, l=$R$] (x, 1.75) -- (x, 0);
    ```
    Pick stub lengths so `(y_top - stub_top - y_bot - stub_bot) = component_length`. Half-integer coordinates keep everything aligned.
-7. **Always verify visually**: Step 4b (view the PNG) is mandatory, not optional.
+5. **Always verify visually**: Step 4b (view the PNG) is mandatory, not optional.
 
 ## Reference Files
 

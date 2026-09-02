@@ -63,7 +63,7 @@ With current reference `i` entering the + terminal:
 | Surface current density | `Js` (bold) | A/m |
 | Surface of integration | `S` | m^2 |
 | Conductor cross-section | `A` | m^2 |
-| Wavelength | `lambda` | m | in EM, lambda is wavelength, not flux linkage. Context disambiguates. |
+| Wavelength | `lambda` | m |
 | Intrinsic impedance | `eta` | Ohm |
 | Propagation constant | `gamma` | 1/m |
 

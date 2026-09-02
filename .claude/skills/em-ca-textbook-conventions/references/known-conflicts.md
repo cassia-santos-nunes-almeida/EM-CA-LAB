@@ -75,9 +75,11 @@ textbook style that reuses `r` for both cylindrical and spherical radius.
 
 **Course resolution:** domain-split.
 
-- In **circuits** (Nilsson topic), use bold-italic uppercase or
-  `\underline{V}` for phasors. Distinguish from DC constants by context
-  or by an explicit subscript `Vphasor` or `V_rms` when needed.
+- In **circuits** (Nilsson topic), use `\mathbf{V}` for phasors (the
+  LaTeX substitute for Nilsson's printed bold-italic uppercase); fall
+  back to `\underline{V}` only where bold will not survive the rendering
+  pipeline. Distinguish from DC constants by context or by an explicit
+  subscript `Vphasor` or `V_rms` when needed.
 - In **fields** (Ulaby topic), use tilde: `E-tilde`. LaTeX
   `\tilde{\mathbf{E}}`.
 
@@ -141,4 +143,6 @@ quantities across the three books):
 3. If the same symbol is used for two different quantities within a
    single derivation, rename one with a subscript or prime. Declare the
    rename explicitly at first use.
-4. Add the new conflict and its resolution to this file.
+4. Add the new conflict and its resolution to this file as a NEW numbered
+   section at the END. Never renumber the existing sections -- SKILL.md
+   cites them by number (§1 and §8 today).

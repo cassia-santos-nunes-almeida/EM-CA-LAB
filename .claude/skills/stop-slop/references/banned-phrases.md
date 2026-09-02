@@ -91,7 +91,7 @@ Pre-compounded qualifiers read as deck or pitch language. Pick a specific word o
 
 ### Adverbs
 
-Kill all adverbs. No -ly words. No softeners, no intensifiers, no hedges.
+Cut emphasis and softening adverbs. The offenders below always go, in every cluster. Keep an adverb only when the sentence loses information without it: a measured quantity, a manner the verb cannot carry, or a genuine epistemic hedge in an academic-formal methods section (context-profiles.md, note (d)). The `-ly` ending by itself is not the test, and hedging is still capped by the density rule.
 
 Specific offenders:
 

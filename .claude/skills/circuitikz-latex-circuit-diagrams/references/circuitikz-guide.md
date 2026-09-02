@@ -138,8 +138,8 @@ Place with `\draw (x,y) node[type]{label};` or at the end of a path.
 Example -- op-amp with power rails:
 
 ```latex
-\draw (A.up) -- ++(0,0.3) node[vcc]{\SI{+10}{V}};
-\draw (A.down) -- ++(0,-0.3) node[vee]{\SI{-10}{V}};
+\draw (A.up) -- ++(0,0.3) node[vcc]{$+10\,\text{V}$};
+\draw (A.down) -- ++(0,-0.3) node[vee]{$-10\,\text{V}$};
 \draw (output) -- ++(0,-1) node[ground]{};
 ```
 

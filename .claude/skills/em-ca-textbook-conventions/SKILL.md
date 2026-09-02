@@ -103,17 +103,22 @@ These apply to all outputs regardless of topic:
 
 ## Resolving the known conflicts
 
-See [known-conflicts.md](references/known-conflicts.md) for the full list
-with page citations. The three conflicts Claude encounters most often:
+See [known-conflicts.md](references/known-conflicts.md) for the full
+register of conflicts and their course resolutions; it is the full
+source and **wins over this summary if the two ever disagree**. The
+three conflicts encountered most often:
 
 ### Cross-sectional area: A or S?
 
 Context-dependent. Both letters are correct in their domain.
 
 - **Use A** when the area is a conductor cross-section in a circuit or
-  resistance context: `R = rho l / (sigma A)`, inductor winding
+  resistance context: `R = l / (sigma A)`, inductor winding
   cross-section, cable gauge, transformer core cross-section in a magnetic
   circuit. This matches Nilsson and the resistance formula in Ulaby Ch 4.
+  Use the conductivity form only: never `rho l / (sigma A)`, which
+  double-counts because resistivity is `1/sigma`, and never bare `rho`
+  for resistivity -- rule 5 reserves `rho` for volume charge density.
 - **Use S** when the area is a surface of integration for a flux or field
   integral: `Phi = integral B . dS` over surface S, Gauss's law surface,
   Ampere's law surface. This matches Ulaby's surface integral notation
@@ -122,6 +127,14 @@ Context-dependent. Both letters are correct in their domain.
 Never use both in the same equation for different things. If a derivation
 crosses the boundary (e.g., computing inductance of a solenoid), pick one
 and note the choice in a sentence.
+
+Two choices are document-scoped rather than topic-determined: which
+letter carries a boundary-crossing area, and whether a short-derivation
+document uses Ida's bare `N Phi` instead of a flux-linkage symbol. Where
+AskUserQuestion is available (Claude Code) and the answer governs a whole
+document, ask both in one batched question before drafting; where it is
+not (claude.ai), choose, state the choice in the document, and carry on.
+Anything the decision table settles is not a question -- apply it.
 
 **Collision with magnetic vector potential.** Ulaby and Ida both use bold
 `A` for the magnetic vector potential. If a derivation uses `A` for both
@@ -149,12 +162,10 @@ Domain-split. Use the one students read in the book covering that topic.
 ### Spherical radius: R (not a textbook conflict — reminder only)
 
 Ulaby and Ida agree: **R** for spherical radial coordinate, **r** for
-cylindrical. This is not a conflict between the three textbooks, but it
-is a frequent point of confusion when students have also seen physics
-textbooks that reuse `r` for both. The rule here: do not use lowercase
-`r` for a spherical radial coordinate even if the equation looks
-crowded. See
-[coordinate-systems.md](references/coordinate-systems.md).
+cylindrical. Do not use lowercase `r` for a spherical radial coordinate
+even if the equation looks crowded -- students who have also seen physics
+textbooks that reuse `r` for both will otherwise carry that ambiguity in.
+See [coordinate-systems.md](references/coordinate-systems.md).
 
 ## Workflow
 
@@ -164,7 +175,7 @@ When producing course content:
 2. Read the relevant reference file for symbol choices.
 3. Draft the content using only the chosen book's conventions.
 4. Run the notation check:
-   - All three hard rules satisfied?
+   - All five hard rules satisfied?
    - No mixed conventions within a single equation or derivation?
    - Greek letters used per the fixed mapping?
    - Area symbol (A or S) matches the domain?
@@ -174,9 +185,22 @@ When producing course content:
    names do not collide with the chosen notation (e.g., `A` is a reserved
    risk in some STACK templates, use `Axs` for area variables there).
 
+## Reviewing existing content
+
+The triggers "notation check", "check the symbols" and "fix the
+conventions" name an existing draft, not a new one. Run the notation
+check from the Workflow above against the draft and report each finding
+as: location, the rule broken (hard-rule number, or the numbered section
+in [known-conflicts.md](references/known-conflicts.md)), and the
+corrected symbol. Change nothing the check does not flag -- an unusual
+but valid coordinate choice, or a rename the text already declares at
+first use, is not a violation.
+
 ## Integration with other skills
 
-- `circuitikz-circuit-diagrams`: when generating schematics, apply the
+- `circuitikz-circuit-diagrams` (in Claude Code repos it is deployed under
+  the folder name `circuitikz-latex-circuit-diagrams`; same skill, two
+  channels): when generating schematics, apply the
   passive sign convention rule (sources top-to-bottom with + on top
   already matches this skill's rule 1). Use inductor symbol with explicit
   `v` and `i` labels following the reference directions in
@@ -201,3 +225,15 @@ When producing course content:
    mathematical.
 4. **Never use bare italic for vectors** in LaTeX output. Bold or bold
    with hat, per rule 4.
+
+## Optional: batch notation audit
+
+For a whole-repository sweep (many `.tex`, `.md`, `.ts` or STACK XML
+files), and where subagents are available, delegate the read-only pass so
+the main session keeps its context: hand the subagent this skill, the
+file list, and the notation check from the Workflow, and ask for FINDINGS
+ONLY -- location, rule broken, corrected symbol -- with no edits. Name
+the subagent's model explicitly and run it one tier below the session
+model; omitting the tier silently inherits the session model and its
+cost. Apply the fixes back in the main session, where the surrounding
+derivation is visible.

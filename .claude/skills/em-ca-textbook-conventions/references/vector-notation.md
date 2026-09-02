@@ -2,14 +2,14 @@
 
 Source: Ulaby Sec 1-2 (notation summary), Ida Ch 1.2.
 
-## Three typographic classes
+## Four typographic classes
 
 | Class | Example | Rendering |
 |---|---|---|
 | Scalar | `E` (magnitude of electric field), `R` (resistance) | italic non-bold |
 | Vector | `E` (electric field), `B` (magnetic flux density) | bold roman (non-italic) |
 | Unit vector | `x-hat`, `phi-hat`, `R-hat` | bold roman with circumflex |
-| Phasor | `E-tilde(t)` phasor of `E(t)` | tilde over the letter |
+| Phasor | `E-tilde`, the phasor of `E(t)` (no `t` dependence) | tilde over the letter |
 
 Handwriting (for board work and feedback on student written work):
 
@@ -63,14 +63,18 @@ the order; do not mix conventions.
 
 ## Magnitude
 
-The magnitude of a vector is written as the same letter in scalar
-(non-bold) font: `E = |E|` where the left `E` is scalar and the right `E`
-is the vector (inside the magnitude bars). This is Ulaby Eq. 1.1:
+The magnitude of a vector is the same letter in scalar (non-bold) font:
+`E = |E|` -- here the left `E` is the scalar magnitude and the `E` inside
+the bars is the vector.
+
+The roles reverse in the decomposition of a vector into magnitude times
+unit vector (Ulaby Eq. 1.1, for a vector along x):
 
 `E = x-hat E`
 
-where the left `E` is the vector and `E` on the right is the scalar
-magnitude.
+Here the left `E` is the VECTOR and the right `E` is its scalar
+magnitude. Bold is invisible in ASCII files like this one, so whenever
+both roles appear in one passage, say in words which `E` is which.
 
 ## Dot and cross products
 

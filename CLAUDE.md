@@ -15,11 +15,13 @@ live in the untracked `../CLAUDE.md` workspace file on each machine.
 |---|---|---|
 | Types + build | `npm run build` | `tsc -b && vite build` — this IS the typecheck |
 | Lint | `npm run lint` | flat config incl. jsx-a11y; lint failures count as red |
-| Unit | `npx vitest run --no-file-parallelism` | run from INSIDE the repo; serial guard against fork-pool OOM (see machine file). 764 tests / 102 files green in ~533 s (2026-07-02) |
+| Unit | `npx vitest run --no-file-parallelism` | run from INSIDE the repo; the serial flag is a local low-core/RAM guard — CI runs plain `npx vitest run`. Per-machine counts and timings: machine file |
 | E2E | `npm run e2e` | builds, then Playwright ×3 projects: desktop / mobile / desktop-hidpi (dpr2), workers=2, port 4273. `npm run e2e:quick` reuses an existing build |
 
-No CI exists — these gates run locally and are the definition of done. Close
-with: `Tested: [...]. Not tested: [...] because [...]`.
+CI is the arbiter: `.github/workflows/gates.yml` runs all four gates on every
+PR and every push to `main` (GitHub ubuntu runners, Node 24; job names match
+this table one-to-one). Local gates are the pre-flight. Close with:
+`Tested: [...]. Not tested: [...] because [...]`.
 
 ## Architecture spine
 
@@ -42,7 +44,7 @@ with: `Tested: [...]. Not tested: [...] because [...]`.
   `prepareFrame()` self-measures + applies DPR; it returns `null` while a gate
   hides the canvas — callers early-return but KEEP the rAF loop scheduled.
 - Physics/math are pure modules tested alongside: several em sections have a
-  `physics.ts` (coulomb, lenz, maxwell, polarization — not all),
+  `physics.ts` (not all do),
   `src/circuits/utils/componentMath.ts`,
   `src/transmission/utils/transmissionMath.ts`, etc. Extract math to these
   modules; components stay thin.
@@ -70,7 +72,7 @@ with: `Tested: [...]. Not tested: [...] because [...]`.
 
 - Conventional commits with scope (`feat(faraday): …`). Feature branch → PR;
   direct pushes to `main` are blocked. PRs open via the GitHub REST API (no gh
-  CLI on either machine — recipe in the workspace machine file).
+  CLI on any machine — recipe in the workspace machine file).
 - **Stacked-PR trap (bit twice: #49, #53):** never trust auto-retarget. Open
   the second PR against `main`, and after a stack lands, ancestor-check BOTH
   commits are on `origin/main` before declaring anything merged.

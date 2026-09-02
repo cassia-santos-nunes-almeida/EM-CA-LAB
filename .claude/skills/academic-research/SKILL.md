@@ -6,8 +6,9 @@ description: >
   finding citations that support a specific claim, verifying DOIs and metadata,
   and checking open-access availability — including when the user simply pastes
   a claim and asks for a reference for it. Searches whatever academic sources
-  the current surface exposes: Consensus, Scholar Gateway, PubMed and web search
-  everywhere, plus up to 12 MCP databases (Scopus, Web of Science, Semantic
+  the current surface exposes: Consensus, Scholar Gateway and web search
+  everywhere, PubMed where its connector is registered, plus up to 12 MCP
+  databases (Scopus, Web of Science, Semantic
   Scholar, OpenAlex, Crossref, arXiv, ERIC, IEEE, ScienceDirect, ACL Anthology,
   ASEE PEER, Unpaywall) where the academic-research MCP server is registered.
   Works for any research theme.
@@ -20,8 +21,14 @@ ecosystem. Works for any academic research theme.
 
 ## Surfaces — detect first, then search
 
-**Detect the surface before any search.** Check your available tools for
-`openalex_search` (keyless, so it is present whenever the server is registered):
+**Detect the surface before any search.** Look for `openalex_search` (keyless,
+so it is present whenever the server is registered) — check the loaded tool
+list *and* any deferred-tool listing before concluding "reduced": a tool
+missing from the loaded schemas may only be deferred, not absent, and where a
+`ToolSearch`-style loader exists, `ToolSearch("select:openalex_search")` is the
+confirmation. The name alone proves registration, not callability — load a
+deferred tool's schema before its first call, and never report a pre-load
+validation error as the MCP tool failing:
 
 - **Present → full surface.** All 16 `academic-research` MCP tools (they run on
   a local stdio server registered in Claude Code; since 2026-08-18 there is no
@@ -59,10 +66,15 @@ available — do not stall waiting for it.
 
 ## Theme detection
 
-This skill is not locked to a topic. Identify the theme from the query before
-searching; if it is missing or too broad ("do a literature review"), ask what
-topic to search. If the user asks "what should I cite for my paper?", check
-context or memory for the paper's topic first.
+Identify the theme from the query before searching; if it is missing or too
+broad ("do a literature review"), ask what topic to search. If the user asks
+"what should I cite for my paper?", check context or memory for the paper's
+topic first.
+
+Where `AskUserQuestion` exists, batch the scoping questions into ONE call —
+theme, and the intended depth (targeted lookup vs landscape) — rather than a
+chain of single prompts. Do not put the decomposition framework to the user:
+that is chosen after orientation (see Search approach).
 
 ## Data integrity
 
@@ -120,17 +132,20 @@ the richer per-paper detail path once its key is set.
 
 | Tool | Returns | When to use | Parameters |
 |---|---|---|---|
-| `Consensus:search` | Paper records (title, authors, year, journal, citation count, study type, SJR quartile, URL) selected for evidence relevance rather than exhaustive retrieval | "What does the evidence say about X?" — orientation at the start of deep searches; on the reduced surface it is also the primary reference-list source (declare recall, not metadata quality, as the limitation) | **Default to `query` alone** — Consensus's own instructions forbid filters (`year_min`/`year_max`, `study_types`, `sjr_max`, `human`, `sample_size_min`, `domain`) unless the user asked for them; the one sanctioned exception is a deliberate era-gated pair (see Search approach), where the first orientation call must still be unfiltered. **Parse plan-tier caps**: "Found X, showing top Y" — the shown count is what's citable; if capped, say so. Batch at most 3 calls; on a rate-limit error wait 30 s |
+| `Consensus:search` | Paper records (title, authors, year, journal, citation count, study type, SJR quartile, URL) selected for evidence relevance rather than exhaustive retrieval | "What does the evidence say about X?" — orientation at the start of deep searches; on the reduced surface it is also the primary reference-list source (declare recall, not metadata quality, as the limitation) | **Default to `query` alone** — Consensus's own instructions forbid EVERY optional parameter unless the user explicitly asked or clearly expressed intent to narrow — the tool's own server instructions and per-parameter descriptions are the authoritative list and it grows, so treat any parameter whose description says "Set ONLY when…" as forbidden by default rather than working from a list here (today that includes `year_min`/`year_max`, `month_min`/`month_max`, `study_types`, `domain`, `human`, `sample_size_min`, `sjr_max`, `sjr_min`, `controlled`, `citation_min`, `open_access`, `country`, `medical_mode`, `exclude_preprints`, `duration_min`/`duration_max`, `journal_name`, `publisher_name`, `page`/`page_size`). Never infer one from tone — "seminal" is not `citation_min`, and a clinical question is not `medical_mode`; the one sanctioned exception is a deliberate era-gated pair (see Search approach), where the first orientation call must still be unfiltered. **Parse plan-tier caps**: "Found X, showing top Y" — the shown count is what's citable; if capped, say so. Batch at most 3 calls; on a rate-limit error wait 30 s |
 | `Scholar Gateway:semanticSearch` | Text passages with citation metadata | "Find a passage that supports claim X" — evidence for specific claims | `query` (a full natural-language question — don't compress to keywords; expand acronyms), `start_year`/`end_year`, `topN` (1–20, default 15 — raise for broad questions), `includeRetractedContent` (default false). If a query returns nothing, reframe it — don't re-send the same text |
 
 Consensus answers "what does research say?"; Scholar Gateway answers "where is
 this claim stated?". Where paper-level MCP tools exist, they remain the path
 for exhaustive reference lists.
 
-### Biomedical literature (all surfaces)
+### Biomedical literature (where the PubMed connector is registered)
 
 `PubMed:search_articles`, `get_article_metadata`, `find_related_articles`,
-`get_full_text_article`. Search covers the full MEDLINE/PubMed citation index;
+`get_full_text_article` — a separate connector, absent on some surfaces even
+when Consensus and Scholar Gateway are present. Where it is absent, route
+biomedical work to Consensus (whose corpus already indexes PubMed) and report
+PubMed itself as not searched. Search covers the full MEDLINE/PubMed citation index;
 full text only for the PMC open-access subset. Primary scope is biomedical and
 life sciences — health-professions education, medical-education assessment,
 biomedical engineering, clinical assessment, and STEM wellbeing all sit inside
@@ -147,7 +162,7 @@ Scale effort to the question. A targeted lookup ("find me a paper on X",
 "what's the DOI for…") needs one or two well-chosen tools and verified DOIs. A
 landscape question ("deep dive," "literature review," "map the field") needs
 broad orientation first, then precise database queries, then a coverage check.
-The principles below are what matter:
+Principles, not a fixed sequence:
 
 - **Orient before precision.** For deep work, start with Consensus (the main
   question, no filters) and web search for post-indexing developments, then
@@ -179,6 +194,21 @@ The principles below are what matter:
   `openalex_get_work`, or `crossref_get_work` for complete author lists, full
   abstracts, and verified metadata. On the reduced surface those tools are
   absent — see the citation-integrity caveat for the substitute rule.
+- **Fan out to subagents only if they return raw tool output, and only within
+  one shared budget.** Where a subagent tool exists, one subagent per
+  decomposition branch suits a landscape review, but two constraints bind the
+  whole chain. Provenance: a subagent must return papers exactly as its tools
+  returned them (title, authors, year, venue, DOI/URL verbatim, plus its own
+  queries-sent and papers-received counts), never a prose synthesis, or the
+  parent cannot tell a tool result from model knowledge. Budget: every limit in
+  the registry is per-IP and per-account, NOT per agent — Consensus's 3-call
+  batch cap, Crossref's 3 req/s and its explicit no-parallel rule, OpenAlex's
+  ~100 keyless searches/day, the saturated Semantic Scholar pool, IEEE's
+  200/day. Keep the fan-out to 2–3 branches, give the parent the single
+  orientation Consensus call rather than one per branch, and read a thin result
+  under fan-out as rate limiting until proven otherwise, never as a literature
+  gap. Deduplicate, build the three rolling lists, and total the audit numbers
+  in the parent.
 
 ## Relevance assessment defaults
 
@@ -270,28 +300,36 @@ health-professions education. Report the database layers as not searched.
 
 ## Optional: .docx output mode
 
-Default output is the structured summary above. If the user asks for a
-"guide," "launch pad," "literature review doc," or a Word file, produce a
-`.docx` for formal deliverables — via the `docx` npm package where Node is
-available (if `docx` does not resolve from the working directory, check the
-machine profile for where node_modules live rather than assuming a global
-install), otherwise via the surface's own file-creation capability; if neither
-exists, deliver the same section structure as Markdown and say why. Sections:
-**Topic overview** (framework used, evidence landscape) · **Start here —
-priority reading order** (5–7 curated papers: best recent review →
-foundational → frontier → open-gap paper; per entry one sentence on the
-contribution and one on what to notice) · **How the field got here**
+Default output is the structured summary above. Produce a `.docx` for formal
+deliverables when the user asks for a "guide," "launch pad," "literature
+review doc," or a Word file.
+
+**Route:** the `docx` npm package where Node is available — if `docx` does not
+resolve from the working directory, check the machine profile for where
+node_modules live rather than assuming a global install. Otherwise use the
+surface's own file-creation capability; if neither exists, deliver the same
+section structure as Markdown and say why.
+
+**Sections:** **Topic overview** (framework used, evidence landscape) ·
+**Start here — priority reading order** (5–7 curated papers: best recent
+review → foundational → frontier → open-gap paper; per entry one sentence on
+the contribution and one on what to notice) · **How the field got here**
 (timeline + terminology shifts from era-gated searches) · **Sub-area guides**
 (synthesis with inline citations, key papers, search terms, ready-to-paste
 Boolean strings) · **Key research groups** (the recurring-authors list) ·
 **Open questions & gaps** (why each matters) · **Bibliography** (every inline
 citation, full URLs) · **Audit log** (queries sent / unique papers received /
 papers cited, per-tool counts, failures and retries, any Consensus cap
-detected). Hyperlinks via `ExternalHyperlink` with the exact URLs the tools
-returned. After saving, verify the file is a valid OOXML package — it unzips
-and contains `word/document.xml` — and spot-check two hyperlinks against the
-tool output; a `.docx` Word refuses to open is the common failure, and it
-stays silent until the user tries to open it.
+detected).
+
+**Before handing the file over — every time:**
+
+- Build every hyperlink with `ExternalHyperlink` using the exact URLs the tools
+  returned, never a reconstructed one — confirm this before saving, not after.
+- Verify the saved file is a valid OOXML package: it unzips and contains
+  `word/document.xml`. A `.docx` Word refuses to open is the common failure,
+  and it stays silent until the user tries to open it.
+- Spot-check two hyperlinks against the tool output.
 
 ## Important caveats
 
@@ -310,7 +348,12 @@ knowledge to complete a record — mark the field unknown instead.
 result text (labeled when cut) and author lists to ~5 names — the
 `get_paper`/`get_work` tools return the full record (Crossref only when the
 publisher deposited an abstract, which is often not the case). Never judge
-relevance or write a summary sentence off a truncated abstract.
+relevance or write a summary sentence off a truncated abstract. On the reduced
+surface, where `get_paper`/`get_work` are absent, Consensus's
+`include_full_text_chunks` returns query-relevant full-text excerpts — set it
+only when the user explicitly asks for excerpts and is on a paid Consensus
+tier (Pro/Deep/Teams/Enterprise), and treat an excerpt as evidence for the
+passage it contains, not as a substitute for the full record.
 
 Everything else source-specific lives in the Tool registry — one place, kept
 current there.
