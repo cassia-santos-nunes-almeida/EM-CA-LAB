@@ -1,7 +1,8 @@
 # Context Profiles
 
-stop-slop accepts an optional context parameter that selects one of four enforcement
-clusters. When called without a context parameter, it defaults to `professional-message`.
+stop-slop takes an optional context naming one of four enforcement clusters. It arrives
+as plain text from the caller or the request, not as a named parameter. With no cluster
+named, use `professional-message`.
 
 ---
 

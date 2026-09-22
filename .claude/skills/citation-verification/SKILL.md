@@ -13,9 +13,7 @@ description: >
 
 # Citation Verification Reference Guide
 
-A reference guide for citation verification in academic paper writing, providing verification principles and best practices.
-
-**Core Principle**: Proactively verify every citation during the writing process using WebSearch and Google Scholar.
+**Core Principle**: Proactively verify every citation during the writing process, against the best source the current surface exposes (see "Tool surface" below) - never against memory.
 
 ## Core Problems
 
@@ -26,38 +24,60 @@ Citation issues in academic papers seriously impact research integrity:
 3. **Inconsistent formatting** - Mixed citation formats
 4. **Missing citations** - Referenced but uncited work
 
-These issues can lead to:
-- Paper rejection or retraction
-- Damage to academic reputation
-- Reviewers questioning research rigor
+**Special risk with AI-assisted writing**: a model asked for a reference it has not looked up will produce a plausible, correctly formatted, non-existent one. The failure is silent and the output is indistinguishable from a real citation. Every citation must be retrieved from a live source before it is used.
 
-**Special risk with AI-assisted writing**: AI-generated citations have approximately 40% error rate; every citation must be verified via WebSearch.
+## Tool surface - check before verifying
+
+Web search is the floor, not the ceiling. Detect the surface first, then verify
+against the most authoritative source it exposes:
+
+- **Bibliographic MCP tools.** Probe for `openalex_search` (keyless, so it is
+  present whenever the `academic-research` server is registered). If present,
+  `crossref_get_work` or `openalex_get_work` on a DOI is the strongest
+  existence-and-metadata check available, and `unpaywall_find_oa` collapses
+  Mode D step 1 into one call. `personal/academic-research` (Surfaces section)
+  is the source of truth for which tools exist, which need keys, and which
+  connectors are dead - do not restate its inventory here.
+- **Consensus** and **Scholar Gateway** - present on claude.ai and wherever
+  connected. Scholar Gateway returns passages with citation metadata, the
+  direct instrument for section 4 and for Mode C.
+- **Web search + fetch** - always available, and on some machines the only
+  surface. Sufficient, but name in the report which sources you could not
+  reach.
+
+"Not searched" is never "not found" - say which it was.
 
 ## Verification Principles
 
-This skill provides verification principles based on WebSearch and Google Scholar:
+This skill provides verification principles based on the surface detected
+above:
 
 ### 1. Proactive Verification (Verify During Writing)
 
 **Core idea**: Verify immediately when adding a citation, rather than checking after writing is complete.
 
-- Search for the paper via WebSearch each time a citation is needed
-- Confirm the paper exists on Google Scholar
+- Search for the paper each time a citation is needed
+- Confirm the paper exists in a record you retrieved, never from memory
 - Add to bibliography only after verification passes
 
-### 2. Google Scholar Verification
+### 2. Existence and metadata verification
 
-**Why Google Scholar**:
-- Most comprehensive academic literature coverage
-- Provides citation count (credibility indicator)
-- Directly provides BibTeX format
-- Free and no API required
+Google Scholar has the broadest coverage and its citation count is worth
+reading as a credibility signal, but Claude cannot click its "Cite" button and
+its result pages are hostile to automated retrieval. Treat Scholar as a
+coverage signal, not as the record.
 
 **Verification steps**:
-1. WebSearch query: `"site:scholar.google.com [paper title] [first author]"`
-2. Confirm the paper appears in results
-3. Check citation count (abnormally low counts may indicate issues)
-4. Click "Cite" to get BibTeX
+1. Search for `[paper title] [first author] [year]`, and separately for the
+   DOI if one was supplied.
+2. Confirm the paper appears in results, from a source that is not the
+   citation being checked.
+3. Check the citation count where one is shown (an abnormally low count for an
+   allegedly well-known paper is a fabrication signal).
+4. Take the BibTeX from a machine-readable record - never from memory, never
+   retyped from a search snippet. DOI content negotiation
+   `curl -LH "Accept: application/x-bibtex" https://doi.org/<DOI>` is the most
+   reliable path; the publisher or arXiv page is the fallback.
 
 ### 3. Information Matching Verification
 
@@ -71,30 +91,30 @@ This skill provides verification principles based on WebSearch and Google Schola
 
 **Key principle**: When citing a specific claim, you must confirm the claim actually appears in the paper.
 
-- Use WebSearch to access the paper PDF
-- Search for relevant keywords
+- Retrieve the paper itself - WebSearch finds where it is, a fetch tool
+  (WebFetch, or the surface's own page/PDF reader) opens it. A search-result
+  snippet is never sufficient evidence that a claim is in the paper.
+- Search the retrieved text for the claim's distinctive terms or figures
 - Confirm the accuracy of the claim
 - Record the section/page where the claim appears
+- If the full text cannot be reached, do not improvise - go to Mode D and use
+  its depth markers.
 
 ## Verification Workflow
 
 ### Integration into Writing Process
 
-```
-Need a citation during writing
-    ↓
-WebSearch to find the paper
-    ↓
-Google Scholar to verify existence
-    ↓
-Confirm paper details
-    ↓
-Get BibTeX
-    ↓
-(If citing a specific claim) Verify the claim
-    ↓
-Add to bibliography
-```
+The order is fixed. Other sections address these steps by number, so keep the
+numbering:
+
+1. Find the paper.
+2. Confirm it exists, in a source other than the citation being checked.
+3. Confirm its details (matching tolerances: section 3).
+4. Obtain BibTeX from a machine-readable record.
+5. If a specific claim is being cited, verify the claim appears in the paper.
+6. Add it to the bibliography.
+
+Nothing enters the `.bib` before its verification step passes.
 
 **Key point**: Verification is part of the writing process, not a separate post-processing step.
 
@@ -106,7 +126,7 @@ from the user's request before starting.
 ### Mode A — Single citation verification
 
 User supplies one reference (inline or paraphrase) and asks "check this."
-Follow the flowchart above. This is the default mode.
+Follow the six numbered steps above. This is the default mode.
 
 ### Mode B — Bulk verification of a .bib file or reference list
 
@@ -118,6 +138,14 @@ User supplies a file or paste of 5+ entries and asks to verify them.
 2. **Verify serially** through Mode A for each entry. Do not parallelize
    more than 3 WebSearch calls at a time — Scholar rate-limits and
    batching hides which query produced which result.
+   *Optional, Claude Code only:* for a long list (20+ entries), fan the
+   entries out over Agent-tool subagents, each verifying its slice and
+   returning only its table rows. The win is context isolation — per-entry
+   search noise stays in the subagent — not wall-clock: the 3-concurrent-search
+   ceiling is a remote rate limit and binds across the WHOLE fan-out, not per
+   subagent. To stay inside it, run at most 3 subagents and instruct each one
+   to search strictly one query at a time. Spawn with the model tier stated
+   explicitly, one tier below the session model.
 3. **Report as a table** with one row per entry:
    - Columns: `#`, `First author (year)`, `Status`, `Issues found`, `Action`
    - Status values: `verified`, `verified with correction`, `unverifiable`, `error`
@@ -198,113 +226,64 @@ versions, or for papers with republished versions):
    unless the metadata is wrong. Do not "upgrade" a journal citation
    to a newer book chapter just because it looks more authoritative.
 3. **If the candidates differ in authorship or substance** (not just
-   venue), present the options to the user rather than guessing.
+   venue), present the options to the user rather than guessing - in Claude
+   Code as an AskUserQuestion whose options are the candidate records (title,
+   year, venue, and what differs); on surfaces without that tool, as a
+   numbered list in the reply. Never pick for the user. If several ambiguous
+   citations are batched into one call, diff the answers against the questions
+   per question afterwards: batches can come back with individual questions
+   silently unanswered, and an unanswered one is deferred, never approved.
 
 ## Usage Guide
 
 ### Using with paper-writing skills
 
-The verification principles of this skill are integrated into the Citation Workflow of any paper-writing skill that delegates citation work (e.g. `eer-paper-writing`).
+There is no programmatic auto-trigger - no paper-writing skill invokes this
+one mechanically. The frontmatter's "trigger during eer-paper-writing" line is
+a description-level trigger: load this skill when citation work starts in a
+paper session, rather than waiting to be called.
 
-**Auto-trigger**: Citation verification is automatically executed when a paper-writing skill invokes it.
+`eer-paper-writing` also ships its own `references/citation-guide.md`, which is
+SEFI/EER-flavoured (Scholar/Scopus/ERIC, APA, SEFI venues) by its own
+declaration (`eer-paper-writing/SKILL.md`:48-55). The two are complementary,
+not alternatives: take venue conventions and reference formatting from that
+guide, and take the verification modes it does not carry from here - bulk
+`.bib` verification (Mode B), paywalled verification and its depth markers
+(Mode D), and ambiguous-match resolution.
 
-**Manual reference**: Refer to this skill when you need detailed verification principles.
+### Worked example (goal-level)
 
-### Verification Step Example
-
-**Scenario**: Need to cite the Transformer paper
-
-```
-Step 1: WebSearch lookup
-Query: "Attention is All You Need Vaswani 2017"
-Result: Found multiple sources for the paper
-
-Step 2: Google Scholar verification
-Query: "site:scholar.google.com Attention is All You Need Vaswani"
-Result: ✅ Paper exists, 50,000+ citations, NeurIPS 2017
-
-Step 3: Confirm details
-- Title: "Attention is All You Need"
-- Authors: Vaswani, Ashish; Shazeer, Noam; Parmar, Niki; ...
-- Year: 2017
-- Venue: NeurIPS (NIPS)
-
-Step 4: Get BibTeX
-- Click "Cite" on Google Scholar
-- Select BibTeX format
-- Copy BibTeX entry
-
-Step 5: Add to bibliography
-- Paste into .bib file
-- Use \cite{vaswani2017attention} in the paper
-```
+To cite "Attention is All You Need": search for the title plus first author,
+confirm a record exists in a source other than the citation being checked,
+read venue and year off that record (NeurIPS 2017 - off the record, not off
+memory), pull BibTeX by DOI content negotiation, then add it to the `.bib`.
+If title, first author, year (+/-1), or venue disagrees with the retrieved
+record, resolve the disagreement before the entry goes in - never average the
+two.
 
 ### Handling Verification Failures
 
-**If the paper cannot be found on Google Scholar**:
+**If the paper cannot be found**: re-query before concluding it does not exist
+(spelling, alternate title, arXiv, DOI resolution). Then stop - never fabricate
+a plausible substitute. Mark the citation `[CITATION NEEDED]`, tell the user
+exactly which citations failed, and say why each one failed.
 
-1. **Check spelling** - Is the title or author name correct?
-2. **Try different queries** - Use different keyword combinations
-3. **Find alternative sources** - Try arXiv, DOI
-4. **Mark as pending** - Use `[CITATION NEEDED]` marker
-5. **Notify the user** - Clearly state the citation cannot be verified
-
-**If information doesn't match**:
-
-1. **Confirm the source** - Did you find the correct paper?
-2. **Check versions** - Preprint vs. published version
-3. **Update information** - Use the most accurate version
-4. **Record discrepancies** - Note the reason for differences
+**If information doesn't match**: first establish you found the right paper,
+then check whether the mismatch is a preprint-versus-published difference
+before treating it as an error. Cite the version the user actually read; where
+that is a choice rather than a fact, the ambiguous-match rules below govern.
+Record the discrepancy and its reason in the report - never overwrite the
+user's metadata silently.
 
 ## Best Practices
 
 ### Preventing Fake Citations
 
-1. **Never generate citations from memory** - AI-generated citations have 40% error rate
+1. **Never generate citations from memory** - an un-looked-up reference is fabricated by construction, however plausible it looks
 2. **Use WebSearch to find** - Verify every citation through WebSearch
-3. **Confirm on Google Scholar** - Verify paper existence on Google Scholar
+3. **Confirm against a retrieved record** - Scholar, Crossref, or the publisher page; never a search snippet
 4. **Verify promptly** - Verify when adding citations, don't wait until finished
-
-### Handling Verification Failures
-
-1. **Don't guess** - If you can't find the paper, don't fabricate information
-2. **Mark clearly** - Use `[CITATION NEEDED]` to mark explicitly
-3. **Notify the user** - Clearly state which citations cannot be verified
-4. **Provide reasons** - Explain why verification failed (not found, info mismatch, etc.)
 
 ### Improving Verification Accuracy
 
 1. **Complete queries** - Include title, author, year
-2. **Check citation count** - Citation count on Google Scholar is a credibility indicator
-3. **Confirm venue** - Verify conference/journal name is correct
-4. **Verify claims** - When citing specific claims, confirm they exist in the paper
-
-### Common Pitfalls
-
-❌ **Wrong approach**:
-- Generating BibTeX from memory
-- Skipping Google Scholar verification
-- Assuming a paper exists
-- Not marking unverifiable citations
-
-✅ **Correct approach**:
-- Search every citation with WebSearch
-- Confirm on Google Scholar
-- Copy BibTeX from Google Scholar
-- Clearly mark unverifiable citations
-
-## Summary
-
-**Core Principle**: Proactively verify every citation during the writing process using WebSearch and Google Scholar.
-
-**Key Steps**:
-1. WebSearch to find the paper
-2. Google Scholar to verify existence
-3. Confirm details
-4. Get BibTeX
-5. Verify claims (if needed)
-6. Add to bibliography
-
-**Failure handling**: When verification fails, mark as `[CITATION NEEDED]` and clearly notify the user.
-
-**Integration**: The principles of this skill are integrated into paper-writing skills (e.g. eer-paper-writing) for automatic verification.

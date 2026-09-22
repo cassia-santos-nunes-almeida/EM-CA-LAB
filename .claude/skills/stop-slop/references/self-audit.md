@@ -11,10 +11,13 @@ content, add new ideas, or override the caller's voice rules. When choosing betw
 
 ## Execution Order
 
-1. **Pattern matching** (core rules 1-8, quick checks, statistical detection 9-14, all structural patterns)
+`SKILL.md` is authoritative for the running order; this file elaborates steps 2 and 3.
+
+1. **Pattern matching** (core rules 1-7, quick checks, statistical detection 9-14, all structural patterns)
 2. **Pass 1: Conversational voice test** (scoped by cluster)
 3. **Pass 2: Pasta test** (runs on all clusters)
 4. **Scoring** (5-dimension rubric, only when requested or on full audit)
+5. **Final em-dash gate** (mandatory, runs last, never skipped; see `SKILL.md`)
 
 ---
 
@@ -82,9 +85,3 @@ Sentences that sound fine but carry no specific information. Examples:
 The test is "delete or rewrite", not strictly "delete." Transitional sentences may need
 to be rewritten to carry more information rather than cut entirely.
 
-### Why this runs on all clusters
-
-Specificity is universal. A vague sentence in an informal WhatsApp message wastes the
-reader's time just as much as a vague sentence in a research paper. The pasta test is
-the final quality gate because no amount of pattern matching can substitute for saying
-something specific about your actual topic.

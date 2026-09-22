@@ -1,0 +1,92 @@
+# The four gates from CLAUDE.md, run on GitHub's runners instead of on whichever
+# machine Cássia happens to be sitting at.
+#
+# Why this exists: between 2026-07-17 and 2026-08-25 this project sat still
+# because the only definition of done was "gates green locally" and the machine
+# changed. EM-CA-LAB is a public repo, so Actions minutes are free and the
+# runners (4 vCPU) beat every local box available.
+#
+# Job names match the gate table in CLAUDE.md one-to-one, on purpose.
+
+name: gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pin to the same major the local machines run, so a green CI means the same
+  # thing as a green desktop. Keep in step with package.json "engines".
+  NODE_VERSION: '24'
+
+jobs:
+  build:
+    name: Types + build (tsc -b && vite build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  lint:
+    name: Lint (eslint, incl. jsx-a11y)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  unit:
+    name: Unit (vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      # No --no-file-parallelism here: that flag is a local workaround for
+      # RAM-starved / low-core boxes. Runners have the headroom, so let vitest
+      # use its pool. If this ever OOMs on a runner, add the flag back rather
+      # than trimming the suite.
+      - run: npx vitest run
+
+  e2e:
+    name: E2E (playwright x3 projects)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      # `npm run e2e` builds first, then runs the three projects
+      # (desktop / mobile / desktop-hidpi) against vite preview on :4273.
+      - run: npm run e2e
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

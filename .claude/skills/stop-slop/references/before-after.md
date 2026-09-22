@@ -18,9 +18,9 @@
 > "It turns out that most teams struggle with alignment. The uncomfortable truth is that nobody wants to admit they're confused. And that's okay."
 
 **After:**
-> "Teams struggle with alignment. Nobody admits confusion."
+> "Most teams struggle with alignment. Few people admit they are confused."
 
-**Changes:** Cut hedging ("most"), removed throat-clearing phrases, deleted permission-granting ending.
+**Changes:** Removed the throat-clearing openers ("It turns out", "The uncomfortable truth is") and the permission-granting ending. Kept "most" and avoided "nobody": the audit is cosmetic, so the hedge stays and a lazy extreme does not replace it.
 
 ---
 
@@ -30,9 +30,9 @@
 > "In today's fast-paced landscape, we need to lean into discomfort and navigate uncertainty with clarity. This matters because your competition isn't waiting."
 
 **After:**
-> "Move faster. Your competition is."
+> "We need to accept discomfort and handle uncertainty without vague language. Your competition is not waiting."
 
-**Changes:** Eliminated jargon entirely. Core message in six words.
+**Changes:** Swapped the jargon for its plain equivalents from banned-phrases.md ("lean into" to "accept", "navigate" to "handle"), cut "In today's fast-paced landscape" and the "This matters because" crutch. Both claims survive; the audit is cosmetic, so nothing is deleted.
 
 ---
 

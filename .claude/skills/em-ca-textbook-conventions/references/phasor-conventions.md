@@ -22,8 +22,10 @@ Phasor transform: `P{Vm cos(omega t + phi)} = Vm e^(j phi)`, written as a
 complex number.
 
 Notation in circuits: the phasor of `v(t)` is denoted `V` (bold-italic or
-uppercase in Nilsson). In STACK and LaTeX, prefer `\mathbf{V}` or
-`\underline{V}` to distinguish the phasor from the DC constant.
+uppercase in Nilsson). In STACK and LaTeX the course form is
+`\mathbf{V}`; fall back to `\underline{V}` only where bold will not
+survive the rendering pipeline. Either way the phasor must be visually
+distinct from the DC constant.
 
 Time-domain recovery: `v(t) = Re[V e^(j omega t)]`.
 
